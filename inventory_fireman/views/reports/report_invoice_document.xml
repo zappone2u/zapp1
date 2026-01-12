@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="ons_report_invoice_document" inherit_id="account.report_invoice_document"
+            priority="20">
+            <xpath expr="//t[@t-set='layout_document_title']/span[2]" position="replace" />
+            <xpath expr="//t[@t-set='layout_document_title']/span[1]" position="replace" />
+            <xpath expr="//table[@name='invoice_line_table']" position="attributes">
+                <attribute name="t-if">not member_card</attribute>
+            </xpath>
+            <xpath expr="//t[@t-set='forced_vat']" position="after">
+                <t t-set="partner_id">
+                    <strong>
+                        <address class="mb-0" t-field="o.partner_id"
+                            t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;], &quot;no_marker&quot;: True}" />
+                    </strong>
+                </t>
+                <t t-set="partner_id_ref">
+                    <span>Adhérent : </span>
+                    <span t-field="o.partner_id.ref" />
+                </t>
+                <t t-set="product_id">
+                    <t t-if="o.invoice_line_ids">
+                        <span t-field="o.invoice_line_ids[0].product_id.name" />
+                    </t>
+                    <t t-else="">
+                        <span>-</span>
+                    </t>
+                </t>
+                <t t-set="ons_logo" t-value="o.partner_bank_id.ons_logo" />
+                <t t-set="ons_company_details" t-value="o.partner_bank_id.ons_company_details" />
+            </xpath>
+            <xpath expr="//div[@id='informations']" position="replace" />
+            <xpath expr="//span[@id='payment_terms_note_id']/.." position="replace" />
+            <xpath expr="//p[@name='payment_communication']/.." position="replace" />
+            <xpath expr="//div[@id='partner_vat_address_not_same_as_shipping']" position="replace" />
+            <xpath expr="//div[@id='partner_vat_address_same_as_shipping']" position="replace" />
+            <xpath expr="//div[@id='partner_vat_no_shipping']" position="replace" />
+            <xpath expr="//t[@t-set='o']" position="after">
+                <t t-set="layout_document_invoice_date">
+                    <span t-field="o.invoice_date" />
+                </t>
+            </xpath>
+            <xpath expr="//span[@t-field='line.product_uom_id']" position="replace" />
+            <xpath expr="//table[@name='invoice_line_table']" position="after">
+                <div t-if="member_card" style="margin-top:70px;">
+                    <t t-set="lines"
+                        t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)" />
+                    <t t-foreach="lines" t-as="line">
+                        <tr
+                            t-att-class="'fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                            <t t-if="line.display_type == 'product'"
+                                name="account_invoice_line_accountable">
+                                <td name="account_invoice_line_name">
+                                    <span style="font-size:20px" t-if="line.name"
+                                        t-field="line.name"
+                                        t-options="{'widget': 'text'}">Bacon Burger</span>
+                                </td>
+                            </t>
+                            <t t-elif="line.display_type == 'line_section'">
+                                <td colspan="99">
+                                    <span style="font-size:20px" t-if="line.name"
+                                        t-field="line.name"
+                                        t-options="{'widget': 'text'}">A section title</span>
+                                </td>
+                            </t>
+                            <t t-elif="line.display_type == 'line_note'">
+                                <td colspan="99">
+                                    <span style="font-size:20px" t-if="line.name"
+                                        t-field="line.name"
+                                        t-options="{'widget': 'text'}">A note, whose content usually
+                                        applies to the section or product above.</span>
+                                </td>
+                            </t>
+                        </tr>
+                    </t>
+                </div>
+                <div t-if="member_card">
+                    <br />
+                    <span style="font-size:20px">PAIEMENT A 30 JOURS</span>
+                </div>
+            </xpath>
+            <xpath expr="//span[@t-field='o.narration']/.." position="replace">
+                <t t-if="not o.is_guides_order">
+                    <div class="text-muted mb-3"
+                        t-attf-style="#{'text-align:justify;text-justify:inter-word;' if o.company_id.terms_type != 'html' else ''}"
+                        t-if="not is_html_empty(o.narration)" name="comment">
+                        <span t-field="o.narration" />
+                    </div>
+                </t>
+            </xpath>
+            <xpath expr="//th[@name='th_taxes']" position="replace" />
+            <xpath expr="//td[@name='td_taxes']" position="replace" />
+            <xpath expr="//div[hasclass('page')]" position="after">
+                <div class="footer">
+                    <div class="o_footer_content pt-2">
+                        <div class="container">
+                            <div t-if="not member_card" class="row">
+                                <div class="col-3 col-md-4"></div>
+                                <div class="col-5 col-md-4">
+                                    <div style="text-align: center;">
+                                        <span style="font-size:13px">Avec nos remerciements</span>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <span style="font-size:13px; font-style: italic;">Paiement à
+                                            l'aide du bulletin joint exclusivement</span>
+                                    </div>
+                                </div>
+                                <div class="col-4 col-md-4" style="text-align: end;">
+                                    <span style="font-size:13px">Paiement net à 30 jours</span>
+                                </div>
+                            </div>
+
+                            <div t-if="not member_card" class="row">
+                                <div class="col-4 col-md-4">
+                                    <span style="font-size:11px">Mouvement des Aînés Vaud</span>
+                                </div>
+                                <div class="col-6 col-md-4"></div>
+                                <div class="col-2 col-md-4"></div>
+                            </div>
+
+                            <t t-if="texte_to_remove">
+                                <div class="row">
+                                    <div class="col-2 col-md-4"></div>
+                                    <div class="col-7 col-md-4" style="text-align: center;">
+                                        <span style="font-size:9px; color: grey;">▼ ▼ ▼ ▼ Vor der
+                                            Einzahlung abzutrennen / A détacher avant le
+                                            versement / Da staccare prima del versamento ▼ ▼ ▼ ▼</span>
+                                    </div>
+                                    <div class="col-3 col-md-4"></div>
+                                </div>
+                            </t>
+                        </div>
+
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//div[@id='total']/div/table" position="attributes">
+                <attribute name="class">table table-borderless avoid-page-break-inside</attribute>
+            </xpath>
+            <xpath expr="//div[@id='right-elements']" position="attributes">
+                <attribute name="style">margin-top: 50px;</attribute>
+            </xpath>
+
+        </template>
+
+        <template id="ons_document_tax_totals_template"
+            inherit_id="account.document_tax_totals_template"
+            priority="20">
+            <xpath expr="//t[@t-name='account.document_tax_totals_template']" position="replace">
+                <t t-if="not member_card" t-name="account.document_tax_totals_template">
+                    <tr>
+                        <td>
+                            <strong>Total facturé CHF</strong>
+                        </td>
+                        <td class="text-end">
+                            <strong t-out="tax_totals['total_amount_currency']"
+                                t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: currency}">
+                                31.05</strong>
+                        </td>
+                    </tr>
+                </t>
+            </xpath>
+        </template>
+
+        <record id="account_invoices_mail" model="ir.actions.report">
+            <field name="name">Invoice PDF Mail</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ons_cust_mdav.report_invoice_mail</field>
+            <field name="report_file">ons_cust_mdav.report_invoice_mail</field>
+            <field name="is_invoice_report">True</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment" />
+            <field name="binding_model_id" ref="account.model_account_move" />
+            <field name="groups_id"
+                eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]" />
+        </record>
+
+        <template id="report_invoice_mail">
+            <t t-call="account.report_invoice">
+                <t t-set="texte_to_remove" t-value="True" />
+            </t>
+        </template>
+
+        <record id="account_invoices_member_post" model="ir.actions.report">
+            <field name="name">Member Card post</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ons_cust_mdav.report_invoice_member_post</field>
+            <field name="report_file">ons_cust_mdav.report_invoice_member_post</field>
+            <field name="is_invoice_report">True</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment" />
+            <field name="binding_model_id" ref="account.model_account_move" />
+            <field name="groups_id"
+                eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]" />
+        </record>
+
+        <!-- <record id="account_invoices_member_mail" model="ir.actions.report">
+            <field name="name">Member Card mail</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ons_cust_mdav.report_invoice_member_mail</field>
+            <field name="report_file">ons_cust_mdav.report_invoice_member_mail</field>
+            <field name="is_invoice_report">True</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment" />
+            <field name="binding_model_id" ref="account.model_account_move" />
+            <field name="groups_id"
+                eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]" />
+        </record> -->
+
+        <template id="report_invoice_member_post">
+            <t t-call="account.report_invoice">
+                <t t-set="member_card" t-value="True" />
+                <t t-set="texte_to_remove" t-value="False" />
+            </t>
+        </template>
+
+        <!-- <template id="report_invoice_member_mail">
+            <t t-call="account.report_invoice">
+                <t t-set="member_card" t-value="True" />
+                <t t-set="texte_to_remove" t-value="True" />
+            </t>
+        </template> -->
+    </data>
+</odoo>
