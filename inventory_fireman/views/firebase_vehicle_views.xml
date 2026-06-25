@@ -191,12 +191,4 @@
             (0, 0, {'view_mode': 'list', 'view_id': ref('view_firebase_vehicle_product_list')}),
             (0, 0, {'view_mode': 'form', 'view_id': ref('view_firebase_vehicle_product_form')})]"/>
     </record>
-
-    <!-- Menu pour les véhicules -->
-    <menuitem
-        id="menu_firebase_vehicle"
-        name="Véhicules"
-        parent="menu_inventory_fireman_root"
-        action="action_firebase_vehicle"
-        sequence="40"/>
 </odoo>

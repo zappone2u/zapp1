@@ -67,12 +67,4 @@
         <field name="res_model">firebase.inventory.history</field>
         <field name="view_mode">list,form</field>
     </record>
-
-    <!-- Menu pour les inventaires -->
-    <menuitem
-        id="menu_firebase_inventory_history"
-        name="Inventaires"
-        parent="menu_inventory_fireman_root"
-        action="action_firebase_inventory_history"
-        sequence="30"/>
 </odoo>
