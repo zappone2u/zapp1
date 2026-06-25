@@ -55,9 +55,9 @@ Fonctionnalités principales :
         "views/website_footer.xml",
         "views/website_customizations.xml",
         "views/report_uo_inventory.xml",
-        "views/menu.xml",
         "views/firebase_connector_views.xml",
         "views/firebase_vehicle_views.xml",
+        "views/menu.xml",
     ],
     "assets": {
         "web.assets_backend": [
