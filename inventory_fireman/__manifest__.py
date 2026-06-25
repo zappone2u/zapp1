@@ -39,6 +39,7 @@ Fonctionnalités principales :
         "data/ir_cron.xml",
         "data/subscription_products.xml",
         # Views
+        "views/menu.xml",
         "views/firebase_connector_views.xml",
         "views/firebase_uo_views.xml",
         "views/firebase_pompier_views.xml",
@@ -50,7 +51,6 @@ Fonctionnalités principales :
         "views/portal_subscription_choose.xml",
         "views/portal_subscription_activate.xml",
         "views/website_menu.xml",
-        "views/menu.xml",
         "views/portal_breadcrumbs.xml",
         "views/product_template.xml",
         "views/portal_contact.xml",
