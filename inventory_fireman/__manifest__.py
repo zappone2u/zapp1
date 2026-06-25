@@ -41,8 +41,6 @@ Fonctionnalités principales :
         # Views
         "views/firebase_pompier_views.xml",
         "views/firebase_uo_views.xml",
-        "views/menu.xml",
-        "views/firebase_connector_views.xml",
         "views/pompier_uo_rel_views.xml",
         "views/firebase_inventory_history_views.xml",
         "views/firebase_vehicle_views.xml",
@@ -57,6 +55,8 @@ Fonctionnalités principales :
         "views/website_footer.xml",
         "views/website_customizations.xml",
         "views/report_uo_inventory.xml",
+        "views/menu.xml",
+        "views/firebase_connector_views.xml",
     ],
     "assets": {
         "web.assets_backend": [
