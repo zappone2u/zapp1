@@ -26,7 +26,6 @@ Gestion des inventaires pour petites amicales.
 Facturation mensuelle automatique.
             </field>
             <field name="invoice_policy">order</field>
-            <field name="website_published">True</field>
         </record>
 
         <!-- ===================== -->
@@ -51,7 +50,6 @@ Solution complète pour caserne standard.
 Facturation mensuelle automatique.
             </field>
             <field name="invoice_policy">order</field>
-            <field name="website_published">True</field>
         </record>
 
         <!-- ===================== -->
@@ -76,7 +74,6 @@ Gestion avancée pour grandes casernes.
 Facturation mensuelle automatique.
             </field>
             <field name="invoice_policy">order</field>
-            <field name="website_published">True</field>
         </record>
     </data>
 </odoo>
