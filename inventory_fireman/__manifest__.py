@@ -39,10 +39,10 @@ Fonctionnalités principales :
         "data/ir_cron.xml",
         "data/subscription_products.xml",
         # Views
+        "views/firebase_pompier_views.xml",
         "views/firebase_uo_views.xml",
         "views/menu.xml",
         "views/firebase_connector_views.xml",
-        "views/firebase_pompier_views.xml",
         "views/pompier_uo_rel_views.xml",
         "views/firebase_inventory_history_views.xml",
         "views/firebase_vehicle_views.xml",
