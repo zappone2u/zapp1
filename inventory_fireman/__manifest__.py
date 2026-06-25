@@ -31,6 +31,7 @@ Fonctionnalités principales :
         "account",  # Pour la facturation
         "helpdesk",  # Pour la création de tickets depuis le formulaire contact
         "http_routing",
+        "sale_subscription",  # Pour la gestion des abonnements
     ],
     "data": [
         # Security
