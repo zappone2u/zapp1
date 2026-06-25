@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vues pour Firebase Connector -->
+    <record id="view_firebase_connector_list" model="ir.ui.view">
+        <field name="name">firebase.connector.list</field>
+        <field name="model">firebase.connector</field>
+        <field name="arch" type="xml">
+            <list string="Connecteurs Firebase">
+                <field name="name"/>
+                <field name="database_url"/>
+                <field name="is_connected" 
+                       decoration-success="is_connected == True"
+                       decoration-danger="is_connected == False"/>
+                <field name="last_sync_date"/>
+                <field name="total_uo_synced"/>
+                <field name="total_pompiers_synced"/>
+                <field name="auto_sync"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_firebase_connector_form" model="ir.ui.view">
+        <field name="name">firebase.connector.form</field>
+        <field name="model">firebase.connector</field>
+        <field name="arch" type="xml">
+            <form string="Connecteur Firebase">
+                <header>
+                    <button name="action_test_connection" string="Tester la connexion" 
+                            type="object" class="btn-primary"/>
+                    <button name="action_sync_all" string="Synchroniser tout" 
+                            type="object" class="btn-success"
+                            invisible ="not is_connected"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Connecté" bg_color="bg-success" 
+                            invisible ="not is_connected"/>
+                    <widget name="web_ribbon" title="Déconnecté" bg_color="bg-danger" 
+                            invisible ="is_connected"/>
+                    
+                    <group>
+                        <group string="Configuration Firebase">
+                            <field name="name"/>
+                            <field name="database_url" placeholder="https://votre-projet.firebaseio.com"/>
+                            <field name="webhook_secret" placeholder="Votre secret webhook"/>
+                        </group>
+                        <group string="Statut">
+                            <field name="is_connected" readonly="1"/>
+                            <field name="last_connection_test" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Service Account">
+                            <group>
+                                <field name="service_account_json" widget="text" 
+                                       placeholder='{"type": "service_account", "project_id": "...", ...}'/>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                <strong>Recommandé:</strong> Collez le contenu complet de votre fichier service account JSON ci-dessus.
+                            </div>
+                            <group string="OU chemin vers le fichier (optionnel)">
+                                <field name="service_account_path" 
+                                       placeholder="/chemin/vers/service_account.json"/>
+                            </group>
+                            <div class="alert alert-warning" role="alert">
+                                <strong>Note:</strong> Le chemin fichier ne fonctionne que si le fichier est accessible dans le conteneur Docker.
+                                Il est préférable d'utiliser le champ JSON ci-dessus.
+                            </div>
+                        </page>
+                        
+                        <page string="Chemins Firebase">
+                            <group>
+                                <field name="uo_path" placeholder="uo"/>
+                                <field name="pompiers_path" placeholder="pompiers"/>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                Spécifiez les chemins dans votre base de données Firebase 
+                                où se trouvent les données des UO et des pompiers.
+                            </div>
+                        </page>
+                        
+                        <page string="Synchronisation">
+                            <group>
+                                <group>
+                                    <field name="auto_sync"/>
+                                    <field name="sync_interval" 
+                                           invisible ="not auto_sync"/>
+                                </group>
+                                <group>
+                                    <field name="last_sync_date" readonly="1"/>
+                                    <field name="total_uo_synced" readonly="1"/>
+                                    <field name="total_pompiers_synced" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page string="Erreurs" invisible ="not connection_error">
+                            <group>
+                                <field name="connection_error" readonly="1" 
+                                       widget="text" nolabel="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+               
+            </form>
+        </field>
+    </record>
+
+    <record id="action_firebase_connector" model="ir.actions.act_window">
+        <field name="name">Connecteurs Firebase</field>
+        <field name="res_model">firebase.connector</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer une nouvelle connexion Firebase
+            </p>
+            <p>
+                Configurez votre connexion à Firebase pour synchroniser vos données.
+            </p>
+        </field>
+    </record>
+</odoo>

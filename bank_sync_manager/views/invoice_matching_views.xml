@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Invoice Matching Form View -->
+    <record id="view_invoice_matching_form" model="ir.ui.view">
+        <field name="name">invoice.matching.form</field>
+        <field name="model">invoice.matching</field>
+        <field name="arch" type="xml">
+            <form string="Invoice Matching">
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" 
+                            class="oe_highlight" invisible="state in ['confirmed', 'reconciled']"/>
+                    <button name="action_cancel" type="object" string="Cancel" 
+                            invisible="state in ['cancelled', 'reconciled']"/>
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="manual,confirmed,reconciled"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-success" role="alert" invisible="match_score &lt; 70">
+                        <strong>Good Match!</strong> Confidence Score: <field name="match_score" readonly="1"/>%
+                    </div>
+                    <div class="alert alert-warning" role="alert" 
+                         invisible="match_score &gt;= 70 or match_score &lt; 40">
+                        <strong>Medium Match</strong> Confidence Score: <field name="match_score" readonly="1"/>%
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="match_score &gt;= 40">
+                        <strong>Low Match!</strong> Confidence Score: <field name="match_score" readonly="1"/>%
+                    </div>
+                    <group>
+                        <group string="Transaction">
+                            <field name="transaction_id"/>
+                            <field name="transaction_amount" widget="monetary"/>
+                            <field name="partner_id"/>
+                        </group>
+                        <group string="Invoice">
+                            <field name="invoice_id"/>
+                            <field name="invoice_amount" widget="monetary"/>
+                            <field name="invoice_residual" widget="monetary"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="matched_amount" widget="monetary"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="subscription_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <separator string="Notes"/>
+                    <field name="notes"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Invoice Matching list View -->
+    <record id="view_invoice_matching_list" model="ir.ui.view">
+        <field name="name">invoice.matching.list</field>
+        <field name="model">invoice.matching</field>
+        <field name="arch" type="xml">
+            <list string="Invoice Matches" decoration-success="state == 'reconciled'" 
+                  decoration-info="state == 'confirmed'" decoration-muted="state == 'cancelled'">
+                <field name="transaction_id"/>
+                <field name="invoice_id"/>
+                <field name="partner_id"/>
+                <field name="matched_amount" widget="monetary"/>
+                <field name="match_score" widget="progressbar"/>
+                <field name="subscription_id"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state == 'reconciled'" 
+                       decoration-info="state == 'confirmed'"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Invoice Matching Action -->
+    <record id="action_invoice_matching" model="ir.actions.act_window">
+        <field name="name">Invoice Matches</field>
+        <field name="res_model">invoice.matching</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No invoice matches yet
+            </p>
+            <p>
+                Use auto-match on transactions to link them with invoices.
+            </p>
+        </field>
+    </record>
+
+</odoo>

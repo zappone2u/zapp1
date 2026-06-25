@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Page de choix du palier d'abonnement -->
+    <template id="portal_subscription_choose" name="Choisir votre abonnement">
+        <t t-call="portal.portal_layout">
+            <t t-set="additional_title">Choisir votre abonnement</t>
+
+            <div class="container mt-4 mb-5">
+                <!-- Breadcrumb &amp; retour -->
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <a t-attf-href="/my/firebase/uo/#{uo.id}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fa fa-arrow-left"/> Retour à l'UO
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Titre -->
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <h1 class="fw-bold">
+                            <i class="fa fa-fire-extinguisher text-danger me-2"/>
+                            Choisissez votre abonnement
+                        </h1>
+                        <p class="lead text-muted">
+                            Pour l'Unité Opérationnelle : <strong t-esc="uo.name"/>
+                        </p>
+
+                        <!-- Plan actuel -->
+                        <t t-if="current_tier and current_tier != 'discovery'">
+                            <div class="alert alert-info d-inline-block px-4">
+                                <i class="fa fa-check-circle me-1"/>
+                                Plan actuel :
+                                <strong t-esc="{'essential': 'Essentiel', 'caserne': 'Caserne', 'flotte': 'Flotte', 'discovery': 'Découverte'}.get(current_tier, current_tier)"/>
+                                — vous pouvez changer de plan à tout moment.
+                            </div>
+                        </t>
+
+                        <!-- Erreur -->
+                        <t t-if="error">
+                            <div class="alert alert-danger d-inline-block px-4 mt-2">
+                                <i class="fa fa-exclamation-triangle me-1"/>
+                                <t t-if="error == 'invalid_tier'">Palier d'abonnement invalide.</t>
+                                <t t-elif="error == 'limit_reached_vehicle'">
+                                    <strong>Limite de véhicules atteinte.</strong>
+                                    Veuillez choisir un plan supérieur pour ajouter davantage de véhicules.
+                                </t>
+                                <t t-elif="error == 'limit_reached_user'">
+                                    <strong>Limite d'utilisateurs atteinte.</strong>
+                                    Veuillez choisir un plan supérieur pour ajouter davantage d'utilisateurs.
+                                </t>
+                                <t t-else="" t-esc="error"/>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Cartes des 3 plans payants -->
+                <div class="row justify-content-center mt-2">
+
+                    <!-- ===== ESSENTIEL ===== -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm"
+                             t-att-style="'border: 2px solid #0d6efd;' if current_tier == 'essential' else 'border: 1px solid #dee2e6;'">
+                            <div class="card-header bg-primary text-white text-center py-3 position-relative">
+                                <t t-if="current_tier == 'essential'">
+                                    <span class="badge bg-light text-primary position-absolute"
+                                          style="top:0px; left:50%; transform:translateX(-50%); font-size:0.8em;">
+                                        <i class="fa fa-check"/> Plan actuel
+                                    </span>
+                                </t>
+                                <h4 class="mb-0 mt-2">Essentiel</h4>
+                                <small>Pour les petites amicales</small>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="text-center my-3">
+                                    <span style="font-size:2.5rem; font-weight:700; color:#0d6efd;">5€</span>
+                                    <span class="text-muted">/mois</span>
+                                </div>
+                                <ul class="list-unstyled mb-4 flex-grow-1">
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Jusqu'à <strong>3 véhicules</strong>
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Jusqu'à <strong>15 utilisateurs</strong>
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Gestion inventaire de base
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Synchronisation Firebase
+                                    </li>
+                                    <li class="py-1">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Support par email
+                                    </li>
+                                </ul>
+                                <t t-if="current_tier == 'essential'">
+                                    <button class="btn btn-outline-primary w-100" disabled="disabled">
+                                        <i class="fa fa-check-circle me-1"/> Plan actuel
+                                    </button>
+                                </t>
+                                <t t-else="">
+                                    <a t-attf-href="/my/firebase/uo/#{uo.id}/subscription/activate?tier=essentiel"
+                                       class="btn btn-primary w-100">
+                                        <i class="fa fa-shopping-cart me-1"/>
+                                        <t t-if="current_tier and current_tier != 'discovery'">Passer à Essentiel</t>
+                                        <t t-else="">Choisir Essentiel</t>
+                                    </a>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== CASERNE (recommandé) ===== -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100 shadow"
+                             t-att-style="'border: 3px solid #198754; transform:scale(1.03);' if current_tier == 'caserne' else 'border: 2px solid #198754; transform:scale(1.03);'">
+                            <div class="card-header bg-success text-white text-center py-3 position-relative">
+                                <t t-if="current_tier == 'caserne'">
+                                    <span class="badge bg-light text-success position-absolute"
+                                          style="top:0px; left:50%; transform:translateX(-50%); font-size:0.8em;">
+                                        <i class="fa fa-check"/> Plan actuel
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span class="badge bg-warning text-dark position-absolute"
+                                          style="top:0px; left:50%; transform:translateX(-50%); font-size:0.8em;">
+                                        <i class="fa fa-star"/> Populaire
+                                    </span>
+                                </t>
+                                <h4 class="mb-0 mt-2">Caserne</h4>
+                                <small>Pour les casernes standard</small>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="text-center my-3">
+                                    <span style="font-size:2.5rem; font-weight:700; color:#198754;">10€</span>
+                                    <span class="text-muted">/mois</span>
+                                </div>
+                                <ul class="list-unstyled mb-4 flex-grow-1">
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Jusqu'à <strong>10 véhicules</strong>
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Jusqu'à <strong>30 utilisateurs</strong>
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Reporting et exports PDF
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Gestion des rôles basique
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        <strong>Support prioritaire</strong>
+                                    </li>
+                                    <li class="py-1">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Statistiques avancées
+                                    </li>
+                                </ul>
+                                <t t-if="current_tier == 'caserne'">
+                                    <button class="btn btn-outline-success w-100" disabled="disabled">
+                                        <i class="fa fa-check-circle me-1"/> Plan actuel
+                                    </button>
+                                </t>
+                                <t t-else="">
+                                    <a t-attf-href="/my/firebase/uo/#{uo.id}/subscription/activate?tier=caserne"
+                                       class="btn btn-success w-100">
+                                        <i class="fa fa-shopping-cart me-1"/>
+                                        <t t-if="current_tier and current_tier != 'discovery'">Passer à Caserne</t>
+                                        <t t-else="">Choisir Caserne</t>
+                                    </a>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== FLOTTE ===== -->
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100 shadow-sm"
+                             t-att-style="'border: 2px solid #ffc107;' if current_tier == 'flotte' else 'border: 1px solid #dee2e6;'">
+                            <div class="card-header text-dark text-center py-3 position-relative"
+                                 style="background-color:#ffc107;">
+                                <t t-if="current_tier == 'flotte'">
+                                    <span class="badge bg-dark text-white position-absolute"
+                                          style="top:0px; left:50%; transform:translateX(-50%); font-size:0.8em;">
+                                        <i class="fa fa-check"/> Plan actuel
+                                    </span>
+                                </t>
+                                <h4 class="mb-0 mt-2">Flotte</h4>
+                                <small>Pour les grandes casernes</small>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="text-center my-3">
+                                    <span style="font-size:2.5rem; font-weight:700; color:#856404;">15€</span>
+                                    <span class="text-muted">/mois</span>
+                                </div>
+                                <ul class="list-unstyled mb-4 flex-grow-1">
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Jusqu'à <strong>30 véhicules</strong>
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        <strong>Utilisateurs illimités</strong>
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Gestion complète des rôles
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Exports avancés et analytics
+                                    </li>
+                                    <li class="py-1 border-bottom">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        Intégrations API
+                                    </li>
+                                    <li class="py-1">
+                                        <i class="fa fa-check text-success me-2"/>
+                                        <strong>Support dédié</strong>
+                                    </li>
+                                </ul>
+                                <t t-if="current_tier == 'flotte'">
+                                    <button class="btn w-100 text-dark" style="background-color:#ffc107; opacity:0.7;" disabled="disabled">
+                                        <i class="fa fa-check-circle me-1"/> Plan actuel
+                                    </button>
+                                </t>
+                                <t t-else="">
+                                    <a t-attf-href="/my/firebase/uo/#{uo.id}/subscription/activate?tier=flotte"
+                                       class="btn w-100 text-dark fw-bold" style="background-color:#ffc107;">
+                                        <i class="fa fa-shopping-cart me-1"/>
+                                        <t t-if="current_tier and current_tier != 'discovery'">Passer à Flotte</t>
+                                        <t t-else="">Choisir Flotte</t>
+                                    </a>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Note informative -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-light border">
+                            <h6 class="fw-bold"><i class="fa fa-info-circle me-1"/> Informations importantes</h6>
+                            <ul class="mb-0 small">
+                                <li>La facturation est <strong>mensuelle</strong> — vous recevrez une facture par email.</li>
+                                <li>Vous pouvez <strong>changer de plan</strong> à tout moment depuis cette page.</li>
+                                <li>Les limites sont appliquées <strong>immédiatement</strong> après confirmation de la commande.</li>
+                                <li>La synchronisation Firebase est mise à jour automatiquement.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

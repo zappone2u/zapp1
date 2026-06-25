@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             Override du footer global du site web Inventory Fireman
+        ═══════════════════════════════════════════════════════════════════ -->
+        <template id="custom_footer" inherit_id="website.footer_custom" name="Inventory Fireman Footer">
+            <xpath expr="//div[@id='footer']" position="replace">
+                <div id="footer" t-ignore="true" t-if="not no_footer">
+
+                    <style>
+                        /* ── Footer principal ───────────────────────────── */
+                        #footer {
+                            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+                            color: #cbd5e1;
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        }
+
+                        /* ── Section principale ─────────────────────────── */
+                        .footer-main {
+                            padding: 70px 0 50px;
+                        }
+
+                        /* ── Logo / Branding ────────────────────────────── */
+                        .footer-brand .footer-logo {
+                            font-size: 26px;
+                            font-weight: 800;
+                            color: #ffffff;
+                            text-decoration: none;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 10px;
+                            margin-bottom: 16px;
+                        }
+                        .footer-brand .footer-logo i {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            font-size: 30px;
+                        }
+                        .footer-brand p {
+                            color: #94a3b8;
+                            font-size: 14.5px;
+                            line-height: 1.75;
+                            max-width: 280px;
+                            margin-bottom: 24px;
+                        }
+
+                        /* ── Badges Store ───────────────────────────────── */
+                        .store-badges {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 10px;
+                        }
+                        .store-badge {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 8px;
+                            background: rgba(255, 255, 255, 0.07);
+                            border: 1px solid rgba(255, 255, 255, 0.12);
+                            color: #ffffff;
+                            text-decoration: none;
+                            padding: 9px 16px;
+                            border-radius: 10px;
+                            font-size: 13px;
+                            font-weight: 600;
+                            transition: all 0.25s ease;
+                        }
+                        .store-badge:hover {
+                            background: rgba(102, 126, 234, 0.25);
+                            border-color: #667eea;
+                            color: #ffffff;
+                            transform: translateY(-2px);
+                            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.3);
+                            text-decoration: none;
+                        }
+                        .store-badge i {
+                            font-size: 20px;
+                        }
+
+                        /* ── Titres colonnes ────────────────────────────── */
+                        .footer-heading {
+                            color: #ffffff;
+                            font-size: 13px;
+                            font-weight: 700;
+                            text-transform: uppercase;
+                            letter-spacing: 1.5px;
+                            margin-bottom: 20px;
+                            padding-bottom: 10px;
+                            position: relative;
+                        }
+                        .footer-heading::after {
+                            content: '';
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            width: 32px;
+                            height: 3px;
+                            background: linear-gradient(90deg, #667eea, #764ba2);
+                            border-radius: 2px;
+                        }
+
+                        /* ── Liens navigation ───────────────────────────── */
+                        .footer-links {
+                            list-style: none;
+                            padding: 0;
+                            margin: 0;
+                        }
+                        .footer-links li {
+                            margin-bottom: 10px;
+                        }
+                        .footer-links a {
+                            color: #94a3b8;
+                            text-decoration: none;
+                            font-size: 14.5px;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 7px;
+                            transition: color 0.2s ease, gap 0.2s ease;
+                        }
+                        .footer-links a::before {
+                            content: '›';
+                            opacity: 0;
+                            font-size: 16px;
+                            color: #667eea;
+                            transition: opacity 0.2s ease;
+                        }
+                        .footer-links a:hover {
+                            color: #ffffff;
+                            gap: 10px;
+                            text-decoration: none;
+                        }
+                        .footer-links a:hover::before {
+                            opacity: 1;
+                        }
+
+                        /* ── Bloc contact ───────────────────────────────── */
+                        .contact-item {
+                            display: flex;
+                            align-items: flex-start;
+                            gap: 12px;
+                            margin-bottom: 16px;
+                        }
+                        .contact-item .contact-icon {
+                            width: 36px;
+                            height: 36px;
+                            flex-shrink: 0;
+                            background: rgba(102, 126, 234, 0.15);
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #667eea;
+                            font-size: 15px;
+                        }
+                        .contact-item a,
+                        .contact-item span {
+                            color: #94a3b8;
+                            font-size: 14px;
+                            text-decoration: none;
+                            transition: color 0.2s ease;
+                            line-height: 1.5;
+                        }
+                        .contact-item a:hover {
+                            color: #ffffff;
+                            text-decoration: none;
+                        }
+
+                        /* ── Abonnements pills ──────────────────────────── */
+                        .plan-pill {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 6px;
+                            background: rgba(255,255,255,0.05);
+                            border: 1px solid rgba(255,255,255,0.1);
+                            border-radius: 20px;
+                            padding: 5px 14px;
+                            font-size: 13px;
+                            color: #cbd5e1;
+                            margin: 4px 4px 4px 0;
+                            transition: all 0.2s ease;
+                        }
+                        .plan-pill:hover {
+                            background: rgba(102, 126, 234, 0.2);
+                            border-color: #667eea;
+                            color: #fff;
+                            text-decoration: none;
+                        }
+                        .plan-pill .dot {
+                            width: 8px;
+                            height: 8px;
+                            border-radius: 50%;
+                            flex-shrink: 0;
+                        }
+
+                        /* ── Séparateur ─────────────────────────────────── */
+                        .footer-divider {
+                            border: none;
+                            border-top: 1px solid rgba(255,255,255,0.08);
+                            margin: 0;
+                        }
+
+                        /* ── Barre de bas de page ───────────────────────── */
+                        .footer-bottom {
+                            padding: 22px 0;
+                            background: rgba(0,0,0,0.25);
+                        }
+                        .footer-bottom .copyright {
+                            color: #64748b;
+                            font-size: 13.5px;
+                            margin: 0;
+                        }
+                        .footer-bottom .copyright strong {
+                            color: #94a3b8;
+                        }
+                        .footer-bottom .footer-bottom-links {
+                            display: flex;
+                            gap: 20px;
+                            justify-content: flex-end;
+                            flex-wrap: wrap;
+                        }
+                        .footer-bottom .footer-bottom-links a {
+                            color: #64748b;
+                            font-size: 13px;
+                            text-decoration: none;
+                            transition: color 0.2s ease;
+                        }
+                        .footer-bottom .footer-bottom-links a:hover {
+                            color: #ffffff;
+                        }
+
+                        /* ── Réseaux sociaux ────────────────────────────── */
+                        .social-links {
+                            display: flex;
+                            gap: 10px;
+                            flex-wrap: wrap;
+                            margin-top: 6px;
+                        }
+                        .social-link {
+                            width: 38px;
+                            height: 38px;
+                            border-radius: 9px;
+                            background: rgba(255,255,255,0.06);
+                            border: 1px solid rgba(255,255,255,0.1);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #94a3b8;
+                            font-size: 16px;
+                            text-decoration: none;
+                            transition: all 0.25s ease;
+                        }
+                        .social-link:hover {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            border-color: transparent;
+                            color: #ffffff;
+                            transform: translateY(-3px);
+                            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+                            text-decoration: none;
+                        }
+
+                        /* ── Badge "Gratuit" ────────────────────────────── */
+                        .badge-free {
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            color: #fff;
+                            font-size: 11px;
+                            padding: 2px 8px;
+                            border-radius: 20px;
+                            font-weight: 700;
+                            letter-spacing: 0.5px;
+                            vertical-align: middle;
+                            margin-left: 4px;
+                        }
+
+                        /* ── Responsive ─────────────────────────────────── */
+                        @media (max-width: 767px) {
+                            .footer-main { padding: 50px 0 35px; }
+                            .footer-brand p { max-width: 100%; }
+                            .footer-bottom .footer-bottom-links { justify-content: flex-start; margin-top: 10px; }
+                            .footer-bottom .copyright { text-align: left !important; }
+                        }
+                    </style>
+
+                    <!-- Font Awesome (si pas déjà chargé) -->
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+                    <!-- ── SECTION PRINCIPALE ──────────────────────────── -->
+                    <div class="footer-main">
+                        <div class="container">
+                            <div class="row g-5">
+
+                                <!-- Colonne 1 : Branding + App -->
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="footer-brand">
+                                        <a href="/" class="footer-logo">
+                                            <i class="fa fa-fire-extinguisher"/>
+                                            Inventaire Pompier
+                                        </a>
+                                        <p>
+                                            La plateforme de gestion d'inventaire pour les unités opérationnelles.
+                                            Gérez vos véhicules, équipements et personnel depuis un seul endroit.
+                                        </p>
+                                        <div class="store-badges">
+                                            <a href="https://apps.apple.com/ch/app/inventaire-pompier/id6503427632"
+                                               target="_blank" class="store-badge">
+                                                <i class="fab fa-apple"/>
+                                                App Store
+                                            </a>
+                                            <a href="https://play.google.com/store/apps/details?id=com.zappone.inventor_sierck"
+                                               target="_blank" class="store-badge">
+                                                <i class="fab fa-google-play"/>
+                                                Google Play
+                                            </a>
+                                        </div>
+                                        <div class="social-links mt-4">
+                                            <a href="mailto:arthzappone@hotmail.fr" class="social-link" title="Email">
+                                                <i class="fa fa-envelope"/>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Colonne 2 : Navigation -->
+                                <div class="col-lg-2 col-sm-6">
+                                    <h6 class="footer-heading">Navigation</h6>
+                                    <ul class="footer-links">
+                                        <li><a href="/">Accueil</a></li>
+                                        <li><a href="/pricing">Tarifs</a></li>
+                                        <li>
+                                            <a href="/my/firebase/login">Mon UO</a>
+                                        </li>
+                                        <li><a href="/my/firebase/register">S'inscrire</a></li>
+                                        <li><a href="/contact">Contact</a></li>
+                                        <li><a href="/policies">Politiques</a></li>
+                                    </ul>
+                                </div>
+
+                                <!-- Colonne 3 : Abonnements -->
+                                <div class="col-lg-3 col-sm-6">
+                                    <h6 class="footer-heading">Abonnements</h6>
+                                    <p style="color:#64748b; font-size:13px; margin-bottom:14px;">
+                                        Choisissez le plan adapté à votre UO
+                                    </p>
+                                    <div>
+                                        <a href="/pricing" class="plan-pill" style="display:flex; margin-bottom:8px;">
+                                            <span class="dot" style="background:#22c55e;"/>
+                                            Découverte
+                                            <span class="badge-free">GRATUIT</span>
+                                        </a>
+                                        <a href="/pricing" class="plan-pill" style="display:flex; margin-bottom:8px;">
+                                            <span class="dot" style="background:#3b82f6;"/>
+                                            Essentiel — 5€/mois
+                                        </a>
+                                        <a href="/pricing" class="plan-pill" style="display:flex; margin-bottom:8px;">
+                                            <span class="dot" style="background:#8b5cf6;"/>
+                                            Caserne — 10€/mois
+                                        </a>
+                                        <a href="/pricing" class="plan-pill" style="display:flex;">
+                                            <span class="dot" style="background:#f59e0b;"/>
+                                            Flotte — 15€/mois
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Colonne 4 : Contact -->
+                                <div class="col-lg-3 col-md-12">
+                                    <h6 class="footer-heading">Contact</h6>
+                                    <div class="contact-item">
+                                        <div class="contact-icon"><i class="fa fa-envelope"/></div>
+                                        <div>
+                                            <a href="mailto:arthzappone@hotmail.fr">arthzappone@hotmail.fr</a>
+                                        </div>
+                                    </div>
+                                    <div class="contact-item">
+                                        <div class="contact-icon"><i class="fa fa-phone"/></div>
+                                        <div>
+                                            <a href="tel:+33689253985">+33 6 89 25 39 85</a>
+                                        </div>
+                                    </div>
+                                    <div class="contact-item">
+                                        <div class="contact-icon"><i class="fa fa-shield-halved"/></div>
+                                        <div>
+                                            <a href="/policies">Politique de confidentialité</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div><!-- /row -->
+                        </div><!-- /container -->
+                    </div><!-- /footer-main -->
+
+                    <hr class="footer-divider"/>
+
+                    <!-- ── BARRE DE BAS DE PAGE ────────────────────────── -->
+                    <div class="footer-bottom">
+                        <div class="container">
+                            <div class="row align-items-center">
+                                <div class="col-md-6 text-center text-md-start">
+                                    <p class="copyright">
+                                        © 2025–2026 <strong>Inventaire Pompier</strong> — Tous droits réservés.
+                                        Développé avec <i class="fa fa-heart" style="color:#e25555; font-size:12px;"/> par <strong>ZappOne</strong>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="footer-bottom-links">
+                                        <a href="/policies">Confidentialité</a>
+                                        <a href="/policies">CGU</a>
+                                        <a href="/pricing">Tarifs</a>
+                                        <a href="/contact">Contact</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /footer-bottom -->
+
+                </div><!-- /div#footer -->
+            </xpath>
+        </template>
+
+    </data>
+</odoo>

@@ -1,1 +1,16 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_firebase_connector_user,firebase.connector.user,inventory_fireman.model_firebase_connector,base.group_user,1,0,0,0
+access_firebase_connector_manager,firebase.connector.manager,inventory_fireman.model_firebase_connector,base.group_system,1,1,1,1
+access_pompier_uo_rel_user,pompier.uo.rel.user,model_pompier_uo_rel,base.group_user,1,0,0,0
+access_pompier_uo_rel_manager,pompier.uo.rel.manager,model_pompier_uo_rel,base.group_system,1,1,1,1
+access_firebase_inventory_history_user,firebase.inventory.history.user,model_firebase_inventory_history,base.group_user,1,0,0,0
+access_firebase_inventory_history_manager,firebase.inventory.history.manager,model_firebase_inventory_history,base.group_system,1,1,1,1
+access_firebase_vehicle_user,firebase.vehicle.user,model_firebase_vehicle,base.group_user,1,0,0,0
+access_firebase_vehicle_manager,firebase.vehicle.manager,model_firebase_vehicle,base.group_system,1,1,1,1
+access_firebase_vehicle_portal,firebase.vehicle.portal,model_firebase_vehicle,base.group_portal,1,1,0,0
+access_firebase_vehicle_product_user,firebase.vehicle.product.user,model_firebase_vehicle_product,base.group_user,1,0,0,0
+access_firebase_vehicle_product_manager,firebase.vehicle.product.manager,model_firebase_vehicle_product,base.group_system,1,1,1,1
+access_firebase_vehicle_product_portal,firebase.vehicle.product.portal,model_firebase_vehicle_product,base.group_portal,1,1,1,1
+access_firebase_vehicle_item_user,firebase.vehicle.item.user,model_firebase_vehicle_item,base.group_user,1,0,0,0
+access_firebase_vehicle_item_manager,firebase.vehicle.item.manager,model_firebase_vehicle_item,base.group_system,1,1,1,1
+access_firebase_vehicle_item_portal,firebase.vehicle.item.portal,model_firebase_vehicle_item,base.group_portal,1,1,1,1

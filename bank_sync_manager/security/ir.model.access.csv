@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bank_connection_user,bank.connection.user,model_bank_connection,base.group_user,1,1,1,0
+access_bank_connection_manager,bank.connection.manager,model_bank_connection,account.group_account_manager,1,1,1,1
+access_bank_transaction_user,bank.transaction.user,model_bank_transaction,base.group_user,1,1,1,0
+access_bank_transaction_manager,bank.transaction.manager,model_bank_transaction,account.group_account_manager,1,1,1,1
+access_invoice_matching_user,invoice.matching.user,model_invoice_matching,base.group_user,1,1,1,0
+access_invoice_matching_manager,invoice.matching.manager,model_invoice_matching,account.group_account_manager,1,1,1,1
+access_subscription_monitor_user,subscription.monitor.user,model_subscription_monitor,base.group_user,1,0,0,0
+access_subscription_monitor_manager,subscription.monitor.manager,model_subscription_monitor,sales_team.group_sale_manager,1,1,1,1
+access_revolut_import_wizard_user,revolut.import.wizard.user,model_revolut_import_wizard,base.group_user,1,1,1,1

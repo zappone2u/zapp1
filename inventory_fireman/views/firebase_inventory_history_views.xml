@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue liste des inventaires -->
+    <record id="view_firebase_inventory_history_list" model="ir.ui.view">
+        <field name="name">firebase.inventory.history.list</field>
+        <field name="model">firebase.inventory.history</field>
+        <field name="arch" type="xml">
+            <list string="Historique des inventaires">
+                <field name="name"/>
+                <field name="uo_name"/>
+                <field name="inventor_name"/>
+                <field name="rank"/>
+                <field name="vehicle"/>
+                <field name="date"/>
+                <field name="inventor_full" widget="boolean_toggle"/>
+                <field name="last_sync_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue formulaire des inventaires -->
+    <record id="view_firebase_inventory_history_form" model="ir.ui.view">
+        <field name="name">firebase.inventory.history.form</field>
+        <field name="model">firebase.inventory.history</field>
+        <field name="arch" type="xml">
+            <form string="Inventaire">
+                <sheet>
+                    <group>
+                        <group string="Informations générales">
+                            <field name="uo_id"/>
+                            <field name="inventor_name"/>
+                            <field name="rank"/>
+                            <field name="vehicle"/>
+                        </group>
+                        <group string="Date et statut">
+                            <field name="inventory_date_str"/>
+                            <field name="date"/>
+                            <field name="inventor_full"/>
+                        </group>
+                    </group>
+                    <group string="Détails">
+                        <field name="lack" placeholder="Liste des éléments manquants"/>
+                        <field name="more_description" placeholder="Commentaires additionnels"/>
+                    </group>
+                    <group string="Métadonnées">
+                        <group>
+                            <field name="firebase_uid"/>
+                            <field name="firebase_created_at"/>
+                        </group>
+                        <group>
+                            <field name="last_sync_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Données Firebase (JSON)">
+                            <field name="firebase_data" widget="code_editor"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action pour les inventaires -->
+    <record id="action_firebase_inventory_history" model="ir.actions.act_window">
+        <field name="name">Historique des inventaires</field>
+        <field name="res_model">firebase.inventory.history</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu pour les inventaires -->
+    <menuitem
+        id="menu_firebase_inventory_history"
+        name="Inventaires"
+        parent="menu_inventory_fireman_root"
+        action="action_firebase_inventory_history"
+        sequence="30"/>
+</odoo>

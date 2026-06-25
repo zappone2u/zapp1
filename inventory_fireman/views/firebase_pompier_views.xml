@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vues pour les Pompiers basées sur res.partner -->
+
+    <record id="view_partner_pompier_list" model="ir.ui.view">
+        <field name="name">res.partner.pompier.list</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list string="Pompiers">
+                <field name="name" />
+                <field name="email" />
+                <field name="phone" />
+                <field name="admin" />
+                <field name="uo_names" />
+                <field name="pompier_status"
+                    decoration-success="pompier_status == 'active'"
+                    decoration-warning="pompier_status == 'suspended'"
+                    decoration-muted="pompier_status == 'inactive'" />
+                <field name="multiple_uo" invisible="1" />
+                <field name="sync_status"
+                    decoration-success="sync_status == 'synced'"
+                    decoration-warning="sync_status == 'pending'"
+                    decoration-danger="sync_status == 'error'" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_partner_pompier_form" model="ir.ui.view">
+        <field name="name">res.partner.pompier.form</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <form string="Pompier">
+                <header>
+                    <button name="action_sync_from_firebase" string="Synchroniser depuis Firebase"
+                        type="object" class="btn-primary" />
+                    <button name="action_view_all_uo" string="Voir toutes les UO"
+                        type="object" class="btn-secondary"
+                        invisible="not multiple_uo" />
+                    <field name="pompier_status" widget="statusbar"
+                        statusbar_visible="active,suspended,inactive" />
+                </header>
+                <sheet>
+                    <field name="image_1920" widget="image" class="oe_avatar" />
+
+                    <widget name="web_ribbon" title="Inactif" bg_color="bg-danger"
+                        invisible="active" />
+
+                    <field name="active" invisible="1" />
+                    <field name="is_firebase_pompier" invisible="1" />
+                    <field name="multiple_uo" invisible="1" />
+                    <field name="is_company" invisible="1" />
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom du pompier" />
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Informations Firebase">
+                            <field name="firebase_uid" readonly="1" />
+                            <field name="is_firebase_pompier" />
+                            <field name="admin" />
+                        </group>
+                        <group string="Contact">
+                            <field name="email" widget="email" />
+                            <field name="phone" widget="phone" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Unités Organisationnelles">
+                            <field name="pompier_rel_ids">
+                                <list editable="bottom">
+                                    <field name="uo_id" domain="[('is_firebase_uo', '=', True)]" />
+                                    <field name="uo_admin" widget="boolean_toggle" />
+                                    <field name="uo_pharmacist" widget="boolean_toggle" />
+                                    <field name="verified" widget="boolean_toggle" />
+                                    <field name="last_connection_date" />
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="uo_id"
+                                            domain="[('is_firebase_uo', '=', True)]" />
+                                        <field name="uo_admin" />
+                                        <field name="uo_pharmacist" />
+                                        <field name="verified" />
+                                        <field name="last_connection_date" />
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+
+                        <page string="Informations professionnelles">
+                            <group>
+                                <group>
+                                    <field name="matricule" />
+                                    <field name="grade" />
+                                    <field name="fonction" />
+                                </group>
+                                <group>
+                                    <field name="date_entree" />
+                                    <field name="date_sortie" />
+                                    <field name="is_uo_admin" />
+                                    <field name="is_pharmacist" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Authentification">
+                            <group>
+                                <field name="last_login" />
+                            </group>
+                        </page>
+
+                        <page string="Synchronisation Firebase">
+                            <group>
+                                <group>
+                                    <field name="sync_status" />
+                                    <field name="last_sync_date" />
+                                    <field name="firebase_created_at" />
+                                    <field name="firebase_updated_at" />
+                                </group>
+                                <group>
+                                    <field name="sync_error" invisible="not sync_error" />
+                                </group>
+                            </group>
+                            <group string="Données brutes Firebase">
+                                <field name="firebase_data" widget="text" />
+                            </group>
+                        </page>
+
+                        <page string="Notes internes">
+                            <field name="comment" placeholder="Notes diverses..." />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_partner_pompier_search" model="ir.ui.view">
+        <field name="name">res.partner.pompier.search</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Pompiers">
+                <field name="name" />
+                <field name="email" />
+                <field name="matricule" />
+                <field name="uo_ids" />
+                <field name="firebase_uid" />
+                <filter string="Actif" name="active" domain="[('active', '=', True)]" />
+                <filter string="Inactif" name="inactive" domain="[('active', '=', False)]" />
+                <filter string="Super Administrateur" name="admin" domain="[('admin', '=', True)]" />
+                <separator />
+                <filter string="Statut Actif" name="status_active"
+                    domain="[('pompier_status', '=', 'active')]" />
+                <filter string="Suspendu" name="status_suspended"
+                    domain="[('pompier_status', '=', 'suspended')]" />
+                <filter string="Inactif" name="status_inactive"
+                    domain="[('pompier_status', '=', 'inactive')]" />
+                <separator />
+                <filter string="Plusieurs UO" name="multiple_uo"
+                    domain="[('multiple_uo', '=', True)]" />
+                <separator />
+                <filter string="Synchronisé" name="synced" domain="[('sync_status', '=', 'synced')]" />
+                <filter string="Erreur de sync" name="sync_error"
+                    domain="[('sync_status', '=', 'error')]" />
+                <group expand="0" string="Grouper par">
+                    <filter string="Grade" name="group_grade" context="{'group_by': 'grade'}" />
+                    <filter string="Statut" name="group_status"
+                        context="{'group_by': 'pompier_status'}" />
+                    <filter string="Statut sync" name="group_sync_status"
+                        context="{'group_by': 'sync_status'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_firebase_pompier" model="ir.actions.act_window">
+        <field name="name">Pompiers</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_firebase_pompier', '=', True)]</field>
+        <field name="context">{'default_is_firebase_pompier': True, 'default_is_company': False,
+            'search_default_active': 1, 'search_default_status_active': 1}</field>
+        <field name="search_view_id" ref="view_partner_pompier_search" />
+        <field name="view_ids"
+            eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_partner_pompier_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_partner_pompier_form')})]" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer un nouveau pompier
+            </p>
+            <p>
+                Les pompiers (employés) sont synchronisés depuis Firebase.
+            </p>
+        </field>
+    </record>
+</odoo>

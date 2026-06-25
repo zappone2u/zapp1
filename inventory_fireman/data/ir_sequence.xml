@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Séquence pour les références de subscription (si on décide d'en utiliser plus tard) -->
+        <record id="seq_firebase_subscription" model="ir.sequence">
+            <field name="name">Firebase Subscription</field>
+            <field name="code">firebase.subscription</field>
+            <field name="prefix">SUB</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

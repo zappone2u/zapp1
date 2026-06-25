@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Catégorie de produits Firebase -->
+        <record id="product_category_firebase" model="product.category">
+            <field name="name">Abonnements Inventory Fireman</field>
+        </record>
+
+    <record id="product_activation_monthly" model="product.product">
+            <field name="name">OLD 1</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product_category_firebase" />
+            <field name="list_price">5.00</field>
+            <field name="standard_price">0.00</field>
+            <field name="recurring_invoice">True</field>
+            <field name="description_sale"></field>
+            <field name="invoice_policy">order</field>
+            <field name="is_published">True</field>
+            <field name="website_published">True</field>
+        </record>
+        <record id="product_user_addon" model="product.product">
+            <field name="name">OLD 2</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product_category_firebase" />
+            <field name="list_price">5.00</field>
+            <field name="standard_price">0.00</field>
+            <field name="recurring_invoice">True</field>
+            <field name="description_sale"></field>
+            <field name="invoice_policy">order</field>
+            <field name="is_published">True</field>
+            <field name="website_published">True</field>
+        </record>
+        <record id="product_vehicle_addon" model="product.product">
+            <field name="name">OLD 3</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product_category_firebase" />
+            <field name="list_price">5.00</field>
+            <field name="standard_price">0.00</field>
+            <field name="recurring_invoice">True</field>
+            <field name="description_sale"></field>
+            <field name="invoice_policy">order</field>
+            <field name="is_published">True</field>
+            <field name="website_published">True</field>
+        </record>
+
+        <!-- ===================== -->
+        <!-- Palier ESSENTIEL -->
+        <!-- ===================== -->
+        <record id="product_subscription_essentiel" model="product.product">
+            <field name="name">Abonnement Essentiel</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product_category_firebase" />
+            <field name="list_price">5.00</field>
+            <field name="standard_price">0.00</field>
+            <field name="max_user">15</field>
+            <field name="max_vehicle">3</field>
+            <field name="description_sale">
+Gestion des inventaires pour petites amicales.
+- Jusqu'à 3 véhicules
+- Jusqu'à 15 utilisateurs
+- Gestion des inventaires de base
+- Support par email
+Facturation mensuelle automatique.
+            </field>
+            <field name="invoice_policy">order</field>
+            <field name="is_published">True</field>
+            <field name="website_published">True</field>
+        </record>
+
+        <!-- ===================== -->
+        <!-- Palier CASERNE -->
+        <!-- ===================== -->
+        <record id="product_subscription_caserne" model="product.product">
+            <field name="name">Abonnement Caserne</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product_category_firebase" />
+            <field name="list_price">10.00</field>
+            <field name="standard_price">0.00</field>
+            <field name="max_user">30</field>
+            <field name="max_vehicle">10</field>
+            <field name="standard_price">0.00</field>
+            <field name="description_sale">
+Solution complète pour caserne standard.
+- Jusqu'à 10 véhicules
+- Jusqu'à 30 utilisateurs
+- Reporting et exports PDF
+- Gestion des rôles basique
+- Support prioritaire
+Facturation mensuelle automatique.
+            </field>
+            <field name="invoice_policy">order</field>
+            <field name="is_published">True</field>
+            <field name="website_published">True</field>
+        </record>
+
+        <!-- ===================== -->
+        <!-- Palier FLOTTE -->
+        <!-- ===================== -->
+        <record id="product_subscription_flotte" model="product.product">
+            <field name="name">Abonnement Flotte</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product_category_firebase" />
+            <field name="list_price">15.00</field>
+            <field name="standard_price">0.00</field>
+            <field name="max_user">-1</field>
+            <field name="max_vehicle">30</field>
+            <field name="description_sale">
+Gestion avancée pour grandes casernes.
+- Jusqu'à 30 véhicules
+- Utilisateurs illimités
+- Gestion complète des rôles utilisateurs
+- Exports avancés et analytics
+- Intégrations API
+- Support dédié
+Facturation mensuelle automatique.
+            </field>
+            <field name="invoice_policy">order</field>
+            <field name="is_published">True</field>
+            <field name="website_published">True</field>
+        </record>
+    </data>
+</odoo>

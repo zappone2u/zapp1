@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vue Tree inline pour UO - liste des pompiers dans une UO -->
+    <record id="view_pompier_uo_rel_tree_uo" model="ir.ui.view">
+        <field name="name">pompier.uo.rel.tree.uo</field>
+        <field name="model">pompier.uo.rel</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list string="Pompiers de l'UO" editable="bottom">
+                <field name="uo_id" column_invisible="1"/>
+                <field name="pompier_id" domain="[('is_firebase_pompier', '=', True)]"/>
+                <field name="pompier_email" readonly="1"/>
+                <field name="uo_admin" widget="boolean_toggle"/>
+                <field name="uo_pharmacist" widget="boolean_toggle"/>
+                <field name="verified" widget="boolean_toggle"/>
+                <field name="last_connection_date" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue Tree inline pour Pompier - liste des UO d'un pompier -->
+    <record id="view_pompier_uo_rel_tree_pompier" model="ir.ui.view">
+        <field name="name">pompier.uo.rel.tree.pompier</field>
+        <field name="model">pompier.uo.rel</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list string="UO du pompier" editable="bottom">
+                <field name="pompier_id" column_invisible="1"/>
+                <field name="uo_id" domain="[('is_firebase_uo', '=', True)]"/>
+                <field name="uo_admin" widget="boolean_toggle"/>
+                <field name="uo_pharmacist" widget="boolean_toggle"/>
+                <field name="verified" widget="boolean_toggle"/>
+                <field name="last_connection_date" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue Liste pour les relations Pompier-UO -->
+    <record id="view_pompier_uo_rel_list" model="ir.ui.view">
+        <field name="name">pompier.uo.rel.list</field>
+        <field name="model">pompier.uo.rel</field>
+        <field name="arch" type="xml">
+            <list string="Relations Pompier - UO" editable="bottom">
+                <field name="pompier_id" />
+                <field name="uo_id" />
+                <field name="uo_admin" widget="boolean_toggle" />
+                <field name="uo_pharmacist" widget="boolean_toggle" />
+                <field name="verified" widget="boolean_toggle" />
+                <field name="last_connection_date" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue Formulaire pour les relations Pompier-UO -->
+    <record id="view_pompier_uo_rel_form" model="ir.ui.view">
+        <field name="name">pompier.uo.rel.form</field>
+        <field name="model">pompier.uo.rel</field>
+        <field name="arch" type="xml">
+            <form string="Relation Pompier - UO">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="pompier_id" />
+                            <field name="pompier_email" readonly="1" />
+                        </group>
+                        <group>
+                            <field name="uo_id" />
+                        </group>
+                    </group>
+                    <group string="Rôles et Statut">
+                        <group>
+                            <field name="uo_admin" />
+                            <field name="uo_pharmacist" />
+                        </group>
+                        <group>
+                            <field name="verified" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue Recherche pour les relations Pompier-UO -->
+    <record id="view_pompier_uo_rel_search" model="ir.ui.view">
+        <field name="name">pompier.uo.rel.search</field>
+        <field name="model">pompier.uo.rel</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Relations">
+                <field name="pompier_id" />
+                <field name="uo_id" />
+                <field name="pompier_email" />
+                <filter string="Administrateurs UO" name="uo_admins"
+                    domain="[('uo_admin', '=', True)]" />
+                <filter string="Pharmaciens" name="pharmacists"
+                    domain="[('uo_pharmacist', '=', True)]" />
+                <filter string="Vérifiés" name="verified" domain="[('verified', '=', True)]" />
+                <group expand="0" string="Grouper par">
+                    <filter string="Pompier" name="group_pompier"
+                        context="{'group_by': 'pompier_id'}" />
+                    <filter string="UO" name="group_uo" context="{'group_by': 'uo_id'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action pour les relations -->
+    <record id="action_pompier_uo_rel" model="ir.actions.act_window">
+        <field name="name">Relations Pompier - UO</field>
+        <field name="res_model">pompier.uo.rel</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aucune relation Pompier-UO
+            </p>
+            <p>
+                Les relations sont automatiquement créées lors de la synchronisation Firebase.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,6 @@
+/* Masquer uniquement le bouton "Sign in" (pas le Logout) */
+/* Cible spécifiquement le lien vers /web/login */
+a[href="/web/login"],
+a[href^="/web/login?"] {
+    display: none !important;
+}

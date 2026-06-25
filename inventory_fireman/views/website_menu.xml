@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal du site web pour Firebase -->
+    <record id="website_menu_firebase_pricing" model="website.menu">
+        <field name="name">Tarifs</field>
+        <field name="url">/pricing</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">40</field>
+    </record>
+    
+    <record id="website_menu_firebase_login" model="website.menu">
+        <field name="name">Mon UO</field>
+        <field name="url">/firebase/login</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">50</field>
+    </record>
+
+    <record id="website_menu_contact" model="website.menu">
+        <field name="name">Contact</field>
+        <field name="url">/contact</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence" type="int">60</field>
+    </record>
+</odoo>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_revolut_import_wizard_form" model="ir.ui.view">
+        <field name="name">revolut.import.wizard.form</field>
+        <field name="model">revolut.import.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Importer un relevé Revolut">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Import Revolut</h1>
+                        <p>
+                            Importez un relevé Revolut (XLSX ou CSV) pour créer les transactions
+                            et les rapprocher automatiquement des factures d'abonnement.
+                        </p>
+                    </div>
+                    <group>
+                        <group string="Fichier">
+                            <field name="filename" invisible="1"/>
+                            <field name="data_file" filename="filename" widget="binary"/>
+                            <field name="connection_id"/>
+                        </group>
+                        <group string="Options">
+                            <field name="only_incoming"/>
+                            <field name="auto_match"/>
+                            <field name="date_tolerance" invisible="not auto_match"/>
+                            <field name="amount_tolerance" invisible="not auto_match"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="status">
+                        Seuls les paiements reçus (montant positif) sont rapprochés des abonnements
+                        lorsque l'option « Paiements reçus uniquement » est activée.
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_import" string="Importer" type="object" class="btn-primary"/>
+                    <button string="Annuler" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_revolut_import_wizard" model="ir.actions.act_window">
+        <field name="name">Importer un relevé Revolut</field>
+        <field name="res_model">revolut.import.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

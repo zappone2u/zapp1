@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Bank Connection Form View -->
+    <record id="view_bank_connection_form" model="ir.ui.view">
+        <field name="name">bank.connection.form</field>
+        <field name="model">bank.connection</field>
+        <field name="arch" type="xml">
+            <form string="Bank Connection">
+                <header>
+                    <button name="action_test_connection" type="object" string="Test Connection" 
+                            class="oe_highlight" invisible="state == 'connected'"/>
+                    <button name="action_saltedge_connect_bank" type="object" string="Connect Bank Account" 
+                            class="oe_highlight" invisible="connection_type != 'saltedge' or not saltedge_customer_id"/>
+                    <button name="action_sync_transactions" type="object" string="Sync Now" 
+                            class="oe_highlight" invisible="state != 'connected'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,connected"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_sync_transactions" 
+                                icon="fa-refresh">
+                            <field string="Transactions" name="transaction_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="action_sync_transactions" 
+                                icon="fa-check">
+                            <field string="Matched" name="matched_count" widget="statinfo"/>
+                        </button>
+                        <button class="oe_stat_button" type="object" name="action_sync_transactions" 
+                                icon="fa-times">
+                            <field string="Unmatched" name="unmatched_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" 
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" string="Connection Name"/>
+                        <h1><field name="name" placeholder="e.g. My Bank - Main Account"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="bank_name"/>
+                            <field name="connection_type"/>
+                            <field name="journal_id"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="iban"/>
+                            <field name="account_number"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Salt Edge Configuration" invisible="connection_type != 'saltedge'">
+                            <group>
+                                <group>
+                                    <field name="saltedge_app_id"/>
+                                    <field name="saltedge_secret" password="True"/>
+                                </group>
+                                <group>
+                                    <field name="saltedge_customer_id" readonly="1"/>
+                                    <field name="saltedge_connection_id" readonly="1"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" role="alert" invisible="saltedge_customer_id">
+                                <p><strong>Instructions :</strong></p>
+                                <ol>
+                                    <li>Obtenez vos identifiants Salt Edge sur <a href="https://www.saltedge.com/dashboard" target="_blank">Salt Edge Dashboard</a></li>
+                                    <li>Renseignez App ID et Secret ci-dessus</li>
+                                    <li>Cliquez sur "Test Connection" pour créer un customer</li>
+                                    <li>Cliquez sur "Connect Bank Account" pour lier votre banque</li>
+                                </ol>
+                            </div>
+                        </page>
+                        <page string="API Configuration" invisible="connection_type not in ['psd2', 'custom']">
+                            <group>
+                                <group>
+                                    <field name="api_url"/>
+                                    <field name="client_id"/>
+                                    <field name="api_key" password="True"/>
+                                </group>
+                                <group>
+                                    <field name="client_secret" password="True"/>
+                                    <field name="api_secret" password="True"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Synchronization">
+                            <group>
+                                <group>
+                                    <field name="auto_sync"/>
+                                    <field name="sync_frequency" invisible="not auto_sync"/>
+                                </group>
+                                <group>
+                                    <field name="last_sync_date"/>
+                                    <field name="next_sync_date" invisible="not auto_sync"/>
+                                </group>
+                            </group>
+                            <separator string="Error Details" invisible="state != 'error'"/>
+                            <field name="error_message" invisible="state != 'error'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Bank Connection list View -->
+    <record id="view_bank_connection_list" model="ir.ui.view">
+        <field name="name">bank.connection.list</field>
+        <field name="model">bank.connection</field>
+        <field name="arch" type="xml">
+            <list string="Bank Connections" decoration-success="state == 'connected'" 
+                  decoration-danger="state == 'error'" decoration-muted="not active">
+                <field name="name"/>
+                <field name="bank_name"/>
+                <field name="connection_type"/>
+                <field name="journal_id"/>
+                <field name="last_sync_date"/>
+                <field name="next_sync_date"/>
+                <field name="transaction_count"/>
+                <field name="state" widget="badge" decoration-success="state == 'connected'" 
+                       decoration-danger="state == 'error'"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Bank Connection Action -->
+    <record id="action_bank_connection" model="ir.actions.act_window">
+        <field name="name">Bank Connections</field>
+        <field name="res_model">bank.connection</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first bank connection
+            </p>
+            <p>
+                Connect to your bank to automatically sync transactions and match them with invoices.
+            </p>
+        </field>
+    </record>
+
+</odoo>

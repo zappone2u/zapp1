@@ -1,0 +1,45 @@
+<odoo>
+    <template id="portal_policies" name="Policies">
+        <t t-call="portal.portal_layout">
+            <div class="container py-5">
+                <div class="mx-auto" style="max-width: 800px;">
+                    <h2 class="mb-4 text-center fw-bold">Politique &amp; Conditions</h2>
+                    <div class="accordion" id="policiesAccordion">
+                        <t t-set="policies" t-value="[
+                            {'question': 'Comment nous contacter?', 'answer': 'Pour toute question concernant cette politique de confidentialité, veuillez nous contacter à arthzappone@hotmail.fr ou au +33 6 89 25 39 85.'},
+                            {'question': 'Quelles informations collectons-nous?', 'answer': 'Nous collectons des informations personnelles telles que votre nom, adresse e-mail, numéro de téléphone et des données d\'utilisation comme les pages visitées, le temps passé sur l\'application et les clics.'},
+                            {'question': 'Comment collectons-nous ces informations?', 'answer': 'Nous collectons les informations via des formulaires que vous remplissez dans l\'application et des technologies de suivi comme les cookies.'},
+                            {'question': 'Comment utilisons-nous vos informations?', 'answer': 'Les informations collectées sont utilisées pour fournir, exploiter et améliorer l\'application, vous identifier et communiquer avec vous, gérer vos demandes, analyser l\'utilisation de l\'application et respecter les obligations légales.'},
+                            {'question': 'Partageons-nous vos informations?', 'answer': 'Nous ne partageons pas vos informations personnelles avec des tiers, sauf avec votre consentement explicite, pour se conformer à une obligation légale, pour protéger nos droits ou en cas de fusion, acquisition ou vente de nos actifs.'},
+                            {'question': 'Comment protégeons-nous vos données?', 'answer': 'Nous prenons des mesures raisonnables pour protéger les informations personnelles contre la perte, le vol et l\'accès, l\'utilisation ou la modification non autorisés. Cependant, aucune méthode de transmission sur Internet ou de stockage électronique n\'est totalement sécurisée.'},
+                            {'question': 'Quels sont vos droits?', 'answer': 'Vous avez le droit d\'accéder à vos informations personnelles, de demander la correction ou la suppression de vos informations, et de vous opposer au traitement de vos informations dans certaines circonstances.'},
+                            {'question': 'Comment vous informer des modifications de cette politique?', 'answer': 'Nous pouvons mettre à jour cette politique de confidentialité de temps à autre. Nous vous informerons de tout changement en publiant la nouvelle politique sur cette page.'},
+                            {'question': 'Quelles sont les conditions d\'utilisation de l\'application?', 'answer': 'En utilisant l\'application, vous acceptez de respecter les présentes conditions d\'utilisation, d\'utiliser l\'application conformément aux lois applicables et de maintenir la confidentialité de vos identifiants de connexion.'},
+                            {'question': 'Qui possède les droits de propriété intellectuelle?', 'answer': 'Tous les contenus présents sur l\'application sont la propriété de l\'application Inventaire Pompier ou de ses concédants et sont protégés par les lois sur le droit d\'auteur et les marques.'},
+                            {'question': 'Quelle est la limitation de responsabilité?', 'answer': 'L\'application est fournie \'telle quelle\'. Nous ne garantissons pas qu\'elle sera exempte d\'erreurs ou ininterrompue et déclinons toute responsabilité pour tout dommage résultant de son utilisation.'},
+                            {'question': 'Comment informons-nous des modifications des conditions d\'utilisation?', 'answer': 'Nous nous réservons le droit de modifier les conditions d\'utilisation à tout moment. Nous vous informerons des changements en publiant les nouvelles conditions sur cette page. Votre utilisation continue de l\'application après la publication constitue votre acceptation des nouvelles conditions.'},
+                            {'question': 'Comment nous contacter pour des questions sur les conditions d\'utilisation?', 'answer': 'Pour toute question concernant les conditions d\'utilisation, veuillez nous contacter à arthzappone@hotmail.fr ou au +33 6 89 25 39 85.'}
+                        ]"/>
+                        <t t-foreach="policies" t-as="policy" t-index="idx">
+                            <div class="accordion-item mb-2">
+                                <h2 class="accordion-header" id="heading-{{ idx }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapse-{{ idx }}" aria-expanded="false"
+                                            aria-controls="collapse-{{ idx }}">
+                                        <t t-esc="policy['question']"/>
+                                    </button>
+                                </h2>
+                                <div id="collapse-{{ idx }}" class="accordion-collapse collapse"
+                                     aria-labelledby="heading-{{ idx }}" data-bs-parent="#policiesAccordion">
+                                    <div class="accordion-body">
+                                        <t t-esc="policy['answer']"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

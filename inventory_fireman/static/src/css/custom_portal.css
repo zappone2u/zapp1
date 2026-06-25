@@ -1,0 +1,12 @@
+/* Masquer le bouton Sign In dans tous les headers */
+a[href="/web/login"],
+a[href*="/web/login?redirect"],
+button:contains("Sign in"),
+.o_portal_sign_in {
+    display: none !important;
+}
+
+/* Style pour le menu Mes UOs */
+.dropdown-item .fa-fire-extinguisher {
+    color: #e74c3c;
+}

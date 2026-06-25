@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vues pour les véhicules Firebase -->
+    
+    <!-- Vue liste des véhicules -->
+    <record id="view_firebase_vehicle_list" model="ir.ui.view">
+        <field name="name">firebase.vehicle.list</field>
+        <field name="model">firebase.vehicle</field>
+        <field name="arch" type="xml">
+            <list string="Véhicules">
+                <field name="label"/>
+                <field name="license_plate"/>
+                <field name="uo_name"/>
+                <field name="status"/>
+                <field name="product_count"/>
+                <field name="verified" widget="boolean_toggle"/>
+                <field name="last_sync_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue formulaire des véhicules -->
+    <record id="view_firebase_vehicle_form" model="ir.ui.view">
+        <field name="name">firebase.vehicle.form</field>
+        <field name="model">firebase.vehicle</field>
+        <field name="arch" type="xml">
+            <form string="Véhicule">
+                <header>
+                    <field name="status" widget="statusbar" 
+                           statusbar_visible="operational,repair,maintenance"/>
+                </header>
+                <sheet>
+                    <field name="verified" invisible="1"/>
+                    
+                    <widget name="web_ribbon" title="Vérifié" bg_color="bg-success" 
+                            invisible="not verified"/>
+                    
+                    <div class="oe_title">
+                        <h1>
+                            <field name="label" placeholder="Nom du véhicule"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Informations véhicule">
+                            <field name="license_plate"/>
+                            <field name="vehicle_id"/>
+                            <field name="uo_id"/>
+                            <field name="position"/>
+                        </group>
+                        <group string="Firebase">
+                            <field name="firebase_uid" readonly="1"/>
+                            <field name="last_sync_date" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Catégories et Équipements">
+                            <field name="product_ids">
+                                <list>
+                                    <field name="label"/>
+                                    <field name="item_count"/>
+                                </list>
+                            </field>
+                        </page>
+                        
+                        <page string="Notes">
+                            <field name="notes" placeholder="Notes sur le véhicule..."/>
+                        </page>
+                        
+                        <page string="Données Firebase (JSON)" groups="base.group_system">
+                            <group>
+                                <field name="products_data" widget="text"/>
+                            </group>
+                            <group>
+                                <field name="firebase_data" widget="text"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vue recherche des véhicules -->
+    <record id="view_firebase_vehicle_search" model="ir.ui.view">
+        <field name="name">firebase.vehicle.search</field>
+        <field name="model">firebase.vehicle</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher Véhicules">
+                <field name="label"/>
+                <field name="license_plate"/>
+                <field name="uo_id"/>
+                <field name="firebase_uid"/>
+                <filter string="Vérifié" name="verified" domain="[('verified', '=', True)]"/>
+                <filter string="Non vérifié" name="not_verified" domain="[('verified', '=', False)]"/>
+                <separator/>
+                <filter string="En réparation" name="repair" domain="[('status', '=', 'repair')]"/>
+                <group expand="0" string="Grouper par">
+                    <filter string="UO" name="group_uo" context="{'group_by': 'uo_id'}"/>
+                    <filter string="Statut" name="group_status" context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vue liste des produits/catégories -->
+    <record id="view_firebase_vehicle_product_list" model="ir.ui.view">
+        <field name="name">firebase.vehicle.product.list</field>
+        <field name="model">firebase.vehicle.product</field>
+        <field name="arch" type="xml">
+            <list string="Catégories de produits">
+                <field name="sequence" widget="handle"/>
+                <field name="label"/>
+                <field name="vehicle_id"/>
+                <field name="item_count"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vue formulaire des produits/catégories -->
+    <record id="view_firebase_vehicle_product_form" model="ir.ui.view">
+        <field name="name">firebase.vehicle.product.form</field>
+        <field name="model">firebase.vehicle.product</field>
+        <field name="arch" type="xml">
+            <form string="Catégorie de produits">
+                <sheet>
+                    <group>
+                        <field name="vehicle_id"/>
+                        <field name="label"/>
+                        <field name="firebase_uid" readonly="1"/>
+                        <field name="sequence"/>
+                    </group>
+                    <notebook>
+                        <page string="Items/Équipements">
+                            <field name="item_ids">
+                                <list editable="bottom">
+                                    <field name="parent_item_id" column_invisible="1"/>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="is_group" widget="boolean_toggle" string="Groupe"/>
+                                    <field name="group_label" string="Nom du groupe"
+                                        invisible="not is_group"/>
+                                    <field name="description"
+                                        invisible="is_group"
+                                        required="not is_group"/>
+                                    <field name="quantity"
+                                        invisible="is_group"/>
+                                    <field name="is_checked" widget="boolean_toggle"
+                                        invisible="is_group"/>
+                                    <field name="last_check_date"
+                                        invisible="is_group"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Données Firebase" groups="base.group_system">
+                            <field name="firebase_data" widget="text"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_firebase_vehicle" model="ir.actions.act_window">
+        <field name="name">Véhicules</field>
+        <field name="res_model">firebase.vehicle</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_firebase_vehicle_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_firebase_vehicle_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_firebase_vehicle_form')})]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer un nouveau véhicule
+            </p>
+            <p>
+                Les véhicules sont synchronisés depuis Firebase.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_firebase_vehicle_product" model="ir.actions.act_window">
+        <field name="name">Catégories de produits</field>
+        <field name="res_model">firebase.vehicle.product</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('vehicle_id', '=', active_id)]</field>
+        <field name="context">{'default_vehicle_id': active_id}</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_firebase_vehicle_product_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_firebase_vehicle_product_form')})]"/>
+    </record>
+
+    <!-- Menu pour les véhicules -->
+    <menuitem
+        id="menu_firebase_vehicle"
+        name="Véhicules"
+        parent="menu_inventory_fireman_root"
+        action="action_firebase_vehicle"
+        sequence="40"/>
+</odoo>

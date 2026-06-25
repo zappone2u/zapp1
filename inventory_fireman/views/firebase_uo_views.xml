@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vues pour les UO (Unités Organisationnelles) basées sur res.partner -->
+
+    <record id="view_partner_uo_list" model="ir.ui.view">
+        <field name="name">res.partner.uo.list</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <list string="Unités Organisationnelles">
+                <field name="name" />
+                <field name="uo_code" />
+                <field name="pompier_count" />
+                <field name="uo_verified" widget="boolean_toggle" />
+                <field name="sync_status"
+                    decoration-success="sync_status == 'synced'"
+                    decoration-warning="sync_status == 'pending'"
+                    decoration-danger="sync_status == 'error'" />
+                <field name="last_sync_date" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_partner_uo_form" model="ir.ui.view">
+        <field name="name">res.partner.uo.form</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <form string="Unité Opérationnelle">
+                <header>
+                    <button name="action_sync_from_firebase" string="Synchroniser depuis Firebase"
+                        type="object" class="btn-primary" />
+                    <field name="sync_status" widget="statusbar"
+                        statusbar_visible="pending,synced" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_pompiers" type="object" class="oe_stat_button"
+                            icon="fa-users">
+                            <field name="pompier_count" widget="statinfo" string="Pompiers" />
+                        </button>
+                        <button name="action_view_inventories" type="object" class="oe_stat_button"
+                            icon="fa-list-alt">
+                            <field name="inventory_count" widget="statinfo" string="Inventaires" />
+                        </button>
+                        <button name="action_view_vehicles" type="object" class="oe_stat_button"
+                            icon="fa-truck">
+                            <field name="vehicle_count" widget="statinfo" string="Véhicules" />
+                        </button>
+                    </div>
+
+                    <field name="image_1920" widget="image" class="oe_avatar" />
+
+                    <widget name="web_ribbon" title="Inactif" bg_color="bg-danger"
+                        invisible="active" />
+
+                    <field name="active" invisible="1" />
+                    <field name="is_firebase_uo" invisible="1" />
+                    <field name="is_company" invisible="1" />
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nom de l'UO" />
+                        </h1>
+                        <group>
+                            <field name="uo_code" placeholder="Code UO" />
+                            <field name="subscription_sale_order_id"/>
+                            <field name="subscription_tier" />
+                        </group>
+
+                    </div>
+
+                    <group string="Paramètres UO">
+                        <group>
+                            <field name="uo_verified" />
+                            <field name="uo_prefill_qty" />
+                            <field name="uo_send_inventory_to_all" />
+
+                        </group>
+                        <group>
+                            <field name="max_vehicles" />
+                            <field name="max_users" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Pompiers">
+                            <field name="pompier_uo_rel_ids">
+                                <list editable="bottom">
+                                    <field name="pompier_id"
+                                        domain="[('is_firebase_uo', '=', True)]" />
+                                    <field name="pompier_email"/>
+                                    <field name="uo_admin" widget="boolean_toggle" />
+                                    <field name="verified" widget="boolean_toggle" />
+                                    <field name="uo_pharmacist" widget="boolean_toggle" />
+                                    <field name="last_connection_date" />
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="pompier_id"
+                                            domain="[('is_firebase_uo', '=', True)]" />
+                                        <field name="uo_admin" />
+                                        <field name="verified" />
+                                        <field name="uo_pharmacist" />
+                                        <field name="last_connection_date" />
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Synchronisation Firebase">
+                            <group>
+                                <group>
+                                    <field name="last_sync_date" readonly="1" />
+                                    <field name="firebase_created_at" readonly="1" />
+                                    <field name="firebase_updated_at" readonly="1" />
+                                </group>
+                                <group>
+                                    <field name="sync_error" invisible="not sync_error" />
+                                </group>
+                            </group>
+                            <group string="Données brutes Firebase">
+                                <field name="firebase_data" widget="text" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_partner_uo_search" model="ir.ui.view">
+        <field name="name">res.partner.uo.search</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search string="Rechercher UO">
+                <field name="name" />
+                <field name="uo_code" />
+                <field name="city" />
+                <field name="firebase_uid" />
+                <filter string="Vérifié" name="filter_uo_verified"
+                    domain="[('uo_verified', '=', True)]" />
+                <filter string="Actif" name="active" domain="[('active', '=', True)]" />
+                <filter string="Inactif" name="inactive" domain="[('active', '=', False)]" />
+                <separator />
+                <filter string="Synchronisé" name="synced" domain="[('sync_status', '=', 'synced')]" />
+                <filter string="Erreur de sync" name="sync_error"
+                    domain="[('sync_status', '=', 'error')]" />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_firebase_uo" model="ir.actions.act_window">
+        <field name="name">Unités Organisationnelles</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('is_firebase_uo', '=', True)]</field>
+        <field name="context">{'default_is_firebase_uo': True, 'default_is_company': True,
+            'search_default_filter_uo_verified': 1}</field>
+        <field name="search_view_id" ref="view_partner_uo_search" />
+        <field name="view_ids"
+            eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_partner_uo_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_partner_uo_form')})]" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Créer une nouvelle UO
+            </p>
+            <p>
+                Les Unités Organisationnelles (Entreprises) sont synchronisées depuis Firebase.
+            </p>
+        </field>
+    </record>
+</odoo>

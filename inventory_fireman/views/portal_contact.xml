@@ -1,0 +1,704 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             Page Contact — Inventory Fireman
+             GET  /contact  → affiche le formulaire
+             POST /contact  → crée un ticket Helpdesk Odoo
+        ═══════════════════════════════════════════════════════════════════ -->
+        <template id="portal_contact" name="Contact — Inventory Fireman">
+            <t t-call="portal.portal_layout">
+                <t t-set="additional_title">Contact</t>
+
+                <!-- Font Awesome -->
+                <link rel="stylesheet"
+                    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+                <style>
+                    /* ── Variables ──────────────────────────────────────── */
+                    :root {
+                    --if-purple: #667eea;
+                    --if-violet: #764ba2;
+                    --if-dark: #1a1a2e;
+                    --if-mid: #16213e;
+                    --if-blue: #0f3460;
+                    --if-slate: #94a3b8;
+                    }
+
+                    /* ── Hero contact ───────────────────────────────────── */
+                    .contact-hero {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    padding: 80px 0 100px;
+                    position: relative;
+                    overflow: hidden;
+                    margin: -24px -15px 0 -15px;
+                    color: #fff;
+                    }
+                    .contact-hero::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0; right: 0;
+                    height: 60px;
+                    background: #f8f9fa;
+                    clip-path: ellipse(55% 100% at 50% 100%);
+                    }
+                    .contact-hero .hero-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: rgba(102,126,234,.18);
+                    border: 1px solid rgba(102,126,234,.35);
+                    color: #a5b4fc;
+                    font-size: 13px;
+                    font-weight: 600;
+                    padding: 6px 16px;
+                    border-radius: 50px;
+                    margin-bottom: 20px;
+                    letter-spacing: .5px;
+                    }
+                    .contact-hero h1 {
+                    font-size: 48px;
+                    font-weight: 800;
+                    margin-bottom: 16px;
+                    line-height: 1.15;
+                    }
+                    .contact-hero h1 span {
+                    color: white;
+                    }
+                    .contact-hero p.lead {
+                    color: var(--if-slate);
+                    font-size: 18px;
+                    max-width: 480px;
+                    }
+
+                    /* ── Bloc page ──────────────────────────────────────── */
+                    .contact-page {
+                    background: #f8f9fa;
+                    padding: 60px 0 80px;
+                    }
+
+                    /* ── Carte info à gauche ────────────────────────────── */
+                    .contact-info-card {
+                    background: #fff;
+                    border-radius: 20px;
+                    padding: 36px 32px;
+                    box-shadow: 0 4px 24px rgba(0,0,0,.07);
+                    height: 100%;
+                    }
+                    .contact-info-card h5 {
+                    font-size: 20px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    margin-bottom: 24px;
+                    }
+                    .info-item {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 14px;
+                    margin-bottom: 22px;
+                    }
+                    .info-icon {
+                    width: 44px;
+                    height: 44px;
+                    flex-shrink: 0;
+                    background: linear-gradient(135deg, rgba(102,126,234,.12),
+                    rgba(118,75,162,.12));
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 17px;
+                    color: var(--if-purple);
+                    }
+                    .info-item .info-label {
+                    font-size: 11.5px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    color: var(--if-slate);
+                    margin-bottom: 3px;
+                    }
+                    .info-item .info-value {
+                    font-size: 14.5px;
+                    color: #334155;
+                    font-weight: 500;
+                    }
+                    .info-item .info-value a {
+                    color: var(--if-purple);
+                    text-decoration: none;
+                    font-weight: 600;
+                    }
+                    .info-item .info-value a:hover { text-decoration: underline; }
+
+                    /* Réponse délai */
+                    .response-badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    background: linear-gradient(135deg, rgba(102,126,234,.08),
+                    rgba(118,75,162,.08));
+                    border: 1px solid rgba(102,126,234,.2);
+                    border-radius: 12px;
+                    padding: 14px 18px;
+                    margin-top: 10px;
+                    }
+                    .response-badge i { color: var(--if-purple); font-size: 20px; }
+                    .response-badge .rb-label { font-size: 12px; color: var(--if-slate); }
+                    .response-badge .rb-value { font-size: 15px; font-weight: 700; color: #1e293b; }
+                    /* ── Carte formulaire ───────────────────────────────── */
+                    .contact-form-card {
+                    background: #fff;
+                    border-radius: 20px;
+                    padding: 40px 38px;
+                    box-shadow: 0 4px 24px rgba(0,0,0,.07);
+                    }
+                    .contact-form-card h5 {
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    margin-bottom: 28px;
+                    }
+
+                    /* ── Champs du formulaire ───────────────────────────── */
+                    .form-label-if {
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #475569;
+                    margin-bottom: 6px;
+                    letter-spacing: .3px;
+                    }
+                    .form-label-if .required-star { color: #ef4444; margin-left: 2px; }
+                    .form-control-if {
+                    border: 1.5px solid #e2e8f0;
+                    border-radius: 12px;
+                    padding: 12px 16px;
+                    font-size: 14.5px;
+                    color: #1e293b;
+                    background: #f8fafc;
+                    transition: border-color .2s ease, box-shadow .2s ease;
+                    width: 100%;
+                    outline: none;
+                    }
+                    .form-control-if:focus {
+                    border-color: var(--if-purple);
+                    box-shadow: 0 0 0 3px rgba(102,126,234,.15);
+                    background: #fff;
+                    }
+                    .form-control-if::placeholder { color: #94a3b8; }
+                    textarea.form-control-if { resize: vertical; min-height: 130px; }
+
+                    /* ── Select ─────────────────────────────────────────── */
+                    select.form-control-if {
+                    appearance: none;
+                    background-image: url("data:image/svg+xml,%3Csvg
+                    xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12
+                    8'%3E%3Cpath fill='%2394a3b8' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+                    background-repeat: no-repeat;
+                    background-position: right 14px center;
+                    padding-right: 38px;
+                    cursor: pointer;
+                    }
+
+                    /* ── Bouton submit ──────────────────────────────────── */
+                    .btn-contact-submit {
+                    background: linear-gradient(135deg, var(--if-purple) 0%, var(--if-violet) 100%);
+                    color: #fff;
+                    border: none;
+                    border-radius: 14px;
+                    padding: 15px 40px;
+                    font-size: 16px;
+                    font-weight: 700;
+                    letter-spacing: .4px;
+                    cursor: pointer;
+                    transition: all .25s ease;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 10px;
+                    box-shadow: 0 6px 20px rgba(102,126,234,.35);
+                    }
+                    .btn-contact-submit:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 12px 30px rgba(102,126,234,.5);
+                    color: #fff;
+                    }
+                    .btn-contact-submit:active { transform: translateY(0); }
+
+                    /* ── Alertes succès / erreur ────────────────────────── */
+                    .alert-if-success {
+                    background: linear-gradient(135deg, #dcfce7, #d1fae5);
+                    border: 1.5px solid #86efac;
+                    border-radius: 14px;
+                    padding: 18px 22px;
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 14px;
+                    margin-bottom: 28px;
+                    }
+                    .alert-if-success .alert-icon { font-size: 22px; color: #16a34a; flex-shrink: 0;
+                    }
+                    .alert-if-success .alert-title { font-weight: 700; color: #15803d; font-size:
+                    15px; }
+                    .alert-if-success .alert-msg { color: #166534; font-size: 13.5px; margin-top:
+                    3px; }
+
+                    .alert-if-error {
+                    background: linear-gradient(135deg, #fee2e2, #fecaca);
+                    border: 1.5px solid #fca5a5;
+                    border-radius: 14px;
+                    padding: 18px 22px;
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 14px;
+                    margin-bottom: 28px;
+                    }
+                    .alert-if-error .alert-icon { font-size: 22px; color: #dc2626; flex-shrink: 0; }
+                    .alert-if-error .alert-title { font-weight: 700; color: #b91c1c; font-size:
+                    15px; }
+                    .alert-if-error .alert-msg { color: #7f1d1d; font-size: 13.5px; margin-top: 3px;
+                    }
+
+                    /* ── FAQ mini ───────────────────────────────────────── */
+                    .faq-section { margin-top: 60px; }
+                    .faq-section h4 {
+                    font-size: 26px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    text-align: center;
+                    margin-bottom: 8px;
+                    }
+                    .faq-section .faq-sub {
+                    text-align: center;
+                    color: var(--if-slate);
+                    margin-bottom: 36px;
+                    }
+                    .faq-item {
+                    background: #fff;
+                    border: 1.5px solid #e2e8f0;
+                    border-radius: 14px;
+                    margin-bottom: 12px;
+                    overflow: hidden;
+                    transition: border-color .2s ease;
+                    }
+                    .faq-item:hover { border-color: rgba(102,126,234,.4); }
+                    .faq-question {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 18px 22px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 15px;
+                    color: #1e293b;
+                    user-select: none;
+                    gap: 12px;
+                    }
+                    .faq-question i.faq-arrow {
+                    color: var(--if-slate);
+                    font-size: 13px;
+                    transition: transform .25s ease;
+                    flex-shrink: 0;
+                    }
+                    .faq-answer {
+                    display: none;
+                    padding: 0 22px 18px;
+                    color: #475569;
+                    font-size: 14.5px;
+                    line-height: 1.7;
+                    }
+                    .faq-item.open .faq-answer { display: block; }
+                    .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--if-purple);
+                    }
+
+                    /* ── Responsive ─────────────────────────────────────── */
+                    @media (max-width: 767px) {
+                    .contact-hero { padding: 55px 0 80px; }
+                    .contact-hero h1 { font-size: 32px; }
+                    .contact-form-card { padding: 26px 20px; }
+                    .contact-info-card { padding: 26px 20px; margin-bottom: 24px; }
+                    }
+                </style>
+
+                <!-- ── HERO ──────────────────────────────────────────────── -->
+                <div class="contact-hero">
+                    <div class="container" style="position:relative; z-index:1; text-align:center;">
+                        <div class="hero-badge">
+                            <i class="fa fa-headset" /> Support &amp; Contact </div>
+                        <h1>Une question ?<br /><span>Nous sommes là.</span></h1>
+                        <div>
+                            <span class="lead">
+                                Notre équipe répond généralement sous 24 h.
+                                Votre message crée automatiquement un ticket dans notre système.
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── CONTENU PRINCIPAL ─────────────────────────────────── -->
+                <div class="contact-page">
+                    <div class="container">
+                        <div class="row g-4 align-items-start">
+
+                            <!-- ── Colonne gauche : Infos ─────────────────── -->
+                            <div class="col-lg-4">
+                                <div class="contact-info-card">
+                                    <h5>Nos coordonnées</h5>
+
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class="fa fa-envelope" />
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Email</div>
+                                            <div class="info-value">
+                                                <a href="mailto:arthzappone@hotmail.fr">
+                                                    arthzappone@hotmail.fr</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class="fa fa-phone" />
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Téléphone</div>
+                                            <div class="info-value">
+                                                <a href="tel:+33689253985">+33 6 89 25 39 85</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class="fa fa-globe" />
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Application mobile</div>
+                                            <div class="info-value">iOS &amp; Android</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class="fa fa-shield-halved" />
+                                        </div>
+                                        <div>
+                                            <div class="info-label">Légal</div>
+                                            <div class="info-value">
+                                                <a href="/policies">Politique de confidentialité</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="response-badge">
+                                        <i class="fa fa-clock" />
+                                        <div>
+                                            <div class="rb-label">Temps de réponse moyen</div>
+                                            <div class="rb-value">Sous 24 heures</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ── Colonne droite : Formulaire ────────────── -->
+                            <div class="col-lg-8">
+                                <div class="contact-form-card">
+                                    <h5>
+                                        <i class="fa fa-paper-plane"
+                                            style="color:var(--if-purple);" /> Envoyer un message </h5>
+
+                                    <!-- Alerte succès -->
+                                    <t t-if="success">
+                                        <div class="alert-if-success">
+                                            <i class="fa fa-circle-check alert-icon" />
+                                            <div>
+                                                <div class="alert-title">Message envoyé avec succès
+                                                    !</div>
+                                                <div class="alert-msg"> Votre ticket #<strong
+                                                        t-esc="ticket_id" /> a été créé. Notre
+                                                    équipe vous répondra dans les meilleurs délais à <strong
+                                                        t-esc="ticket_email" />. </div>
+                                            </div>
+                                        </div>
+                                    </t>
+
+                                    <!-- Alerte erreur -->
+                                    <t t-if="error">
+                                        <div class="alert-if-error">
+                                            <i class="fa fa-circle-exclamation alert-icon" />
+                                            <div>
+                                                <div class="alert-title">Une erreur est survenue</div>
+                                                <div class="alert-msg" t-esc="error" />
+                                            </div>
+                                        </div>
+                                    </t>
+
+                                    <!-- Formulaire -->
+                                    <t t-if="not success">
+                                        <form method="POST" action="/contact" id="contactForm">
+                                            <input type="hidden" name="csrf_token"
+                                                t-att-value="request.csrf_token()" />
+
+                                            <div class="row g-3">
+                                                <!-- Nom -->
+                                                <div class="col-sm-6">
+                                                    <label class="form-label-if" for="contact_name">
+                                                        Nom complet <span class="required-star">*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        id="contact_name"
+                                                        name="contact_name"
+                                                        class="form-control-if"
+                                                        placeholder="Jean Dupont"
+                                                        t-att-value="form_values.get('contact_name', '')"
+                                                        required="required" />
+                                                </div>
+
+                                                <!-- Email -->
+                                                <div class="col-sm-6">
+                                                    <label class="form-label-if" for="contact_email">
+                                                        Adresse email <span class="required-star">*</span>
+                                                    </label>
+                                                    <input type="email"
+                                                        id="contact_email"
+                                                        name="contact_email"
+                                                        class="form-control-if"
+                                                        placeholder="jean@example.com"
+                                                        t-att-value="form_values.get('contact_email', '')"
+                                                        required="required" />
+                                                </div>
+
+                                                <!-- Catégorie -->
+                                                <div class="col-sm-6">
+                                                    <label class="form-label-if"
+                                                        for="contact_category"> Catégorie <span
+                                                            class="required-star">*</span>
+                                                    </label>
+                                                    <select id="contact_category"
+                                                        name="contact_category"
+                                                        class="form-control-if"
+                                                        required="required">
+                                                        <option value="">— Choisir une catégorie —</option>
+                                                        <option value="support_technique"
+                                                            t-att-selected="'selected' if form_values.get('contact_category') == 'support_technique' else None">
+                                                            🔧 Support technique
+                                                        </option>
+                                                        <option value="facturation"
+                                                            t-att-selected="'selected' if form_values.get('contact_category') == 'facturation' else None">
+                                                            💳 Facturation / Abonnement
+                                                        </option>
+                                                        <option value="compte"
+                                                            t-att-selected="'selected' if form_values.get('contact_category') == 'compte' else None">
+                                                            👤 Compte utilisateur
+                                                        </option>
+                                                        <option value="application"
+                                                            t-att-selected="'selected' if form_values.get('contact_category') == 'application' else None">
+                                                            📱 Application mobile
+                                                        </option>
+                                                        <option value="fonctionnalite"
+                                                            t-att-selected="'selected' if form_values.get('contact_category') == 'fonctionnalite' else None">
+                                                            💡 Demande de fonctionnalité
+                                                        </option>
+                                                        <option value="autre"
+                                                            t-att-selected="'selected' if form_values.get('contact_category') == 'autre' else None">
+                                                            📌 Autre
+                                                        </option>
+                                                    </select>
+                                                </div>
+
+                                                <!-- Sujet -->
+                                                <div class="col-sm-6">
+                                                    <label class="form-label-if"
+                                                        for="contact_subject"> Sujet <span
+                                                            class="required-star">*</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        id="contact_subject"
+                                                        name="contact_subject"
+                                                        class="form-control-if"
+                                                        placeholder="Décrivez brièvement votre demande"
+                                                        t-att-value="form_values.get('contact_subject', '')"
+                                                        required="required" />
+                                                </div>
+
+                                                <!-- Message -->
+                                                <div class="col-12">
+                                                    <label class="form-label-if"
+                                                        for="contact_message"> Message <span
+                                                            class="required-star">*</span>
+                                                    </label>
+                                                    <textarea id="contact_message"
+                                                        name="contact_message"
+                                                        class="form-control-if"
+                                                        placeholder="Décrivez votre problème ou question en détail…"
+                                                        required="required">
+                                                        <t
+                                                            t-esc="form_values.get('contact_message', '')" />
+                                                    </textarea>
+                                                </div>
+
+                                                <!-- UO (optionnel) -->
+                                                <div class="col-12">
+                                                    <label class="form-label-if" for="contact_uo">
+                                                        Code UO <span
+                                                            style="color:#94a3b8; font-weight:400;">
+                                                        (optionnel)</span>
+                                                    </label>
+                                                    <input type="text"
+                                                        id="contact_uo"
+                                                        name="contact_uo"
+                                                        class="form-control-if"
+                                                        placeholder="Ex : SIE, LUX… (laissez vide si non concerné)"
+                                                        t-att-value="form_values.get('contact_uo', '')" />
+                                                </div>
+
+                                                <!-- Bouton -->
+                                                <div class="col-12 mt-2">
+                                                    <button type="submit" class="btn-contact-submit">
+                                                        <i class="fa fa-paper-plane" /> Envoyer le
+                                                        message </button>
+                                                    <p
+                                                        style="font-size:12.5px; color:#94a3b8; margin-top:14px; margin-bottom:0;">
+                                                        <i class="fa fa-lock"
+                                                            style="margin-right:5px;" /> Vos données
+                                                        sont traitées conformément à notre <a
+                                                            href="/policies" style="color:#667eea;">politique
+                                                        de confidentialité</a>. </p>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </t>
+
+                                    <!-- Bouton de réinitialisation après succès -->
+                                    <t t-if="success">
+                                        <a href="/contact" class="btn-contact-submit"
+                                            style="text-decoration:none; display:inline-flex; margin-top:16px;">
+                                            Envoyer un autre message </a>
+                                    </t>
+                                </div>
+                            </div>
+
+                        </div><!--
+                        /row -->
+
+                        <!-- ── FAQ ───────────────────────────────────────── -->
+                        <div class="faq-section">
+                            <h4>Questions fréquentes</h4>
+                            <p class="faq-sub">Trouvez rapidement une réponse avant de nous
+                                contacter</p>
+                            <div class="row g-3">
+                                <div class="col-lg-6">
+                                    <div class="faq-item" style="margin-bottom:15px;">
+                                        <div class="faq-question"> Comment
+                                            créer une UO gratuite ? 
+                                        </div>
+                                        <div class="faq-answer">
+                                            Inscrivez-vous sur la plateforme et créez votre Unité
+                                            Opérationnelle.
+                                            Le plan Découverte est entièrement gratuit et vous
+                                            permet de tester
+                                            avec 1 véhicule et 1 utilisateur, sans limite de temps.
+                                        </div>
+                                    </div>
+                                    <div class="faq-item" style="margin-bottom:15px;">
+                                        <div class="faq-question"> Comment
+                                            changer de plan d'abonnement ? 
+                                        </div>
+                                        <div class="faq-answer">
+                                            Depuis votre tableau de bord, accédez à votre UO puis à
+                                            la section
+                                            "Abonnement". Vous pouvez choisir parmi les plans
+                                            Essentiel, Caserne
+                                            ou Flotte. Le changement prend effet immédiatement.
+                                        </div>
+                                    </div>
+                                    <div class="faq-item" style="margin-bottom:15px;">
+                                        <div class="faq-question">
+                                            L'application mobile est-elle incluse ?
+                                        </div>
+                                        <div class="faq-answer">
+                                            Oui, l'application mobile (iOS &amp; Android) est
+                                            disponible pour tous
+                                            les plans, y compris le plan Découverte gratuit. Elle se
+                                            synchronise
+                                            automatiquement avec le portail web.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="faq-item" style="margin-bottom:15px;">
+                                        <div class="faq-question"> Comment
+                                            inviter des pompiers dans mon UO ?
+                                        </div>
+                                        <div class="faq-answer">
+                                            Depuis la page Personnel de votre UO, cliquez sur
+                                            "Inviter un pompier"
+                                            et entrez son adresse email. Il doit déjà posséder un
+                                            compte sur la
+                                            plateforme pour être ajouté.
+                                        </div>
+                                    </div>
+                                    <div class="faq-item" style="margin-bottom:15px;">
+                                        <div class="faq-question"> Comment
+                                            résilier mon abonnement ?
+                                        </div>
+                                        <div class="faq-answer">
+                                            Depuis la page de votre UO, utilisez le bouton "Résilier
+                                            l'abonnement".
+                                            Votre UO passera en mode Découverte à la fin de la
+                                            période en cours.
+                                            Aucun remboursement partiel n'est effectué.
+                                        </div>
+                                    </div>
+                                    <div class="faq-item" style="margin-bottom:15px;">
+                                        <div class="faq-question"> Mes
+                                            données sont-elles sécurisées ?
+                                        </div>
+                                        <div class="faq-answer"> Oui, toutes les données sont
+                                            chiffrées et stockées sur Firebase (Google Cloud).
+                                            Consultez notre <a href="/policies">politique de
+                                            confidentialité</a> pour plus de détails. </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!--
+                        /faq-section -->
+
+                    </div><!--
+                    /container -->
+                </div><!--
+                /contact-page -->
+
+                <script>
+                    (function initFaq() {
+                        function bindFaq() {
+                            document.querySelectorAll('.faq-question').forEach(function (btn) {
+                                if (btn._faqBound) return;
+                                btn._faqBound = true;
+                                btn.addEventListener('click', function () {
+                                    var item = btn.closest('.faq-item');
+                                    var isOpen = item.classList.contains('open');
+                                    document.querySelectorAll('.faq-item.open').forEach(function (i) {
+                                        i.classList.remove('open');
+                                    });
+                                    if (!isOpen) {
+                                        item.classList.add('open');
+                                    }
+                                });
+                            });
+                        }
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', bindFaq);
+                        } else {
+                            bindFaq();
+                        }
+                    })();
+                </script>
+
+            </t>
+        </template>
+
+    </data>
+</odoo>

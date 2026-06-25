@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Cron: Sync Bank Connections -->
+        <record id="ir_cron_sync_bank_connections" model="ir.cron">
+            <field name="name">Bank Sync: Sync All Connections</field>
+            <field name="model_id" ref="model_bank_connection"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_sync_all_connections()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active" eval="True"/>
+        </record>
+        
+        <!-- Cron: Check Subscription Payments -->
+        <record id="ir_cron_check_subscriptions" model="ir.cron">
+            <field name="name">Bank Sync: Check Subscription Payments</field>
+            <field name="model_id" ref="model_subscription_monitor"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_check_all_subscriptions()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+        
+        <!-- Cron: Create Monitors for New Subscriptions -->
+        <record id="ir_cron_create_subscription_monitors" model="ir.cron">
+            <field name="name">Bank Sync: Create Subscription Monitors</field>
+            <field name="model_id" ref="model_subscription_monitor"/>
+            <field name="state">code</field>
+            <field name="code">model.create_monitors_for_new_subscriptions()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Sequence for Bank Transactions -->
+        <record id="seq_bank_transaction" model="ir.sequence">
+            <field name="name">Bank Transaction</field>
+            <field name="code">bank.transaction</field>
+            <field name="prefix">BT</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

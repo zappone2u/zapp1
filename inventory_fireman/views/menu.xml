@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menu principal -->
+    <menuitem id="menu_inventory_fireman_root"
+              web_icon="inventory_fireman,static/src/img/uo.png"
+              name="Inventory Fireman"
+              sequence="10"/>
+
+    <!-- Sous-menus Firebase -->
+    <menuitem id="menu_firebase_uo"
+              name="Unités Organisationnelles"
+              parent="menu_inventory_fireman_root"
+              action="action_firebase_uo"
+              sequence="10"/>
+
+    <menuitem id="menu_firebase_pompier"
+              name="Pompiers"
+              parent="menu_inventory_fireman_root"
+              action="action_firebase_pompier"
+              sequence="20"/>
+
+    <menuitem id="menu_pompier_uo_rel"
+              name="Relations Pompier-UO"
+              parent="menu_inventory_fireman_root"
+              action="action_pompier_uo_rel"
+              sequence="25"/>
+
+    <!-- Lien vers les abonnements natifs Odoo -->
+    <menuitem id="menu_firebase_subscriptions"
+              name="Abonnements"
+              parent="menu_inventory_fireman_root"
+              action="sale_subscription.sale_subscription_action"
+              sequence="30"/>
+
+    <menuitem id="menu_firebase_connector"
+              name="Configuration Firebase"
+              parent="menu_inventory_fireman_root"
+              action="action_firebase_connector"
+              sequence="100"/>
+
+    <!-- Menu Configuration -->
+    <menuitem id="menu_configuration"
+              name="Configuration"
+              parent="menu_inventory_fireman_root"
+              sequence="100"/>
+</odoo>

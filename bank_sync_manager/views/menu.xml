@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_bank_sync_manager_root" name="Bank Sync" sequence="60" 
+              web_icon="bank_sync_manager,static/description/icon.png"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_bank_sync_config" name="Configuration" parent="menu_bank_sync_manager_root" 
+              sequence="100"/>
+    
+    <menuitem id="menu_bank_connection" name="Bank Connections" 
+              parent="menu_bank_sync_config" 
+              action="action_bank_connection" 
+              sequence="10"/>
+
+    <!-- Operations Menu -->
+    <menuitem id="menu_bank_sync_operations" name="Operations" parent="menu_bank_sync_manager_root" 
+              sequence="10"/>
+    
+    <menuitem id="menu_bank_transaction" name="Transactions" 
+              parent="menu_bank_sync_operations" 
+              action="action_bank_transaction" 
+              sequence="10"/>
+
+    <menuitem id="menu_revolut_import" name="Import Revolut" 
+              parent="menu_bank_sync_operations" 
+              action="action_revolut_import_wizard" 
+              sequence="15"/>
+    
+    <menuitem id="menu_invoice_matching" name="Invoice Matches" 
+              parent="menu_bank_sync_operations" 
+              action="action_invoice_matching" 
+              sequence="20"/>
+
+    <!-- Subscriptions Menu -->
+    <menuitem id="menu_bank_sync_subscriptions" name="Subscriptions" 
+              parent="menu_bank_sync_manager_root" 
+              sequence="20"/>
+    
+    <menuitem id="menu_subscription_monitor" name="Payment Monitors" 
+              parent="menu_bank_sync_subscriptions" 
+              action="action_subscription_monitor" 
+              sequence="10"/>
+
+</odoo>

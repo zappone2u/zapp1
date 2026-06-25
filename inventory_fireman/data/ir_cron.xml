@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Cron job de RÉCONCILIATION Firebase (filet de sécurité).
+         La synchronisation temps réel est assurée par les webhooks Firebase ;
+         ce cron ne sert qu'à rattraper d'éventuels événements manqués.
+         Fréquence volontairement basse pour éviter de tout relire en permanence. -->
+    <record id="ir_cron_sync_firebase_data" model="ir.cron">
+        <field name="name">Réconciliation Firebase (filet de sécurité)</field>
+        <field name="model_id" ref="inventory_fireman.model_firebase_connector"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_sync_firebase_data()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Cron job pour vérifier les paiements et activer les UO -->
+    <record id="ir_cron_check_subscription_payments" model="ir.cron">
+        <field name="name">Vérification Paiements Abonnements</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="state">code</field>
+        <field name="code">model._check_and_activate_subscriptions()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Cron job pour pousser les abonnements vers Firebase -->
+    <record id="ir_cron_sync_subscriptions_to_firebase" model="ir.cron">
+        <field name="name">Sync Abonnements → Firebase</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_sync_subscriptions_to_firebase()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Bank Transaction Form View -->
+    <record id="view_bank_transaction_form" model="ir.ui.view">
+        <field name="name">bank.transaction.form</field>
+        <field name="model">bank.transaction</field>
+        <field name="arch" type="xml">
+            <form string="Bank Transaction">
+                <header>
+                    <button name="action_auto_match" type="object" string="Auto Match" 
+                            class="oe_highlight" invisible="state in ['matched', 'reconciled']"/>
+                    <button name="action_reconcile" type="object" string="Reconcile" 
+                            class="oe_highlight" invisible="state != 'matched'"/>
+                    <button name="action_view_matches" type="object" string="View Matches" 
+                            invisible="not matching_ids"/>
+                    <field name="state" widget="statusbar" 
+                           statusbar_visible="draft,unmatched,matched,reconciled"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_matches" 
+                                icon="fa-link" invisible="not matching_ids">
+                            <field string="Matches" name="matching_ids" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="connection_id"/>
+                            <field name="reference"/>
+                            <field name="date"/>
+                            <field name="journal_id"/>
+                        </group>
+                        <group>
+                            <field name="amount" widget="monetary"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="matched_amount" widget="monetary"/>
+                            <field name="remaining_amount" widget="monetary"/>
+                        </group>
+                    </group>
+                    <group string="Partner Information">
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="partner_name"/>
+                        </group>
+                        <group>
+                            <field name="partner_account"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Matched Invoices">
+                            <field name="matched_invoice_ids" mode="list">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="invoice_date"/>
+                                    <field name="amount_total"/>
+                                    <field name="amount_residual"/>
+                                    <field name="payment_state"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Accounting" invisible="not move_id">
+                            <group>
+                                <field name="move_id"/>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Bank Transaction list View -->
+    <record id="view_bank_transaction_list" model="ir.ui.view">
+        <field name="name">bank.transaction.list</field>
+        <field name="model">bank.transaction</field>
+        <field name="arch" type="xml">
+            <list string="Bank Transactions" decoration-success="state == 'reconciled'" 
+                  decoration-info="state == 'matched'" decoration-warning="state == 'unmatched'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="partner_name"/>
+                <field name="reference"/>
+                <field name="amount" widget="monetary"/>
+                <field name="matched_amount" widget="monetary"/>
+                <field name="remaining_amount" widget="monetary"/>
+                <field name="connection_id"/>
+                <field name="state" widget="badge" 
+                       decoration-success="state == 'reconciled'" 
+                       decoration-info="state == 'matched'"
+                       decoration-warning="state in ['unmatched', 'partial']"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Bank Transaction Search View -->
+    <record id="view_bank_transaction_search" model="ir.ui.view">
+        <field name="name">bank.transaction.search</field>
+        <field name="model">bank.transaction</field>
+        <field name="arch" type="xml">
+            <search string="Bank Transactions">
+                <field name="name"/>
+                <field name="reference"/>
+                <field name="partner_id"/>
+                <field name="partner_name"/>
+                <field name="connection_id"/>
+                <separator/>
+                <filter string="Unmatched" name="unmatched" domain="[('state', '=', 'unmatched')]"/>
+                <filter string="Matched" name="matched" domain="[('state', '=', 'matched')]"/>
+                <filter string="Reconciled" name="reconciled" domain="[('state', '=', 'reconciled')]"/>
+                <separator/>
+                <filter string="This Month" name="this_month" 
+                        domain="[('date', '&gt;=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Connection" name="group_connection" context="{'group_by': 'connection_id'}"/>
+                    <filter string="Partner" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Bank Transaction Action -->
+    <record id="action_bank_transaction" model="ir.actions.act_window">
+        <field name="name">Bank Transactions</field>
+        <field name="res_model">bank.transaction</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_this_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No bank transactions yet
+            </p>
+            <p>
+                Sync your bank connection to import transactions.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Page de vérification d'email et activation de l'abonnement -->
+    <template id="portal_subscription_activate" name="Activer votre abonnement">
+        <t t-call="portal.portal_layout">
+            <t t-set="additional_title">Activer votre abonnement</t>
+
+            <div class="container mt-4 mb-5">
+                <div class="row">
+                    <div class="col-lg-8 offset-lg-2">
+                        <div class="mb-4">
+                            <a t-attf-href="/my/firebase/uo/#{uo.id}/subscription/choose" class="btn btn-sm btn-outline-secondary">
+                                <i class="fa fa-arrow-left"/> Retour au choix
+                            </a>
+                        </div>
+
+                        <div class="card shadow">
+                            <div class="card-header bg-primary text-white">
+                                <h3 class="mb-0">
+                                    <i class="fa fa-check-circle me-2"/>
+                                    <t t-if="is_upgrade">Changement de plan</t>
+                                    <t t-else="">Activation de votre abonnement</t>
+                                </h3>
+                            </div>
+                            <div class="card-body">
+
+                                <!-- Affichage des erreurs -->
+                                <t t-if="error">
+                                    <div class="alert alert-danger">
+                                        <i class="fa fa-exclamation-triangle me-1"/>
+                                        <t t-if="error == 'invalid_email'">
+                                            L'adresse email n'est pas valide. Veuillez entrer une adresse email correcte.
+                                        </t>
+                                        <t t-elif="error == 'activation_failed'">
+                                            Une erreur s'est produite lors de l'activation. Veuillez réessayer ou contacter le support.
+                                        </t>
+                                        <t t-elif="error == 'invalid_tier'">
+                                            Palier d'abonnement invalide. Veuillez choisir à nouveau.
+                                        </t>
+                                        <t t-else="">
+                                            Une erreur s'est produite. Veuillez réessayer.
+                                        </t>
+                                    </div>
+                                </t>
+
+                                <!-- Avertissement changement de plan -->
+                                <t t-if="is_upgrade">
+                                    <div class="alert alert-warning">
+                                        <i class="fa fa-exchange me-1"/>
+                                        Vous êtes sur le point de <strong>changer de plan</strong>.
+                                        Votre ancien abonnement sera annulé et remplacé par le nouveau.
+                                        Les nouvelles limites seront appliquées immédiatement.
+                                    </div>
+                                </t>
+
+                                <!-- Récapitulatif du plan choisi -->
+                                <div class="alert alert-info mb-4">
+                                    <h5><i class="fa fa-shopping-cart me-1"/> Vous avez choisi :</h5>
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <p class="mb-1 fw-bold" t-if="product" t-esc="product.name"/>
+                                            <p class="mb-1 small text-muted">
+                                                Pour l'UO : <strong t-esc="uo.name"/>
+                                            </p>
+                                            <t t-if="tier_info">
+                                                <p class="mb-0 small">
+                                                    <i class="fa fa-users me-1"/>
+                                                    <t t-esc="tier_info.get('users', '?')"/> utilisateurs —
+                                                    <i class="fa fa-truck me-1"/>
+                                                    <t t-esc="tier_info.get('vehicles', '?')"/> véhicules
+                                                </p>
+                                            </t>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <h4 class="mb-0" t-if="product">
+                                                <span class="text-primary fw-bold"
+                                                      t-esc="product.list_price"
+                                                      t-options="{'widget': 'monetary', 'display_currency': product.currency_id}"/>
+                                                <small class="text-muted">/mois</small>
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Formulaire de confirmation d'email -->
+                                <form method="post" t-attf-action="/my/firebase/uo/#{uo.id}/subscription/activate?tier=#{tier}">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                    <h5 class="mb-3">
+                                        <i class="fa fa-envelope me-1"/>
+                                        Email de facturation
+                                    </h5>
+
+                                    <p class="text-muted mb-3">
+                                        Votre facture mensuelle sera envoyée à cette adresse.
+                                        Vérifiez qu'elle est correcte avant de continuer.
+                                    </p>
+
+                                    <div class="mb-3">
+                                        <label for="billing_email" class="form-label fw-bold">
+                                            Email de facturation <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="email"
+                                               name="billing_email"
+                                               id="billing_email"
+                                               class="form-control form-control-lg"
+                                               required="required"
+                                               placeholder="votre.email@exemple.com"
+                                               t-att-value="default_email"/>
+                                        <div class="form-text">
+                                            <i class="fa fa-info-circle me-1"/>
+                                            Assurez-vous que cette adresse est valide.
+                                        </div>
+                                    </div>
+
+                                    <!-- Acceptation des conditions -->
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="checkbox"
+                                                   class="form-check-input"
+                                                   id="accept_terms"
+                                                   required="required"/>
+                                            <label class="form-check-label" for="accept_terms">
+                                                Je confirme l'email de facturation et j'accepte de recevoir les factures mensuelles.
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <hr class="my-4"/>
+
+                                    <!-- Ce qui va se passer -->
+                                    <div class="alert alert-light border mb-4">
+                                        <h6><i class="fa fa-info-circle me-1"/> Ce qui va se passer :</h6>
+                                        <ol class="mb-0 small">
+                                            <li>Une commande sera créée avec l'UO comme client.</li>
+                                            <li>L'abonnement sera activé immédiatement</li>
+                                            <li>Les limites (utilisateurs / véhicules) seront mises à jour</li>
+                                            <li>Une facture vous sera envoyée par email.</li>
+                                            <li>Vous serez facturé chaque mois à la même date.</li>
+                                        </ol>
+                                    </div>
+
+                                    <!-- Boutons -->
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <a t-attf-href="/my/firebase/uo/#{uo.id}/subscription/choose"
+                                               class="btn btn-outline-secondary w-100 btn-lg">
+                                                <i class="fa fa-times me-1"/> Annuler
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <button type="submit" class="btn btn-success w-100 btn-lg">
+                                                <i class="fa fa-check me-1"/>
+                                                <t t-if="is_upgrade">Confirmer le changement</t>
+                                                <t t-else="">Activer l'abonnement</t>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 text-center text-muted small">
+                            <i class="fa fa-lock me-1"/>
+                            Vos données sont sécurisées et ne seront jamais partagées avec des tiers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- ===== PAGE WIZARD DE RÉSILIATION D'ABONNEMENT ===== -->
+    <template id="portal_subscription_cancel_wizard" name="Résilier l'abonnement">
+        <t t-call="portal.portal_layout">
+            <t t-set="additional_title">Résilier l'abonnement</t>
+
+            <div class="container mt-4 mb-5">
+                <div class="row">
+                    <div class="col-lg-6 offset-lg-3">
+
+                        <!-- Bouton retour -->
+                        <div class="mb-4">
+                            <a t-attf-href="/my/firebase/uo/#{uo.id}" class="btn btn-sm btn-outline-secondary">
+                                <i class="fa fa-arrow-left me-1"/> Retour à l'UO
+                            </a>
+                        </div>
+
+                        <!-- Erreurs -->
+                        <t t-if="error">
+                            <div class="alert alert-danger alert-dismissible fade show">
+                                <button type="button" class="close" data-dismiss="alert"><span>&#xD7;</span></button>
+                                <i class="fa fa-exclamation-triangle me-1"/>
+                                <t t-if="error == 'missing_reason'">
+                                    Veuillez sélectionner une raison de résiliation.
+                                </t>
+                                <t t-elif="error == 'cancel_failed'">
+                                    Une erreur est survenue lors de la résiliation. Veuillez réessayer ou contacter le support.
+                                </t>
+                                <t t-else="">
+                                    Une erreur s'est produite : <t t-esc="error"/>
+                                </t>
+                            </div>
+                        </t>
+
+                        <div class="card border-danger shadow">
+                            <!-- En-tête -->
+                            <div class="card-header bg-danger text-white">
+                                <h3 class="mb-0">
+                                    <i class="fa fa-times-circle me-2"/>
+                                    Résilier l'abonnement
+                                </h3>
+                            </div>
+
+                            <div class="card-body">
+
+                                <!-- Avertissement -->
+                                <div class="alert alert-danger mb-4">
+                                    <h5 class="alert-heading">
+                                        <i class="fa fa-exclamation-triangle me-1"/>
+                                        Attention — action irréversible
+                                    </h5>
+                                    <p class="mb-1">
+                                        Vous êtes sur le point de résilier votre abonnement
+                                        <strong><t t-esc="tier_label"/></strong>
+                                        pour l'UO <strong><t t-esc="uo.name"/></strong>.
+                                    </p>
+                                </div>
+
+                                <!-- Conséquences -->
+                                <div class="mb-4">
+                                    <h6 class="fw-bold text-danger">
+                                        <i class="fa fa-list me-1"/> Conséquences immédiates :
+                                    </h6>
+                                    <ul class="text-muted small">
+                                        <li>L'UO sera repassée en mode <strong>Découverte</strong> (1 utilisateur / 1 véhicule).</li>
+                                        <li>Les accès Firebase seront mis à jour immédiatement.</li>
+                                        <li>La commande d'abonnement sera annulée.</li>
+                                        <li>Vous pourrez souscrire à nouveau à tout moment.</li>
+                                    </ul>
+                                </div>
+
+                                <hr/>
+
+                                <!-- Formulaire de résiliation -->
+                                <form t-attf-action="/my/firebase/uo/#{uo.id}/subscription/cancel/confirm"
+                                      method="post" id="cancelSubscriptionForm">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                    <!-- Raison -->
+                                    <div class="mb-3">
+                                        <label for="cancel_reason" class="form-label fw-bold">
+                                            <i class="fa fa-comment me-1"/>
+                                            Raison de la résiliation <span class="text-danger">*</span>
+                                        </label>
+                                        <select name="cancel_reason" id="cancel_reason"
+                                                class="form-control" required="required">
+                                            <option value="">— Choisissez une raison —</option>
+                                            <option value="Trop cher">Trop cher</option>
+                                            <option value="Fonctionnalités insuffisantes">Fonctionnalités insuffisantes</option>
+                                            <option value="Utilisation terminée">Fin d'utilisation / projet terminé</option>
+                                            <option value="Passage à un autre outil">Passage à un autre outil</option>
+                                            <option value="Problèmes techniques">Problèmes techniques</option>
+                                            <option value="Autre">Autre raison…</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Précision si "Autre" -->
+                                    <div id="otherReasonBlock" class="mb-3" style="display:none;">
+                                        <label for="cancel_reason_text" class="form-label">
+                                            Précisez votre raison
+                                        </label>
+                                        <textarea name="cancel_reason" id="cancel_reason_text"
+                                                  class="form-control" rows="3"
+                                                  placeholder="Décrivez votre raison de résiliation…"/>
+                                    </div>
+
+                                    <!-- Confirmation par nom d'UO -->
+                                    <div class="mb-4">
+                                        <label for="confirm_uo_name" class="form-label fw-bold">
+                                            <i class="fa fa-keyboard-o me-1"/>
+                                            Confirmez en tapant le nom de l'UO :
+                                            <code><t t-esc="uo.name"/></code>
+                                        </label>
+                                        <input type="text" id="confirm_uo_name"
+                                               class="form-control"
+                                               placeholder="Nom de l'UO"
+                                               t-att-data-uo-name="uo.name"
+                                               autocomplete="off"/>
+                                    </div>
+
+                                    <!-- Boutons -->
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <a t-attf-href="/my/firebase/uo/#{uo.id}"
+                                               class="btn btn-outline-secondary w-100 btn-lg">
+                                                <i class="fa fa-arrow-left me-1"/> Annuler
+                                            </a>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <button type="submit" id="btnConfirmCancel"
+                                                    class="btn btn-danger w-100 btn-lg"
+                                                    disabled="disabled">
+                                                <i class="fa fa-times-circle me-1"/>
+                                                Confirmer la résiliation
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Script de validation -->
+                        <script>
+                            (function () {
+                                var selectEl = document.getElementById('cancel_reason');
+                                var confirmInput = document.getElementById('confirm_uo_name');
+                                var submitBtn = document.getElementById('btnConfirmCancel');
+                                var otherBlock = document.getElementById('otherReasonBlock');
+                                var otherTextarea = document.getElementById('cancel_reason_text');
+
+                                function checkReady() {
+                                    var nameOk = confirmInput &amp;&amp; confirmInput.value.trim() === confirmInput.dataset.uoName;
+                                    var reasonOk = selectEl &amp;&amp; selectEl.value !== '';
+                                    if (submitBtn) { submitBtn.disabled = !(nameOk &amp;&amp; reasonOk); }
+                                }
+
+                                if (selectEl) {
+                                    selectEl.addEventListener('change', function () {
+                                        var isOther = this.value === 'Autre';
+                                        if (otherBlock) { otherBlock.style.display = isOther ? 'block' : 'none'; }
+                                        // Swap name attribute between select and textarea
+                                        if (isOther) {
+                                            this.removeAttribute('name');
+                                            if (otherTextarea) { otherTextarea.setAttribute('name', 'cancel_reason'); }
+                                        } else {
+                                            this.setAttribute('name', 'cancel_reason');
+                                            if (otherTextarea) { otherTextarea.removeAttribute('name'); }
+                                        }
+                                        checkReady();
+                                    });
+                                }
+                                if (confirmInput) { confirmInput.addEventListener('input', checkReady); }
+                                if (otherTextarea) { otherTextarea.addEventListener('input', checkReady); }
+                            })();
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

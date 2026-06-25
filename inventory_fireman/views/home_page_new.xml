@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Page d'accueil refaite avec design moderne -->
+        <template id="firebase_home_page_redesign" name="Accueil Inventory Fireman">
+            <t t-call="portal.portal_layout">
+                <t t-set="additional_title">Accueil</t>
+
+                <!-- Font Awesome 6 -->
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+                <style>
+                    /* Global Styles */
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+                    
+                    /* Hero Section */
+                    .hero-section {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        padding: 120px 0 100px 0;
+                        margin: -24px -15px 0 -15px;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .hero-section::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.1)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,96C1248,75,1344,53,1392,42.7L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+                        background-size: cover;
+                        background-position: bottom;
+                        opacity: 0.5;
+                    }
+                    .hero-content { position: relative; z-index: 1; }
+                    .hero-section h1 {
+                        font-size: 56px;
+                        font-weight: 800;
+                        margin-bottom: 25px;
+                        text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+                        animation: fadeInUp 0.8s ease-out;
+                    }
+                    .hero-section .lead {
+                        font-size: 24px;
+                        font-weight: 400;
+                        opacity: 0.95;
+                        margin-bottom: 20px;
+                        animation: fadeInUp 1s ease-out;
+                    }
+                    .hero-section p {
+                        font-size: 18px;
+                        opacity: 0.9;
+                        margin-bottom: 40px;
+                        animation: fadeInUp 1.2s ease-out;
+                    }
+                    .hero-buttons {
+                        animation: fadeInUp 1.4s ease-out;
+                    }
+                    .hero-buttons .btn {
+                        margin: 10px;
+                        padding: 18px 45px;
+                        font-size: 18px;
+                        font-weight: 600;
+                        border-radius: 50px;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+                    }
+                    .btn-light-hero {
+                        background: white;
+                        color: #667eea;
+                        border: none;
+                    }
+                    .btn-light-hero:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 15px 35px rgba(255,255,255,0.4);
+                        color: #667eea;
+                    }
+                    .btn-outline-light-hero {
+                        background: transparent;
+                        color: white;
+                        border: 3px solid white;
+                    }
+                    .btn-outline-light-hero:hover {
+                        background: white;
+                        color: #667eea;
+                        transform: translateY(-5px);
+                    }
+
+                    /* Mobile App Download Section */
+                    .mobile-app-section .app-download-buttons a:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 15px 35px rgba(0,0,0,0.3) !important;
+                    }
+
+                    /* Features Section */
+                    .features-section {
+                        padding: 80px 0;
+                        background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+                    }
+                    .section-title {
+                        font-size: 42px;
+                        font-weight: 700;
+                        margin-bottom: 15px;
+                        color: #333;
+                        position: relative;
+                        display: inline-block;
+                    }
+                    .section-title::after {
+                        content: '';
+                        position: absolute;
+                        bottom: -10px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 80px;
+                        height: 4px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border-radius: 2px;
+                    }
+                    .section-subtitle {
+                        font-size: 18px;
+                        color: #666;
+                        margin-bottom: 60px;
+                    }
+                    .feature-card {
+                        background: white;
+                        border-radius: 20px;
+                        padding: 45px 35px;
+                        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+                        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                        height: 100%;
+                        border: 1px solid rgba(102, 126, 234, 0.1);
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .feature-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        height: 5px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        transform: scaleX(0);
+                        transition: transform 0.4s ease;
+                    }
+                    .feature-card:hover::before {
+                        transform: scaleX(1);
+                    }
+                    .feature-card:hover {
+                        transform: translateY(-15px);
+                        box-shadow: 0 25px 60px rgba(102, 126, 234, 0.25);
+                    }
+                    .feature-icon {
+                        width: 90px;
+                        height: 90px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border-radius: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto 30px;
+                        font-size: 40px;
+                        color: white;
+                        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+                        transition: all 0.4s ease;
+                    }
+                    .feature-card:hover .feature-icon {
+                        transform: scale(1.1) rotate(5deg);
+                    }
+                    .feature-card h4 {
+                        font-size: 24px;
+                        font-weight: 700;
+                        margin-bottom: 18px;
+                        color: #333;
+                    }
+                    .feature-card p {
+                        color: #666;
+                        line-height: 1.8;
+                        font-size: 16px;
+                    }
+
+                    /* How It Works */
+                    .how-it-works {
+                        background: white;
+                        padding: 80px 0;
+                    }
+                    .step-card {
+                        background: white;
+                        border-radius: 20px;
+                        padding: 40px 35px;
+                        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+                        position: relative;
+                        height: 100%;
+                        transition: all 0.3s ease;
+                        border: 2px solid #f0f0f0;
+                    }
+                    .step-card:hover {
+                        border-color: #667eea;
+                        transform: translateY(-10px);
+                        box-shadow: 0 20px 50px rgba(102, 126, 234, 0.15);
+                    }
+                    .step-number {
+                        width: 70px;
+                        height: 70px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 32px;
+                        font-weight: 800;
+                        color: white;
+                        margin: 0 auto 25px;
+                        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+                    }
+                    .step-card h4 {
+                        font-size: 22px;
+                        font-weight: 700;
+                        margin-bottom: 15px;
+                        color: #333;
+                    }
+                    .step-card p {
+                        color: #666;
+                        line-height: 1.8;
+                        font-size: 16px;
+                    }
+
+                    /* CTA Section */
+                    .cta-section {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        padding: 100px 0;
+                        margin: 0 -15px;
+                        text-align: center;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    .cta-section::before {
+                        content: '';
+                        position: absolute;
+                        top: -50%;
+                        left: -50%;
+                        width: 200%;
+                        height: 200%;
+                        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+                        animation: pulse 15s ease-in-out infinite;
+                    }
+                    .cta-section h2 {
+                        font-size: 48px;
+                        font-weight: 800;
+                        margin-bottom: 25px;
+                        position: relative;
+                        z-index: 1;
+                    }
+                    .cta-section p {
+                        font-size: 22px;
+                        margin-bottom: 40px;
+                        opacity: 0.95;
+                        position: relative;
+                        z-index: 1;
+                    }
+
+                    /* Animations */
+                    @keyframes fadeInUp {
+                        from {
+                            opacity: 0;
+                            transform: translateY(30px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+                    @keyframes pulse {
+                        0%, 100% { transform: scale(1); }
+                        50% { transform: scale(1.1); }
+                    }
+                </style>
+
+                <!-- Hero Section -->
+                <div class="hero-section">
+                    <div class="container hero-content">
+                        <div class="row align-items-center">
+                            <div class="col-lg-10 offset-lg-1 text-center">
+                                <h1>
+                                    <i class="fa fa-fire-extinguisher"></i>
+                                    Inventaire Pompier
+                                </h1>
+                                <p class="lead">
+                                    La solution complète de gestion d'inventaire pour les services d'incendie et de secours
+                                </p>
+                                <p>
+                                    Gérez vos véhicules, équipements et matériels en temps réel avec synchronisation Firebase instantanée
+                                </p>
+                                <div class="hero-buttons">
+                                    <a href="/my/firebase/login" class="btn btn-light-hero btn-lg">
+                                        <i class="fa fa-rocket mr-2"></i>
+                                        Commencer maintenant
+                                    </a>
+                                    <a href="#features" class="btn btn-outline-light-hero btn-lg">
+                                        <i class="fa fa-info-circle mr-2"></i>
+                                        En savoir plus
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Section -->
+                <div class="features-section" id="features">
+                    <div class="container">
+                        <div class="row mb-5">
+                            <div class="col-12 text-center">
+                                <h2 class="section-title">Fonctionnalités principales</h2>
+                                <p class="section-subtitle">Tout ce dont vous avez besoin pour gérer efficacement votre inventaire</p>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="feature-card text-center">
+                                    <div class="feature-icon">
+                                        <i class="fa fa-truck"></i>
+                                    </div>
+                                    <h4>Gestion des véhicules</h4>
+                                    <p>
+                                        Créez et gérez tous vos véhicules d'intervention avec leurs caractéristiques complètes : immatriculation, date de mise en service, état, et plus encore.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="feature-card text-center">
+                                    <div class="feature-icon">
+                                        <i class="fa fa-boxes"></i>
+                                    </div>
+                                    <h4>Inventaire détaillé</h4>
+                                    <p>
+                                        Organisez vos équipements par catégories, suivez les quantités en temps réel, et gérez facilement tous vos matériels par véhicule.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="feature-card text-center">
+                                    <div class="feature-icon">
+                                        <i class="fa fa-sync-alt"></i>
+                                    </div>
+                                    <h4>Synchronisation temps réel</h4>
+                                    <p>
+                                        Toutes vos données sont synchronisées instantanément avec Firebase, accessible depuis l'application mobile ou le portail web.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="feature-card text-center">
+                                    <div class="feature-icon">
+                                        <i class="fa fa-users"></i>
+                                    </div>
+                                    <h4>Multi-utilisateurs</h4>
+                                    <p>
+                                        Gérez plusieurs utilisateurs par Unité Opérationnelle avec des accès sécurisés, gestion des droits et suivi des modifications.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="feature-card text-center">
+                                    <div class="feature-icon">
+                                        <i class="fa fa-mobile-alt"></i>
+                                    </div>
+                                    <h4>Application mobile</h4>
+                                    <p>
+                                        Consultez et modifiez votre inventaire directement depuis votre smartphone avec l'application mobile dédiée Android et iOS.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="feature-card text-center">
+                                    <div class="feature-icon">
+                                        <i class="fa fa-shield-alt"></i>
+                                    </div>
+                                    <h4>Sécurité renforcée</h4>
+                                    <p>
+                                        Authentification Firebase sécurisée, données chiffrées, sauvegardes automatiques et protection contre les pertes de données.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- How it works -->
+                <div class="how-it-works">
+                    <div class="container">
+                        <div class="row mb-5">
+                            <div class="col-12 text-center">
+                                <h2 class="section-title">Comment ça marche ?</h2>
+                                <p class="section-subtitle">3 étapes simples pour démarrer</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-4">
+                                <div class="step-card text-center">
+                                    <div class="step-number">1</div>
+                                    <h4>Créez votre UO</h4>
+                                    <p>
+                                        Commencez gratuitement en mode découverte. Créez votre Unité Opérationnelle et testez la plateforme avec 1 véhicule et 1 utilisateur.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="step-card text-center">
+                                    <div class="step-number">2</div>
+                                    <h4>Choisissez votre plan</h4>
+                                    <p>
+                                        Passez au plan Essentiel, Caserne ou Flotte selon vos besoins pour débloquer plus de véhicules et d'utilisateurs.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="step-card text-center">
+                                    <div class="step-number">3</div>
+                                    <h4>Gérez vos équipements</h4>
+                                    <p>
+                                        Ajoutez vos véhicules, gérez votre inventaire depuis le portail web et synchronisez avec l'application mobile.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile App Download Section -->
+                <div class="mobile-app-section" style="padding: 80px 0; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6 mb-4 mb-lg-0 text-center">
+                                <img src="/inventory_fireman/static/src/img/qrcode.png" 
+                                     alt="Téléchargez l'application mobile Inventaire Pompier" 
+                                     class="img-fluid"
+                                     style="max-width: 500px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);"/>
+                            </div>
+                            <div class="col-lg-6">
+                                <h2 class="section-title mb-4" style="color: #333;">Téléchargez l'application mobile</h2>
+                                <p class="lead mb-4" style="font-size: 20px; color: #666;">
+                                    Scannez les QR codes pour accéder à notre application d'inventaire des véhicules disponible sur iOS et Android.
+                                </p>
+                                <div class="app-features mb-5">
+                                    <div class="feature-item mb-3" style="display: flex; align-items: center;">
+                                        <i class="fa fa-check-circle" style="color: #667eea; font-size: 24px; margin-right: 15px;"></i>
+                                        <span style="font-size: 18px; color: #555;">Gestion de l'inventaire en temps réel</span>
+                                    </div>
+                                    <div class="feature-item mb-3" style="display: flex; align-items: center;">
+                                        <i class="fa fa-check-circle" style="color: #667eea; font-size: 24px; margin-right: 15px;"></i>
+                                        <span style="font-size: 18px; color: #555;">Synchronisation automatique avec le portail web</span>
+                                    </div>
+                                    <div class="feature-item mb-3" style="display: flex; align-items: center;">
+                                        <i class="fa fa-check-circle" style="color: #667eea; font-size: 24px; margin-right: 15px;"></i>
+                                        <span style="font-size: 18px; color: #555;">Accessible hors ligne</span>
+                                    </div>
+                                </div>
+                                <div class="app-download-buttons">
+                                    <a href="https://apps.apple.com/ch/app/inventaire-pompier/id6503427632" 
+                                       target="_blank" 
+                                       class="btn btn-dark btn-lg mb-3 mr-3"
+                                       style="border-radius: 15px; padding: 15px 35px; font-weight: 600; display: inline-flex; align-items: center; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                                        <i class="fab fa-apple" style="font-size: 28px; margin-right: 12px;"></i>
+                                        <div style="text-align: left;">
+                                            <div style="font-size: 12px; opacity: 0.8;">Télécharger sur</div>
+                                            <div style="font-size: 18px; font-weight: 700;">App Store</div>
+                                        </div>
+                                    </a>
+                                    <a href="https://play.google.com/store/apps/details?id=com.zappone.inventor_sierck" 
+                                       target="_blank" 
+                                       class="btn btn-dark btn-lg mb-3"
+                                       style="border-radius: 15px; padding: 15px 35px; font-weight: 600; display: inline-flex; align-items: center; box-shadow: 0 8px 20px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                                        <i class="fab fa-google-play" style="font-size: 28px; margin-right: 12px;"></i>
+                                        <div style="text-align: left;">
+                                            <div style="font-size: 12px; opacity: 0.8;">Disponible sur</div>
+                                            <div style="font-size: 18px; font-weight: 700;">Google Play</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Section -->
+                <div class="cta-section">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-8 offset-lg-2">
+                                <h2>Prêt à moderniser votre gestion d'inventaire ?</h2>
+                                <p>
+                                    Commencez gratuitement en mode Setup et découvrez toutes les fonctionnalités
+                                </p>
+                                <div class="mt-4">
+                                    <a href="/my/firebase/login" class="btn btn-light btn-lg mr-3"
+                                        style="border-radius: 50px; padding: 18px 45px; font-weight: 700; box-shadow: 0 8px 20px rgba(255,255,255,0.3); position: relative; z-index: 2;">
+                                        <i class="fa fa-sign-in-alt mr-2"></i>
+                                        Commencer maintenant
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

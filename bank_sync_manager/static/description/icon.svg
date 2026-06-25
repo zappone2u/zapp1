@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <rect width="128" height="128" fill="#2c3e50"/>
+  <g transform="translate(20, 30)">
+    <!-- Bank building -->
+    <rect x="10" y="30" width="68" height="50" fill="#34495e" stroke="#ecf0f1" stroke-width="2"/>
+    <rect x="15" y="35" width="8" height="40" fill="#ecf0f1"/>
+    <rect x="28" y="35" width="8" height="40" fill="#ecf0f1"/>
+    <rect x="41" y="35" width="8" height="40" fill="#ecf0f1"/>
+    <rect x="54" y="35" width="8" height="40" fill="#ecf0f1"/>
+    <rect x="67" y="35" width="8" height="40" fill="#ecf0f1"/>
+    <!-- Roof -->
+    <polygon points="44,15 10,30 78,30" fill="#27ae60"/>
+    <!-- Sync arrows -->
+    <path d="M 50 55 L 55 50 L 60 55" fill="none" stroke="#3498db" stroke-width="3"/>
+    <path d="M 38 60 L 33 65 L 28 60" fill="none" stroke="#e74c3c" stroke-width="3"/>
+  </g>
+</svg>

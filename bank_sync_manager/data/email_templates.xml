@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Email Template: Payment Warning -->
+    <record id="email_template_payment_warning" model="mail.template">
+        <field name="name">Payment Warning - Subscription</field>
+        <field name="model_id" ref="model_subscription_monitor"/>
+        <field name="subject">⚠️ Retard de paiement - Abonnement {{ object.subscription_id.name }}</field>
+        <field name="email_from">{{ (object.subscription_id.user_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+    
+    <!-- Header -->
+    <div style="background-color: #f39c12; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+        <h1 style="margin: 0;">⚠️ Alerte Paiement</h1>
+    </div>
+    
+    <!-- Body -->
+    <div style="background-color: white; padding: 30px; border-radius: 0 0 5px 5px;">
+        <p>Bonjour <strong>{{ object.partner_id.name }}</strong>,</p>
+        
+        <p>Nous avons constaté que votre paiement pour l'abonnement suivant est en retard :</p>
+        
+        <div style="background-color: #ecf0f1; padding: 15px; border-left: 4px solid #f39c12; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Abonnement :</strong> {{ object.subscription_id.name }}</p>
+            <p style="margin: 5px 0;"><strong>Montant dû :</strong> {{ object.total_due }} {{ object.currency_id.symbol }}</p>
+            <p style="margin: 5px 0;"><strong>Jours de retard :</strong> {{ object.days_overdue }} jours</p>
+            % if object.last_invoice_id:
+            <p style="margin: 5px 0;"><strong>Facture :</strong> {{ object.last_invoice_id.name }}</p>
+            <p style="margin: 5px 0;"><strong>Date d'échéance :</strong> {{ object.last_invoice_id.invoice_date_due }}</p>
+            % endif
+        </div>
+        
+        <p>Pour éviter toute interruption de service, nous vous invitons à régulariser votre situation dans les plus brefs délais.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="#" style="background-color: #27ae60; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                Payer maintenant
+            </a>
+        </div>
+        
+        <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0; color: #856404;">
+                <strong>⚠️ Important :</strong> 
+                Si votre paiement n'est pas reçu dans les {{ object.critical_period - object.days_overdue }} jours, 
+                votre abonnement sera automatiquement suspendu.
+            </p>
+        </div>
+        
+        <p>Si vous avez déjà effectué ce paiement, veuillez ignorer ce message. Le traitement peut prendre quelques jours.</p>
+        
+        <p style="margin-top: 30px;">
+            Cordialement,<br/>
+            <strong>{{ object.subscription_id.company_id.name }}</strong>
+        </p>
+        
+        <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 20px 0;"/>
+        
+        <p style="font-size: 12px; color: #7f8c8d; text-align: center;">
+            Pour toute question, contactez-nous à {{ object.subscription_id.company_id.email }}
+        </p>
+    </div>
+</div>
+        </field>
+    </record>
+    
+    <!-- Email Template: Subscription Suspended -->
+    <record id="email_template_subscription_suspended" model="mail.template">
+        <field name="name">Subscription Suspended</field>
+        <field name="model_id" ref="model_subscription_monitor"/>
+        <field name="subject">🚫 Abonnement suspendu - {{ object.subscription_id.name }}</field>
+        <field name="email_from">{{ (object.subscription_id.user_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+    
+    <!-- Header -->
+    <div style="background-color: #e74c3c; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+        <h1 style="margin: 0;">🚫 Abonnement Suspendu</h1>
+    </div>
+    
+    <!-- Body -->
+    <div style="background-color: white; padding: 30px; border-radius: 0 0 5px 5px;">
+        <p>Bonjour <strong>{{ object.partner_id.name }}</strong>,</p>
+        
+        <p>Votre abonnement a été suspendu en raison d'un retard de paiement :</p>
+        
+        <div style="background-color: #fee; padding: 15px; border-left: 4px solid #e74c3c; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Abonnement :</strong> {{ object.subscription_id.name }}</p>
+            <p style="margin: 5px 0;"><strong>Montant dû :</strong> {{ object.total_due }} {{ object.currency_id.symbol }}</p>
+            <p style="margin: 5px 0;"><strong>Jours de retard :</strong> {{ object.days_overdue }} jours</p>
+            <p style="margin: 5px 0;"><strong>Date de suspension :</strong> {{ object.suspension_date }}</p>
+        </div>
+        
+        <p><strong>Votre accès au service est maintenant interrompu.</strong></p>
+        
+        <p>Pour réactiver votre abonnement, veuillez effectuer le paiement de la facture en attente :</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="#" style="background-color: #e74c3c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                Régler ma facture
+            </a>
+        </div>
+        
+        <p>Dès réception de votre paiement, votre abonnement sera automatiquement réactivé.</p>
+        
+        <p style="margin-top: 30px;">
+            Cordialement,<br/>
+            <strong>{{ object.subscription_id.company_id.name }}</strong>
+        </p>
+        
+        <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 20px 0;"/>
+        
+        <p style="font-size: 12px; color: #7f8c8d; text-align: center;">
+            Pour toute question, contactez-nous à {{ object.subscription_id.company_id.email }}
+        </p>
+    </div>
+</div>
+        </field>
+    </record>
+    
+    <!-- Email Template: Subscription Reactivated -->
+    <record id="email_template_subscription_reactivated" model="mail.template">
+        <field name="name">Subscription Reactivated</field>
+        <field name="model_id" ref="model_subscription_monitor"/>
+        <field name="subject">✅ Abonnement réactivé - {{ object.subscription_id.name }}</field>
+        <field name="email_from">{{ (object.subscription_id.user_id.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.partner_id.email }}</field>
+        <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+    
+    <!-- Header -->
+    <div style="background-color: #27ae60; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+        <h1 style="margin: 0;">✅ Abonnement Réactivé</h1>
+    </div>
+    
+    <!-- Body -->
+    <div style="background-color: white; padding: 30px; border-radius: 0 0 5px 5px;">
+        <p>Bonjour <strong>{{ object.partner_id.name }}</strong>,</p>
+        
+        <p>Bonne nouvelle ! Nous avons bien reçu votre paiement.</p>
+        
+        <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #27ae60; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Abonnement :</strong> {{ object.subscription_id.name }}</p>
+            <p style="margin: 5px 0;"><strong>Statut :</strong> <span style="color: #27ae60;">✓ Actif</span></p>
+            <p style="margin: 5px 0;"><strong>Date de réactivation :</strong> {{ object.last_payment_date }}</p>
+        </div>
+        
+        <p><strong>Votre abonnement a été réactivé avec succès !</strong></p>
+        
+        <p>Vous pouvez à nouveau accéder à tous les services de votre abonnement.</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="#" style="background-color: #27ae60; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                Accéder à mon compte
+            </a>
+        </div>
+        
+        <p>Merci de votre confiance et de votre régularité dans vos paiements.</p>
+        
+        <p style="margin-top: 30px;">
+            Cordialement,<br/>
+            <strong>{{ object.subscription_id.company_id.name }}</strong>
+        </p>
+        
+        <hr style="border: none; border-top: 1px solid #ecf0f1; margin: 20px 0;"/>
+        
+        <p style="font-size: 12px; color: #7f8c8d; text-align: center;">
+            Pour toute question, contactez-nous à {{ object.subscription_id.company_id.email }}
+        </p>
+    </div>
+</div>
+        </field>
+    </record>
+
+</odoo>

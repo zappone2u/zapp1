@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Subscription Monitor Form View -->
+    <record id="view_subscription_monitor_form" model="ir.ui.view">
+        <field name="name">subscription.monitor.form</field>
+        <field name="model">subscription.monitor</field>
+        <field name="arch" type="xml">
+            <form string="Subscription Monitor">
+                <header>
+                    <button name="action_check_payment_status" type="object" string="Check Now" 
+                            class="oe_highlight"/>
+                    <button name="action_send_warning" type="object" string="Send Warning" 
+                            invisible="payment_status not in ['warning', 'late']"/>
+                    <button name="action_suspend_subscription" type="object" string="Suspend" 
+                            class="btn-danger" invisible="payment_status == 'suspended'"/>
+                    <button name="action_reactivate_subscription" type="object" string="Reactivate" 
+                            class="oe_highlight" invisible="payment_status != 'suspended'"/>
+                    <field name="payment_status" widget="statusbar" 
+                           statusbar_visible="ok,warning,late,critical"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Suspended" bg_color="text-bg-danger" 
+                            invisible="payment_status != 'suspended'"/>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="payment_status != 'critical'">
+                        <strong>CRITICAL!</strong> Payment is <field name="days_overdue" readonly="1"/> days overdue
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="payment_status != 'late'">
+                        <strong>WARNING!</strong> Payment is <field name="days_overdue" readonly="1"/> days overdue
+                    </div>
+                    <group>
+                        <group string="Subscription">
+                            <field name="subscription_id"/>
+                            <field name="partner_id"/>
+                            <field name="priority" widget="priority"/>
+                        </group>
+                        <group string="Payment Status">
+                            <field name="total_due" widget="monetary"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="last_payment_date"/>
+                        </group>
+                    </group>
+                    <group string="Last Invoice">
+                        <group>
+                            <field name="last_invoice_id"/>
+                            <field name="last_invoice_date"/>
+                        </group>
+                        <group>
+                            <field name="days_overdue"/>
+                            <field name="next_check_date"/>
+                        </group>
+                    </group>
+                    <group string="Configuration">
+                        <group>
+                            <field name="grace_period"/>
+                            <field name="critical_period"/>
+                        </group>
+                        <group>
+                            <field name="auto_suspend"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Actions Taken">
+                        <group>
+                            <field name="warning_sent"/>
+                            <field name="warning_date" invisible="not warning_sent"/>
+                        </group>
+                        <group>
+                            <field name="suspension_date" invisible="payment_status != 'suspended'"/>
+                        </group>
+                    </group>
+                    <separator string="Notes"/>
+                    <field name="notes"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Subscription Monitor list View -->
+    <record id="view_subscription_monitor_list" model="ir.ui.view">
+        <field name="name">subscription.monitor.list</field>
+        <field name="model">subscription.monitor</field>
+        <field name="arch" type="xml">
+            <list string="Subscription Monitors" 
+                  decoration-danger="payment_status in ['critical', 'suspended']" 
+                  decoration-warning="payment_status == 'late'"
+                  decoration-success="payment_status == 'ok'">
+                <field name="priority" widget="priority" nolabel="1"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="subscription_id"/>
+                <field name="days_overdue"/>
+                <field name="total_due" widget="monetary"/>
+                <field name="payment_status" widget="badge" 
+                       decoration-danger="payment_status in ['critical', 'suspended']" 
+                       decoration-warning="payment_status in ['late', 'warning']"
+                       decoration-success="payment_status == 'ok'"/>
+                <field name="last_payment_date"/>
+                <field name="next_check_date"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Subscription Monitor Kanban View -->
+    <record id="view_subscription_monitor_kanban" model="ir.ui.view">
+        <field name="name">subscription.monitor.kanban</field>
+        <field name="model">subscription.monitor</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="payment_status"/>
+                <field name="days_overdue"/>
+                <field name="total_due"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_card oe_kanban_global_click 
+                             #{record.payment_status.raw_value == 'critical' ? 'border-danger' : ''}
+                             #{record.payment_status.raw_value == 'late' ? 'border-warning' : ''}">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="partner_id"/>
+                                    </strong>
+                                </div>
+                                <field name="priority" widget="priority"/>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="name"/>
+                                <div t-if="record.days_overdue.raw_value > 0">
+                                    <i class="fa fa-clock-o"/> <field name="days_overdue"/> days overdue
+                                </div>
+                                <div>
+                                    <i class="fa fa-money"/> <field name="total_due" widget="monetary"/>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <field name="payment_status" widget="label"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Subscription Monitor Search View -->
+    <record id="view_subscription_monitor_search" model="ir.ui.view">
+        <field name="name">subscription.monitor.search</field>
+        <field name="model">subscription.monitor</field>
+        <field name="arch" type="xml">
+            <search string="Subscription Monitors">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="subscription_id"/>
+                <separator/>
+                <filter string="Critical" name="critical" domain="[('payment_status', '=', 'critical')]"/>
+                <filter string="Late" name="late" domain="[('payment_status', '=', 'late')]"/>
+                <filter string="Warning" name="warning" domain="[('payment_status', '=', 'warning')]"/>
+                <filter string="Suspended" name="suspended" domain="[('payment_status', '=', 'suspended')]"/>
+                <separator/>
+                <filter string="Overdue" name="overdue" domain="[('days_overdue', '&gt;', 0)]"/>
+                <filter string="Check Today" name="check_today" 
+                        domain="[('next_check_date', '&lt;=', context_today())]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Payment Status" name="group_status" 
+                            context="{'group_by': 'payment_status'}"/>
+                    <filter string="Partner" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Subscription Monitor Action -->
+    <record id="action_subscription_monitor" model="ir.actions.act_window">
+        <field name="name">Subscription Monitors</field>
+        <field name="res_model">subscription.monitor</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_overdue': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No subscription monitors yet
+            </p>
+            <p>
+                Monitors will be created automatically for active subscriptions.
+            </p>
+        </field>
+    </record>
+
+</odoo>

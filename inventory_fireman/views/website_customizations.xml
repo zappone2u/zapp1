@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             1. Désactiver le bouton "Contact Us" mauve du header
+                (website.header_call_to_action injecte /contactus)
+        ══════════════════════════════════════════════════════════════════════ -->
+        <record id="website.header_call_to_action" model="ir.ui.view">
+            <field name="active" eval="False" />
+        </record>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             2. Override du header pour exclure les menus /helpdesk
+                On remplace la boucle de menu par une version filtrée
+        ══════════════════════════════════════════════════════════════════════ -->
+        <template id="custom_header_override" inherit_id="website.template_header_default"
+            name="Hide Helpdesk Menus">
+            <!-- Remplacer la boucle de menu desktop par une version filtrée -->
+            <xpath expr="//t[@t-foreach='website.menu_id.child_id']" position="replace">
+                <t t-foreach="website.menu_id.child_id" t-as="submenu">
+                    <t
+                        t-if="not (submenu.url and (submenu.url.startswith('/helpdesk') or submenu.url.startswith('/contactus')))">
+                        <t t-call="website.submenu">
+                            <t t-set="item_class" t-valuef="nav-item" />
+                            <t t-set="link_class" t-valuef="nav-link" />
+                        </t>
+                    </t>
+                </t>
+            </xpath>
+        </template>
+
+        <!-- Filtrer le menu mobile aussi -->
+        <template id="custom_header_mobile_override" inherit_id="website.template_header_mobile"
+            name="Hide Helpdesk Menus Mobile">
+            <xpath expr="//t[@t-foreach='website.menu_id.child_id']" position="replace">
+                <t t-foreach="website.menu_id.child_id" t-as="submenu">
+                    <t
+                        t-if="not (submenu.url and (submenu.url.startswith('/helpdesk') or submenu.url.startswith('/contactus')))">
+                        <t t-call="website.submenu">
+                            <t t-set="item_class" t-valuef="nav-item" />
+                            <t t-set="link_class" t-valuef="nav-link" />
+                            <t t-set="dropdown_toggler_classes"
+                                t-valuef="d-flex justify-content-between align-items-center" />
+                            <t t-set="dropdown_menu_classes"
+                                t-valuef="position-relative rounded-0 o_dropdown_without_offset" />
+                        </t>
+                    </t>
+                </t>
+            </xpath>
+        </template>
+
+    </data>
+</odoo>
