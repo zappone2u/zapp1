@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================ Synchronisation ============================ -->
+    <record id="view_fireman_sync_event_list" model="ir.ui.view">
+        <field name="name">fireman.sync.event.list</field>
+        <field name="model">fireman.sync.event</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-danger="state == 'failed'" decoration-muted="state == 'done'">
+                <field name="create_date"/>
+                <field name="direction"/>
+                <field name="op"/>
+                <field name="model"/>
+                <field name="uo_code"/>
+                <field name="target_key"/>
+                <field name="state"/>
+                <field name="attempts"/>
+                <field name="error"/>
+                <button name="action_retry" type="object" icon="fa-repeat" title="Rejouer" invisible="state not in ('failed', 'done')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_sync_event_search" model="ir.ui.view">
+        <field name="name">fireman.sync.event.search</field>
+        <field name="model">fireman.sync.event</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="uo_code"/>
+                <field name="target_key"/>
+                <filter name="todo" string="À traiter" domain="[('state', 'in', ('pending', 'running'))]"/>
+                <filter name="failed" string="En échec" domain="[('state', '=', 'failed')]"/>
+                <filter name="push" string="Odoo → Firebase" domain="[('direction', '=', 'push')]"/>
+                <filter name="pull" string="Firebase → Odoo" domain="[('direction', '=', 'pull')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fireman_sync_event" model="ir.actions.act_window">
+        <field name="name">File de synchronisation</field>
+        <field name="res_model">fireman.sync.event</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'search_default_todo': 1}</field>
+    </record>
+
+    <!-- ============================ Connecteur ============================ -->
+    <record id="view_firebase_connector_form" model="ir.ui.view">
+        <field name="name">firebase.connector.form</field>
+        <field name="model">firebase.connector</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_test_connection" type="object" string="Tester la connexion" class="btn-primary"/>
+                    <button name="action_full_pull" type="object" string="Relire tout Firebase"/>
+                    <button name="action_process_queue" type="object" string="Traiter la file maintenant"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_events" type="object" class="oe_stat_button" icon="fa-exchange">
+                            <field name="pending_event_count" widget="statinfo" string="En attente"/>
+                        </button>
+                        <button name="action_open_events" type="object" class="oe_stat_button" icon="fa-exclamation-triangle">
+                            <field name="failed_event_count" widget="statinfo" string="En échec"/>
+                        </button>
+                    </div>
+                    <group>
+                        <group string="Accès Firebase">
+                            <field name="name"/>
+                            <field name="database_url" placeholder="https://mon-projet-default-rtdb.europe-west1.firebasedatabase.app"/>
+                            <field name="service_account_json"/>
+                            <field name="service_account_path"/>
+                        </group>
+                        <group string="État">
+                            <field name="is_connected"/>
+                            <field name="last_connection_test"/>
+                            <field name="connection_error" invisible="not connection_error"/>
+                            <field name="last_full_pull"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_firebase_connector_list" model="ir.ui.view">
+        <field name="name">firebase.connector.list</field>
+        <field name="model">firebase.connector</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="database_url"/>
+                <field name="is_connected"/>
+                <field name="last_full_pull"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_firebase_connector" model="ir.actions.act_window">
+        <field name="name">Connecteur Firebase</field>
+        <field name="res_model">firebase.connector</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ============================ Produits & contacts ============================ -->
+    <record id="view_product_template_form_fireman" model="ir.ui.view">
+        <field name="name">product.template.form.fireman</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Inventory Fireman" name="fireman">
+                    <group>
+                        <field name="fireman_tier"/>
+                        <field name="fireman_max_vehicles" invisible="not fireman_tier"/>
+                        <field name="fireman_max_members" invisible="not fireman_tier"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_form_fireman" model="ir.ui.view">
+        <field name="name">res.partner.form.fireman</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Inventory Fireman" name="fireman" invisible="not firebase_uid and not fireman_member_ids">
+                    <group>
+                        <field name="firebase_uid"/>
+                        <field name="fireman_super_admin"/>
+                    </group>
+                    <field name="fireman_member_ids">
+                        <list>
+                            <field name="uo_id"/>
+                            <field name="is_admin"/>
+                            <field name="is_pharmacist"/>
+                            <field name="verified"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================ Menus ============================ -->
+    <menuitem id="menu_fireman_root" name="Inventory Fireman" web_icon="inventory_fireman,static/src/img/uo.png" groups="base.group_user" sequence="60"/>
+    <menuitem id="menu_fireman_uo" name="Unités opérationnelles" parent="menu_fireman_root" action="action_fireman_uo" sequence="10"/>
+    <menuitem id="menu_fireman_member" name="Membres" parent="menu_fireman_root" action="action_fireman_member" sequence="20"/>
+    <menuitem id="menu_fireman_vehicle" name="Véhicules" parent="menu_fireman_root" action="action_fireman_vehicle" sequence="30"/>
+    <menuitem id="menu_fireman_inventory" name="Inventaires" parent="menu_fireman_root" action="action_fireman_inventory" sequence="40"/>
+    <menuitem id="menu_fireman_config" name="Configuration" parent="menu_fireman_root" groups="group_fireman_manager" sequence="90"/>
+    <menuitem id="menu_fireman_connector" name="Connecteur Firebase" parent="menu_fireman_config" action="action_firebase_connector" sequence="10"/>
+    <menuitem id="menu_fireman_sync" name="File de synchronisation" parent="menu_fireman_config" action="action_fireman_sync_event" sequence="20"/>
+</odoo>

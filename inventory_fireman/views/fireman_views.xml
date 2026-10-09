@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================ UO ============================ -->
+    <record id="view_fireman_uo_list" model="ir.ui.view">
+        <field name="name">fireman.uo.list</field>
+        <field name="model">fireman.uo</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="tier" widget="badge" decoration-success="tier != 'discovery'" decoration-muted="tier == 'discovery'"/>
+                <field name="vehicle_count"/>
+                <field name="member_count"/>
+                <field name="verified" widget="boolean_toggle"/>
+                <field name="last_pull_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_uo_form" model="ir.ui.view">
+        <field name="name">fireman.uo.form</field>
+        <field name="model">fireman.uo</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_pull" type="object" string="Lire depuis Firebase"/>
+                    <button name="action_push" type="object" string="Envoyer vers Firebase"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_vehicles" type="object" class="oe_stat_button" icon="fa-truck">
+                            <field name="vehicle_count" widget="statinfo" string="Véhicules"/>
+                        </button>
+                        <button name="action_open_members" type="object" class="oe_stat_button" icon="fa-users">
+                            <field name="member_count" widget="statinfo" string="Membres"/>
+                        </button>
+                        <button name="action_open_inventories" type="object" class="oe_stat_button" icon="fa-list-alt">
+                            <field name="inventory_count" widget="statinfo" string="Inventaires"/>
+                        </button>
+                        <button name="action_open_orders" type="object" class="oe_stat_button" icon="fa-refresh">
+                            <div class="o_stat_info"><span class="o_stat_text">Abonnements</span></div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archivée" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <group>
+                        <group string="Unité">
+                            <field name="name"/>
+                            <field name="code" readonly="id"/>
+                            <field name="verified"/>
+                            <field name="prefill_qty"/>
+                            <field name="send_inventory_to_all"/>
+                        </group>
+                        <group string="Facturation">
+                            <field name="partner_id"/>
+                            <field name="billing_email"/>
+                            <field name="last_pull_date"/>
+                        </group>
+                    </group>
+                    <group string="Abonnement en cours">
+                        <group>
+                            <field name="subscription_id"/>
+                            <field name="tier"/>
+                        </group>
+                        <group>
+                            <field name="max_vehicles"/>
+                            <field name="max_members"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Membres" name="members">
+                            <field name="member_ids">
+                                <list>
+                                    <field name="partner_id"/>
+                                    <field name="email"/>
+                                    <field name="is_admin"/>
+                                    <field name="is_pharmacist"/>
+                                    <field name="verified"/>
+                                    <field name="last_connection"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Véhicules" name="vehicles">
+                            <field name="vehicle_ids">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="license_plate"/>
+                                    <field name="status"/>
+                                    <field name="section_count"/>
+                                    <field name="item_count"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fireman_uo_search" model="ir.ui.view">
+        <field name="name">fireman.uo.search</field>
+        <field name="model">fireman.uo</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="UO" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <filter name="unverified" string="Non validées" domain="[('verified', '=', False)]"/>
+                <filter name="archived" string="Archivées" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fireman_uo" model="ir.actions.act_window">
+        <field name="name">Unités opérationnelles</field>
+        <field name="res_model">fireman.uo</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ============================ Membres ============================ -->
+    <record id="view_fireman_member_list" model="ir.ui.view">
+        <field name="name">fireman.member.list</field>
+        <field name="model">fireman.member</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="uo_id"/>
+                <field name="partner_id"/>
+                <field name="email"/>
+                <field name="is_admin"/>
+                <field name="is_pharmacist"/>
+                <field name="verified"/>
+                <field name="last_connection"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_member_form" model="ir.ui.view">
+        <field name="name">fireman.member.form</field>
+        <field name="model">fireman.member</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="uo_id"/>
+                            <field name="partner_id"/>
+                            <field name="firebase_uid"/>
+                        </group>
+                        <group>
+                            <field name="is_admin"/>
+                            <field name="is_pharmacist"/>
+                            <field name="verified"/>
+                            <field name="is_super_admin"/>
+                            <field name="last_connection"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fireman_member_search" model="ir.ui.view">
+        <field name="name">fireman.member.search</field>
+        <field name="model">fireman.member</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="uo_id"/>
+                <filter name="pending" string="En attente de validation" domain="[('verified', '=', False)]"/>
+                <filter name="admins" string="Administrateurs" domain="[('is_admin', '=', True)]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_uo" string="UO" context="{'group_by': 'uo_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fireman_member" model="ir.actions.act_window">
+        <field name="name">Membres</field>
+        <field name="res_model">fireman.member</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ============================ Véhicules ============================ -->
+    <record id="view_fireman_vehicle_list" model="ir.ui.view">
+        <field name="name">fireman.vehicle.list</field>
+        <field name="model">fireman.vehicle</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="uo_id"/>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="license_plate"/>
+                <field name="status" widget="badge" decoration-danger="status == 'broken'" decoration-warning="status == 'repair'"/>
+                <field name="section_count"/>
+                <field name="item_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_vehicle_form" model="ir.ui.view">
+        <field name="name">fireman.vehicle.form</field>
+        <field name="model">fireman.vehicle</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="uo_id"/>
+                            <field name="name"/>
+                            <field name="license_plate"/>
+                        </group>
+                        <group>
+                            <field name="status"/>
+                            <field name="verified"/>
+                            <field name="uid" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Catégories et équipements" name="sections">
+                            <field name="section_ids">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="name"/>
+                                    </group>
+                                    <field name="item_ids">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="is_group"/>
+                                            <field name="parent_id" domain="[('is_group', '=', True), ('section_id', '=', parent.id)]" invisible="is_group"/>
+                                            <field name="name"/>
+                                            <field name="quantity" invisible="is_group"/>
+                                        </list>
+                                    </field>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fireman_vehicle_search" model="ir.ui.view">
+        <field name="name">fireman.vehicle.search</field>
+        <field name="model">fireman.vehicle</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="license_plate"/>
+                <field name="uo_id"/>
+                <filter name="out_of_order" string="Hors service" domain="[('status', '!=', 'nothing')]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_uo" string="UO" context="{'group_by': 'uo_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fireman_vehicle" model="ir.actions.act_window">
+        <field name="name">Véhicules</field>
+        <field name="res_model">fireman.vehicle</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ============================ Inventaires ============================ -->
+    <record id="view_fireman_inventory_list" model="ir.ui.view">
+        <field name="name">fireman.inventory.list</field>
+        <field name="model">fireman.inventory</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="date"/>
+                <field name="uo_id"/>
+                <field name="vehicle_name"/>
+                <field name="inventor_name"/>
+                <field name="rank"/>
+                <field name="is_complete"/>
+                <field name="lack"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_inventory_form" model="ir.ui.view">
+        <field name="name">fireman.inventory.form</field>
+        <field name="model">fireman.inventory</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="uo_id"/>
+                            <field name="date"/>
+                            <field name="vehicle_name"/>
+                        </group>
+                        <group>
+                            <field name="inventor_name"/>
+                            <field name="rank"/>
+                            <field name="is_complete"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="lack"/>
+                        <field name="comment"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fireman_inventory_search" model="ir.ui.view">
+        <field name="name">fireman.inventory.search</field>
+        <field name="model">fireman.inventory</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="uo_id"/>
+                <field name="vehicle_name"/>
+                <field name="inventor_name"/>
+                <filter name="incomplete" string="Incomplets" domain="[('is_complete', '=', False)]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_uo" string="UO" context="{'group_by': 'uo_id'}"/>
+                    <filter name="group_vehicle" string="Véhicule" context="{'group_by': 'vehicle_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fireman_inventory" model="ir.actions.act_window">
+        <field name="name">Inventaires</field>
+        <field name="res_model">fireman.inventory</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

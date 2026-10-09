@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="product_category_firebase" model="product.category">
+            <field name="name">Abonnements Inventory Fireman</field>
+        </record>
+
+        <record id="product_subscription_essentiel" model="product.product">
+            <field name="name">Abonnement Essentiel</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product_category_firebase"/>
+            <field name="list_price">5.00</field>
+            <field name="invoice_policy">order</field>
+            <field name="recurring_invoice" eval="True"/>
+            <field name="fireman_tier">essential</field>
+            <field name="fireman_max_vehicles">3</field>
+            <field name="fireman_max_members">15</field>
+            <field name="description_sale">Petites amicales : jusqu'à 3 véhicules et 15 utilisateurs. Facturation mensuelle.</field>
+        </record>
+
+        <record id="product_subscription_caserne" model="product.product">
+            <field name="name">Abonnement Caserne</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product_category_firebase"/>
+            <field name="list_price">10.00</field>
+            <field name="invoice_policy">order</field>
+            <field name="recurring_invoice" eval="True"/>
+            <field name="fireman_tier">caserne</field>
+            <field name="fireman_max_vehicles">10</field>
+            <field name="fireman_max_members">30</field>
+            <field name="description_sale">Caserne standard : jusqu'à 10 véhicules, 30 utilisateurs, reporting et export PDF. Facturation mensuelle.</field>
+        </record>
+
+        <record id="product_subscription_flotte" model="product.product">
+            <field name="name">Abonnement Flotte</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product_category_firebase"/>
+            <field name="list_price">15.00</field>
+            <field name="invoice_policy">order</field>
+            <field name="recurring_invoice" eval="True"/>
+            <field name="fireman_tier">flotte</field>
+            <field name="fireman_max_vehicles">30</field>
+            <field name="fireman_max_members">-1</field>
+            <field name="description_sale">Grandes casernes : jusqu'à 30 véhicules, utilisateurs illimités, exports CSV et PDF. Facturation mensuelle.</field>
+        </record>
+    </data>
+
+    <!-- Idempotent : rattrape les produits déjà existants (mises à jour) et crée les tarifs récurrents. -->
+    <function model="product.template" name="_fireman_setup_subscription_products"/>
+</odoo>

@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Page explicative sur les abonnements et paiements -->
+    <template id="firebase_subscription_info" name="Information Abonnements">
+        <t t-call="portal.portal_layout">
+            <t t-set="additional_title">Abonnements &amp; Paiement</t>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+            <style>
+                .subscription-hero {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 80px 0;
+                margin: -24px -15px 40px -15px;
+                }
+
+                .subscription-hero h1 {
+                font-size: 42px;
+                font-weight: 700;
+                margin-bottom: 20px;
+                }
+
+                .subscription-hero p {
+                font-size: 18px;
+                opacity: 0.95;
+                max-width: 700px;
+                margin: 0 auto;
+                }
+
+                /* Pricing Cards Section */
+                .pricing-section {
+                padding: 80px 0;
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162,
+                0.05) 100%);
+                }
+                .pricing-card {
+                background: white;
+                border-radius: 25px;
+                padding: 50px 40px;
+                box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+                transition: all 0.4s ease;
+                height: 100%;
+                position: relative;
+                border: 2px solid transparent;
+                }
+                .pricing-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 25px 70px rgba(102, 126, 234, 0.2);
+                border-color: #667eea;
+                }
+                .pricing-card.featured {
+                border: 3px solid #667eea;
+                transform: scale(1.05);
+                }
+                .pricing-card.featured .badge-featured {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 8px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 600;
+                }
+                .pricing-tier {
+                font-size: 28px;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 15px;
+                }
+                .pricing-price {
+                font-size: 52px;
+                font-weight: 800;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 10px;
+                }
+                .pricing-price span {
+                font-size: 24px;
+                }
+                .pricing-features {
+                list-style: none;
+                padding: 0;
+                margin: 30px 0;
+                }
+                .pricing-features li {
+                padding: 12px 0;
+                border-bottom: 1px solid #f0f0f0;
+                color: #666;
+                font-size: 16px;
+                }
+                .pricing-features li i {
+                color: #667eea;
+                margin-right: 10px;
+                font-size: 18px;
+                }
+                .btn-pricing {
+                width: 100%;
+                padding: 18px;
+                font-size: 18px;
+                font-weight: 700;
+                border-radius: 50px;
+                transition: all 0.3s ease;
+                }
+
+                .btn-subscribe {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                padding: 15px 30px;
+                font-weight: 600;
+                width: 100%;
+                transition: all 0.3s ease;
+                }
+
+                .btn-subscribe:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+                color: white;
+                }
+
+                .info-section {
+                background: #f8f9fa;
+                padding: 60px 0;
+                margin: 60px -15px;
+                }
+
+                .info-card {
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                margin-bottom: 30px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+                }
+
+                .info-card h4 {
+                color: #667eea;
+                font-weight: 600;
+                margin-bottom: 15px;
+                }
+
+                .step-number {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                font-weight: 700;
+                margin-bottom: 20px;
+                }
+
+                .faq-item {
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+                }
+
+                .faq-item h5 {
+                color: #333;
+                font-weight: 600;
+                margin-bottom: 10px;
+                }
+
+                .faq-item p {
+                color: #666;
+                margin: 0;
+                }
+            </style>
+
+            <!-- Hero Section -->
+            <div class="subscription-hero">
+                <div class="container text-center">
+                    <h1>
+                        <i class="fa fa-credit-card mr-3"></i> Abonnements &amp; Paiement </h1>
+                    <p class="lead">
+                        Choisissez le plan qui correspond à vos besoins et gérez facilement vos
+                        véhicules et équipements de pompiers
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pricing Cards Section -->
+            <div class="pricing-section" id="pricing">
+                <div class="container">
+                    <div class="row mb-5">
+                        <div class="col-12 text-center">
+                            <h2 class="section-title">Nos forfaits</h2>
+                            <p class="section-subtitle">Choisissez le plan adapté à la taille de
+                                votre caserne</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-3 mb-4">
+                            <div class="pricing-card">
+                                <div class="pricing-tier">Découverte</div>
+                                <div class="pricing-price">Gratuit</div>
+                                <p class="text-muted mb-4">Pour un premier aperçu</p>
+                                <ul class="pricing-features">
+                                    <li><i class="fa fa-check"></i> Jusqu'à 1 véhicule</li>
+                                    <li><i class="fa fa-check"></i> Jusqu'à 1 utilisateur</li>
+                                    <li><i class="fa fa-check"></i> Gestion inventaire de base</li>
+                                    <li><i class="fa fa-check"></i> Synchronisation Firebase</li>
+                                    <li><i class="fa fa-check"></i> Support par email</li>
+                                </ul>
+                                <a href="/my/firebase/login"
+                                    class="btn btn-outline-primary btn-pricing">
+                                    Choisir ce plan
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Plan Essentiel -->
+                        <div class="col-lg-3 mb-4">
+                            <div class="pricing-card">
+                                <div class="pricing-tier">Essentiel</div>
+                                <div class="pricing-price">5€<span>/mois</span></div>
+                                <p class="text-muted mb-4">Pour les petites amicales</p>
+                                <ul class="pricing-features">
+                                    <li><i class="fa fa-check"></i> Jusqu'à 3 véhicules</li>
+                                    <li><i class="fa fa-check"></i> Jusqu'à 15 utilisateurs</li>
+                                    <li><i class="fa fa-check"></i> Gestion inventaire de base</li>
+                                    <li><i class="fa fa-check"></i> Synchronisation Firebase</li>
+                                    <li><i class="fa fa-check"></i> Support par email</li>
+                                </ul>
+                                <a href="/my/firebase/login"
+                                    class="btn btn-outline-primary btn-pricing">
+                                    Choisir ce plan
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Plan Caserne (Featured) -->
+                        <div class="col-lg-3 mb-4">
+                            <div class="pricing-card featured">
+                                <span class="badge-featured">⭐ Populaire</span>
+                                <div class="pricing-tier">Caserne</div>
+                                <div class="pricing-price">10€<span>/mois</span></div>
+                                <p class="text-muted mb-4">Pour les casernes standard</p>
+                                <ul class="pricing-features">
+                                    <li><i class="fa fa-check"></i> Jusqu'à 10 véhicules</li>
+                                    <li><i class="fa fa-check"></i> Jusqu'à 30 utilisateurs</li>
+                                    <li><i class="fa fa-check"></i> Reporting et exports PDF</li>
+                                    <li><i class="fa fa-check"></i> Gestion des rôles basique</li>
+                                    <li><i class="fa fa-check"></i> Support prioritaire</li>
+                                    <li><i class="fa fa-check"></i> Statistiques avancées</li>
+                                </ul>
+                                <a href="/my/firebase/login" class="btn btn-primary btn-pricing">
+                                    Choisir ce plan
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Plan Flotte -->
+                        <div class="col-lg-3 mb-4">
+                            <div class="pricing-card">
+                                <div class="pricing-tier">Flotte</div>
+                                <div class="pricing-price">15€<span>/mois</span></div>
+                                <p class="text-muted mb-4">Pour les grandes casernes</p>
+                                <ul class="pricing-features">
+                                    <li><i class="fa fa-check"></i> Jusqu'à 30 véhicules</li>
+                                    <li><i class="fa fa-check"></i> Utilisateurs illimités</li>
+                                    <li><i class="fa fa-check"></i> Gestion complète des rôles</li>
+                                    <li><i class="fa fa-check"></i> Exports avancés et analytics</li>
+                                    <li><i class="fa fa-check"></i> Intégrations API</li>
+                                    <li><i class="fa fa-check"></i> Support dédié</li>
+                                </ul>
+                                <a href="/my/firebase/login"
+                                    class="btn btn-outline-primary btn-pricing">
+                                    Choisir ce plan
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container">
+                <!-- Informations sur le paiement -->
+                <div class="row mb-5">
+                    <div class="col-12">
+                        <h2 class="text-center mb-4">Informations de Paiement</h2>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="info-card">
+                            <h4><i class="fa fa-sync mr-2"></i> Abonnement Récurrent</h4>
+                            <p>Les abonnements sont facturés mensuellement de manière automatique.
+                                Vous pouvez annuler à tout moment.</p>
+                            <ul class="mt-3">
+                                <li>Facturation automatique chaque mois</li>
+                                <li>Accès immédiat après paiement</li>
+                                <li>Factures disponibles en ligne</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="info-card">
+                            <h4><i class="fa fa-undo mr-2"></i> Politique d'Annulation</h4>
+                            <p>Vous pouvez annuler votre abonnement à tout moment depuis votre
+                                espace client.</p>
+                            <ul class="mt-3">
+                                <li>Annulation en 1 clic</li>
+                                <li>Accès maintenu jusqu'à la fin de la période payée</li>
+                                <li>Pas de frais cachés</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ -->
+                <div class="row mb-5">
+                    <div class="col-12">
+                        <h2 class="text-center mb-4">Questions Fréquentes</h2>
+                    </div>
+                    <div class="col-lg-8 offset-lg-2">
+                        <div class="faq-item">
+                            <h5><i class="fa fa-question-circle text-primary mr-2"></i> Puis-je
+                                changer de plan à tout moment ?</h5>
+                            <p>Oui, vous pouvez changer de plan à tout moment. Le
+                                changement est immédiat et vous ne payez que pour les jours restants
+                                du mois en cours.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h5><i class="fa fa-question-circle text-primary mr-2"></i> Que se
+                                passe-t-il si j'annule mon abonnement ?</h5>
+                            <p>Votre UO passera automatiquement en mode annulé à la fin de la
+                                période payée.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h5><i class="fa fa-question-circle text-primary mr-2"></i> Mes données
+                                sont-elles sauvegardées ?</h5>
+                            <p>Oui, toutes vos données sont synchronisées en temps réel et stockées
+                                de manière sécurisée. Des sauvegardes
+                                quotidiennes sont effectuées automatiquement.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h5><i class="fa fa-question-circle text-primary mr-2"></i> Comment
+                                contacter le support ?</h5>
+                            <p>Les utilisateurs bénéficient d'un support
+                                par email. Vous pouvez nous contacter directement depuis votre
+                                espace client.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Final -->
+                <div class="row mb-5">
+                    <div class="col-lg-8 offset-lg-2 text-center">
+                        <div class="info-card"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <h3 class="mb-3" style="color: white;">Prêt à commencer ?</h3>
+                            <p class="mb-4">Installez l'application, créez votre compte gratuitement
+                                et testez toutes les fonctionnalités en mode Découverte</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
