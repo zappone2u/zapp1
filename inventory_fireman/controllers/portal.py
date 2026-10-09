@@ -9,7 +9,8 @@ from odoo.exceptions import AccessError, UserError
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
-from ..models.constants import PAID_TIERS, TIERS
+from ..models.constants import PAID_TIERS, TIER_RANK, TIERS
+from ..models.fireman_uo import MAX_CODE_LENGTH, is_valid_code
 from ..models.utils import QuotaExceeded
 
 _logger = logging.getLogger(__name__)
@@ -28,7 +29,12 @@ FLASH = {
     "last_admin": "Il doit rester au moins un administrateur dans l'UO.",
     "invalid": "Données invalides.",
     "code_taken": "Ce trigramme est déjà utilisé.",
+    "invalid_code": f"Trigramme invalide : {MAX_CODE_LENGTH} caractères maximum, sans espace ni . $ # [ ] /",
     "quota": "La limite de votre palier est atteinte : choisissez un palier supérieur.",
+    "downgrade_scheduled": "Passage au palier inférieur planifié à la fin de la période payée.",
+    "downgrade_cancelled": "Passage au palier inférieur annulé.",
+    "downgrade_invalid": "Sélection invalide : respectez les limites du palier choisi.",
+    "quota_saved": "Votre choix est enregistré.",
     "failed": "L'opération a échoué. Réessayez ou contactez le support.",
 }
 
@@ -137,6 +143,8 @@ class FiremanPortal(CustomerPortal):
         Uo = env["fireman.uo"].sudo()
         if not name or not code:
             return self._redirect("/my/uo/new", error="invalid")
+        if not is_valid_code(code):
+            return self._redirect("/my/uo/new", error="invalid_code")
         if Uo.with_context(active_test=False).search_count([("code", "=", code)]) or self._firebase_has_node(code):
             return self._redirect("/my/uo/new", error="code_taken")
         partner = env.user.partner_id
@@ -475,7 +483,7 @@ class FiremanPortal(CustomerPortal):
         )
         return request.render(
             "inventory_fireman.portal_subscription",
-            self._values(uo, is_admin, "subscription", tier_products=products, invoices=invoices),
+            self._values(uo, is_admin, "subscription", tier_products=products, invoices=invoices, tier_rank=TIER_RANK),
         )
 
     @http.route("/my/uo/<int:uo_id>/subscription/subscribe", type="http", auth="user", website=True, methods=["POST"])
@@ -501,6 +509,115 @@ class FiremanPortal(CustomerPortal):
         except UserError:
             return self._redirect(url, error="failed")
         return self._redirect(url, ok="cancelled")
+
+    # ------------------------------------------------------------------
+    # Baisse de palier et dépassement des quotas
+    # ------------------------------------------------------------------
+    def _selection_values(self, uo, tier=None):
+        if tier:
+            product = request.env["product.template"].sudo().search([("fireman_tier", "=", tier)], limit=1)
+            max_vehicles, max_members = product.fireman_max_vehicles, product.fireman_max_members
+        else:
+            max_vehicles, max_members = uo.max_vehicles, uo.max_members
+        vehicles = uo.vehicle_ids.sorted(lambda v: (v.sequence, v.id))
+        members = uo._billable_members().sorted(lambda m: (not m.is_admin, m.id))
+        # Présélection : le choix déjà fait, sinon ce que l'archivage automatique conserverait.
+        kept_vehicles = (uo.keep_vehicle_ids & vehicles) or (
+            vehicles if max_vehicles == -1 else vehicles[:max_vehicles]
+        )
+        kept_members = (uo.keep_member_ids & members) or (members if max_members == -1 else members[:max_members])
+        return {
+            "tier": tier,
+            "max_vehicles": max_vehicles,
+            "max_members": max_members,
+            "vehicles": vehicles,
+            "members": members,
+            "checked_vehicles": set(kept_vehicles.ids),
+            "checked_members": set(kept_members.ids),
+            "too_many_vehicles": max_vehicles != -1 and len(vehicles) > max_vehicles,
+            "too_many_members": max_members != -1 and len(members) > max_members,
+            "grace_days": uo._quota_grace_days(),
+        }
+
+    def _selected_ids(self):
+        form = request.httprequest.form
+        if form.get("mode") != "choose":
+            return [], []
+        return (
+            [int(x) for x in form.getlist("keep_vehicle") if x.isdigit()],
+            [int(x) for x in form.getlist("keep_member") if x.isdigit()],
+        )
+
+    @http.route("/my/uo/<int:uo_id>/subscription/downgrade", type="http", auth="user", website=True, methods=["GET"])
+    def subscription_downgrade(self, uo_id, tier=None, **kw):
+        uo, is_admin = self._get_uo(uo_id, admin=True)
+        url = f"/my/uo/{uo.id}/subscription"
+        if tier not in dict(PAID_TIERS) or not uo.subscription_id or TIER_RANK[tier] >= TIER_RANK[uo.tier]:
+            return self._redirect(url, error="invalid")
+        values = self._values(
+            uo,
+            is_admin,
+            "subscription",
+            mode="downgrade",
+            effective_date=uo.subscription_id.next_invoice_date,
+            **self._selection_values(uo, tier),
+        )
+        return request.render("inventory_fireman.portal_selection", values)
+
+    @http.route(
+        "/my/uo/<int:uo_id>/subscription/downgrade/confirm",
+        type="http",
+        auth="user",
+        website=True,
+        methods=["POST"],
+    )
+    def subscription_downgrade_confirm(self, uo_id, tier=None, **kw):
+        uo, _admin = self._get_uo(uo_id, admin=True)
+        url = f"/my/uo/{uo.id}/subscription"
+        email = (kw.get("billing_email") or "").strip()
+        if tier not in dict(PAID_TIERS) or (email and "@" not in email):
+            return self._redirect(url, error="invalid")
+        vehicle_ids, member_ids = self._selected_ids()
+        try:
+            uo.schedule_downgrade(tier, billing_email=email or None, vehicle_ids=vehicle_ids, member_ids=member_ids)
+        except UserError:
+            _logger.warning("Baisse de palier %s impossible pour %s", tier, uo.code, exc_info=True)
+            return self._redirect(url, error="downgrade_invalid")
+        return self._redirect(url, ok="downgrade_scheduled")
+
+    @http.route(
+        "/my/uo/<int:uo_id>/subscription/downgrade/cancel",
+        type="http",
+        auth="user",
+        website=True,
+        methods=["POST"],
+    )
+    def subscription_downgrade_cancel(self, uo_id, **kw):
+        uo, _admin = self._get_uo(uo_id, admin=True)
+        uo.cancel_pending_downgrade()
+        return self._redirect(f"/my/uo/{uo.id}/subscription", ok="downgrade_cancelled")
+
+    @http.route("/my/uo/<int:uo_id>/quota", type="http", auth="user", website=True, methods=["GET"])
+    def quota(self, uo_id, **kw):
+        uo, is_admin = self._get_uo(uo_id, admin=True)
+        values = self._selection_values(uo)
+        if not (values["too_many_vehicles"] or values["too_many_members"]):
+            return self._redirect(f"/my/uo/{uo.id}")
+        return request.render(
+            "inventory_fireman.portal_selection", self._values(uo, is_admin, "uo", mode="quota", **values)
+        )
+
+    @http.route("/my/uo/<int:uo_id>/quota/confirm", type="http", auth="user", website=True, methods=["POST"])
+    def quota_confirm(self, uo_id, **kw):
+        uo, _admin = self._get_uo(uo_id, admin=True)
+        vehicle_ids, member_ids = self._selected_ids()
+        if vehicle_ids or member_ids:
+            try:
+                uo.set_keep_selection(vehicle_ids, member_ids)
+            except UserError:
+                return self._redirect(f"/my/uo/{uo.id}/quota", error="downgrade_invalid")
+            return self._redirect(f"/my/uo/{uo.id}", ok="quota_saved")
+        return self._redirect(f"/my/uo/{uo.id}")
 
     # ------------------------------------------------------------------
     # Reporting (paliers Caserne et Flotte)

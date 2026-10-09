@@ -67,6 +67,19 @@
                             <field name="max_members"/>
                         </group>
                     </group>
+                    <group string="Baisse de palier et quotas" invisible="not pending_tier and not quota_grace_until and not vehicle_excess and not member_excess">
+                        <group>
+                            <field name="pending_tier"/>
+                            <field name="pending_tier_date"/>
+                            <field name="quota_grace_until"/>
+                        </group>
+                        <group>
+                            <field name="vehicle_excess"/>
+                            <field name="member_excess"/>
+                            <field name="keep_vehicle_ids" widget="many2many_tags"/>
+                            <field name="keep_member_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
                     <notebook>
                         <page string="Membres" name="members">
                             <field name="member_ids">

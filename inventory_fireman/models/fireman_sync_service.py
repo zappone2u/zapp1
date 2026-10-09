@@ -12,6 +12,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 from .constants import SCOPE_INVENTORIES, SCOPE_MEMBERS, SCOPE_UO, SCOPE_VEHICLES, SCOPES
+from .fireman_uo import is_valid_code
 from .utils import as_list, to_naive_utc
 
 _logger = logging.getLogger(__name__)
@@ -60,8 +61,15 @@ class FiremanSyncService(models.AbstractModel):
         for _uid, data in users:
             codes.update(e.get("uo_name") for e in as_list(data.get("uo")) if isinstance(e, dict) and e.get("uo_name"))
 
-        stats = {"uo": 0, "errors": 0}
-        for code in sorted(codes):
+        # Les uo_name des comptes Firestore sont libres : on ignore ceux qui ne peuvent pas
+        # être un trigramme (espace, point, /…) au lieu de tenter de créer une UO invalide.
+        valid = {c for c in codes if is_valid_code(c)}
+        ignored = sorted(codes - valid, key=str)
+        if ignored:
+            _logger.warning("UO ignorées (trigramme invalide) : %s", ", ".join(repr(c) for c in ignored))
+
+        stats = {"uo": 0, "errors": 0, "ignored": len(ignored)}
+        for code in sorted(valid):
             try:
                 with self.env.cr.savepoint():
                     self._pull(connector, code, set(SCOPES), users=users, node=nodes.get(code))
@@ -131,12 +139,14 @@ class FiremanSyncService(models.AbstractModel):
     def _apply_vehicles(self, uo, raw, blocked):
         Vehicle = self.env["fireman.vehicle"]
         remote = raw if isinstance(raw, dict) else {}
-        local = {v.uid: v for v in uo.vehicle_ids}
+        local = {v.uid: v for v in uo.with_context(active_test=False).vehicle_ids}
         for uid, data in remote.items():
             if not isinstance(data, dict) or (Vehicle._name, f"{uo.code}/{uid}") in blocked:
                 continue
             vals = Vehicle._vals_from_firebase(data)
             vehicle = local.get(uid)
+            if vehicle and not vehicle.active:
+                continue  # archivé dans Odoo : le retrait de Firebase est en cours
             if vehicle:
                 changes = _changes(vehicle, vals)
                 if changes:
@@ -145,7 +155,7 @@ class FiremanSyncService(models.AbstractModel):
                 vehicle = Vehicle.create({**vals, "uo_id": uo.id, "uid": uid})
             vehicle._apply_firebase_products(data.get("product"))
         for uid, vehicle in local.items():
-            if uid not in remote and (Vehicle._name, f"{uo.code}/{uid}") not in blocked:
+            if vehicle.active and uid not in remote and (Vehicle._name, f"{uo.code}/{uid}") not in blocked:
                 vehicle.unlink()
 
     def _apply_inventories(self, uo, raw):

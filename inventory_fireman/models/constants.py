@@ -7,6 +7,12 @@ PAID_TIERS = [
     ("flotte", "Flotte"),
 ]
 TIERS = [(TIER_DISCOVERY, "Découverte")] + PAID_TIERS
+TIER_RANK = {TIER_DISCOVERY: 0, "essential": 1, "caserne": 2, "flotte": 3}
+
+# Baisse de palier : délai (jours) laissé à l'UO pour choisir ce qu'elle garde avant l'archivage automatique.
+# Paramétrable dans Paramètres > Inventory Fireman.
+QUOTA_GRACE_PARAM = "inventory_fireman.quota_grace_days"
+DEFAULT_QUOTA_GRACE_DAYS = 30
 
 # Quotas du palier gratuit
 DISCOVERY_MAX_VEHICLES = 1

@@ -47,6 +47,17 @@
                 </li>
             </ul>
         </div>
+        <div t-if="is_admin and uo.pending_tier" class="alert alert-info">
+            Passage au palier <strong t-out="tiers[uo.pending_tier]"/> prévu le
+            <strong t-out="uo.pending_tier_date" t-options="{'widget': 'date'}"/> (fin de la période payée).
+        </div>
+        <div t-if="is_admin and uo.quota_grace_until" class="alert alert-warning">
+            Votre palier autorise <strong t-out="'∞' if uo.max_vehicles == -1 else uo.max_vehicles"/> véhicule(s) et
+            <strong t-out="'∞' if uo.max_members == -1 else uo.max_members"/> utilisateur(s) : l'UO en compte trop.
+            Choisissez ce que vous conservez avant le <strong t-out="uo.quota_grace_until" t-options="{'widget': 'date'}"/>,
+            sinon l'excédent sera archivé automatiquement (rien n'est supprimé).
+            <a t-attf-href="/my/uo/#{uo.id}/quota" class="alert-link">Faire mon choix</a>
+        </div>
         <t t-call="inventory_fireman.fireman_flash"/>
     </template>
 
@@ -191,6 +202,12 @@
                         <span t-attf-class="badge #{'text-bg-success' if vehicle.status == 'nothing' else 'text-bg-danger' if vehicle.status == 'broken' else 'text-bg-warning'}"
                               t-out="statuses[vehicle.status]"/>
                     </a>
+                </div>
+                <t t-set="archived" t-value="uo.with_context(active_test=False).vehicle_ids.filtered(lambda v: v.quota_archived and not v.active)"/>
+                <div t-if="archived" class="alert alert-secondary">
+                    <strong>Archivés suite à la baisse de palier :</strong>
+                    <t t-out="', '.join(archived.mapped('name'))"/>.
+                    Ils restent conservés et seront réactivés automatiquement si l'UO passe à un palier supérieur.
                 </div>
                 <form t-if="is_admin" method="post" t-attf-action="/my/uo/#{uo.id}/vehicles/new" class="card card-body">
                     <t t-call="inventory_fireman.fireman_csrf"/>
@@ -383,7 +400,10 @@
                                 </t>
                                 <t t-else="">
                                     <td t-out="member.name"/>
-                                    <td t-out="member.email"/>
+                                    <td>
+                                        <t t-out="member.email"/>
+                                        <span t-if="member.quota_suspended" class="badge text-bg-warning ms-1" title="Repassé en attente après une baisse de palier ; réactivé si le palier le permet">Suspendu (palier)</span>
+                                    </td>
                                     <td colspan="4">
                                         <form method="post" t-attf-action="/my/uo/#{uo.id}/members/#{member.id}/update" class="d-flex align-items-center justify-content-between gap-3">
                                             <t t-call="inventory_fireman.fireman_csrf"/>
@@ -434,6 +454,19 @@
                     </p>
                 </div></div>
 
+                <div t-if="uo.pending_tier" class="card mb-4 border-info"><div class="card-body">
+                    <h5>Changement de palier planifié</h5>
+                    <p class="mb-2">
+                        L'UO passera au palier <strong t-out="tiers[uo.pending_tier]"/> le
+                        <strong t-out="uo.pending_tier_date" t-options="{'widget': 'date'}"/>, à la fin de la période déjà payée.
+                        D'ici là, votre abonnement actuel reste inchangé.
+                    </p>
+                    <form method="post" t-attf-action="/my/uo/#{uo.id}/subscription/downgrade/cancel">
+                        <t t-call="inventory_fireman.fireman_csrf"/>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Annuler ce changement</button>
+                    </form>
+                </div></div>
+
                 <div class="row g-3 mb-4">
                     <div class="col-md-4" t-foreach="tier_products" t-as="product">
                         <div t-attf-class="card h-100 #{'border-success' if product.fireman_tier == uo.tier else ''}">
@@ -445,6 +478,15 @@
                                 </div>
                                 <p class="text-muted small flex-grow-1" t-out="product.description_sale"/>
                                 <span t-if="product.fireman_tier == uo.tier" class="badge text-bg-success align-self-start">Palier actuel</span>
+                                <span t-elif="product.fireman_tier == uo.pending_tier" class="badge text-bg-info align-self-start">
+                                    Prévu le <t t-out="uo.pending_tier_date" t-options="{'widget': 'date'}"/>
+                                </span>
+                                <form t-elif="uo.subscription_id and tier_rank[product.fireman_tier] &lt; tier_rank[uo.tier]"
+                                      method="get" t-attf-action="/my/uo/#{uo.id}/subscription/downgrade">
+                                    <input type="hidden" name="tier" t-att-value="product.fireman_tier"/>
+                                    <p class="small text-muted mb-2">Appliqué à la fin de la période déjà payée.</p>
+                                    <button type="submit" class="btn btn-outline-primary w-100">Passer à ce palier</button>
+                                </form>
                                 <form t-else="" method="post" t-attf-action="/my/uo/#{uo.id}/subscription/subscribe">
                                     <t t-call="inventory_fireman.fireman_csrf"/>
                                     <input type="hidden" name="tier" t-att-value="product.fireman_tier"/>
@@ -492,6 +534,96 @@
                         </li>
                     </ul>
                 </t>
+            </div>
+        </t>
+    </template>
+
+    <!-- ======================= Choix des éléments à conserver ======================= -->
+    <template id="portal_selection" name="Portail : choix des éléments à conserver">
+        <t t-call="portal.portal_layout">
+            <div class="container my-4">
+                <t t-call="inventory_fireman.fireman_uo_header"/>
+                <t t-if="mode == 'downgrade'">
+                    <h4>Passer au palier <t t-out="tiers[tier]"/></h4>
+                    <p>
+                        Le changement prendra effet le
+                        <strong t-out="effective_date" t-options="{'widget': 'date'}"/>, à la fin de la période déjà payée.
+                        D'ici là, rien ne change. Ce palier autorise
+                        <strong t-out="'∞' if max_vehicles == -1 else max_vehicles"/> véhicule(s) et
+                        <strong t-out="'∞' if max_members == -1 else max_members"/> utilisateur(s).
+                    </p>
+                </t>
+                <t t-else="">
+                    <h4>Choisir ce que vous conservez</h4>
+                    <p>
+                        Votre palier autorise <strong t-out="'∞' if max_vehicles == -1 else max_vehicles"/> véhicule(s) et
+                        <strong t-out="'∞' if max_members == -1 else max_members"/> utilisateur(s).
+                    </p>
+                </t>
+                <p t-if="too_many_vehicles or too_many_members" class="text-muted">
+                    L'UO dépasse ces limites : cochez ce que vous gardez. Le reste est archivé (véhicules) ou repassé
+                    en attente (utilisateurs), sans rien supprimer, et réactivé si vous repassez à un palier supérieur.
+                    Sans choix de votre part, l'excédent est archivé automatiquement
+                    <t t-out="grace_days"/> jour(s) après le changement.
+                </p>
+
+                <form method="post"
+                      t-attf-action="/my/uo/#{uo.id}/#{'subscription/downgrade/confirm' if mode == 'downgrade' else 'quota/confirm'}">
+                    <t t-call="inventory_fireman.fireman_csrf"/>
+                    <input t-if="mode == 'downgrade'" type="hidden" name="tier" t-att-value="tier"/>
+
+                    <div t-if="too_many_vehicles" class="card mb-3">
+                        <div class="card-header">Véhicules à conserver (<t t-out="max_vehicles"/> maximum)</div>
+                        <ul class="list-group list-group-flush">
+                            <li t-foreach="vehicles" t-as="vehicle" class="list-group-item">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="keep_vehicle" t-att-value="vehicle.id"
+                                           t-attf-id="kv-#{vehicle.id}" t-att-checked="vehicle.id in checked_vehicles or None"/>
+                                    <label class="form-check-label" t-attf-for="kv-#{vehicle.id}">
+                                        <t t-out="vehicle.name"/>
+                                        <span t-if="vehicle.license_plate" class="text-muted ms-1" t-out="vehicle.license_plate"/>
+                                    </label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div t-if="too_many_members" class="card mb-3">
+                        <div class="card-header">Utilisateurs à conserver (<t t-out="max_members"/> maximum)</div>
+                        <ul class="list-group list-group-flush">
+                            <li t-foreach="members" t-as="member" class="list-group-item">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="keep_member" t-att-value="member.id"
+                                           t-attf-id="km-#{member.id}" t-att-checked="member.id in checked_members or None"/>
+                                    <label class="form-check-label" t-attf-for="km-#{member.id}">
+                                        <t t-out="member.name"/>
+                                        <span class="text-muted ms-1" t-out="member.email"/>
+                                        <span t-if="member.is_admin" class="badge text-bg-secondary ms-1">Admin</span>
+                                    </label>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div t-if="mode == 'downgrade'" class="mb-3" style="max-width: 420px;">
+                        <label class="form-label" for="billing_email">Email de facturation</label>
+                        <input type="email" id="billing_email" name="billing_email" class="form-control"
+                               t-att-value="uo.billing_email or request.env.user.login"/>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button t-if="too_many_vehicles or too_many_members" type="submit" name="mode" value="choose" class="btn btn-primary">
+                            Valider mon choix
+                        </button>
+                        <button t-else="" type="submit" name="mode" value="auto" class="btn btn-primary">
+                            Confirmer le changement
+                        </button>
+                        <button t-if="too_many_vehicles or too_many_members" type="submit" name="mode" value="auto" class="btn btn-outline-secondary">
+                            Choisir plus tard (sélection automatique)
+                        </button>
+                        <a t-attf-href="/my/uo/#{uo.id}#{'/subscription' if mode == 'downgrade' else ''}" class="btn btn-link">Annuler</a>
+                    </div>
+                </form>
             </div>
         </t>
     </template>

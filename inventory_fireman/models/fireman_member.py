@@ -22,6 +22,10 @@ class FiremanMember(models.Model):
     is_pharmacist = fields.Boolean(string="Pharmacien")
     verified = fields.Boolean(string="Validé", help="Décoché : demande d'accès en attente.")
     last_connection = fields.Datetime(string="Dernière connexion", readonly=True)
+    quota_suspended = fields.Boolean(
+        string="Suspendu par le palier",
+        help="Repassé en attente après une baisse de palier ; réactivé si le palier le permet de nouveau.",
+    )
 
     _sql_constraints = [("uo_partner_unique", "unique(uo_id, partner_id)", "Cette personne est déjà membre de l'UO.")]
 
@@ -48,6 +52,8 @@ class FiremanMember(models.Model):
             uo._check_member_quota(0)
 
     def write(self, vals):
+        if vals.get("verified") and "quota_suspended" not in vals:
+            vals = {**vals, "quota_suspended": False}
         if vals.get("verified") and self._push_enabled() and not self.env.context.get("fireman_skip_quota"):
             newly = self.filtered(lambda m: not m.verified and not m.partner_id.fireman_super_admin)
             if newly:

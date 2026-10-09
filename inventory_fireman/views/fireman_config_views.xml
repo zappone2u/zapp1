@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- ============================ Paramètres ============================ -->
+    <record id="res_config_settings_view_form_fireman" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.fireman</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Inventory Fireman" name="inventory_fireman">
+                    <block title="Abonnements" name="fireman_quota_block">
+                        <setting id="fireman_quota_grace_setting" string="Baisse de palier"
+                                 help="Délai laissé à l'UO pour choisir ce qu'elle conserve quand elle dépasse les quotas de son palier. Passé ce délai, l'excédent est archivé automatiquement (rien n'est supprimé).">
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <field name="fireman_quota_grace_days" class="oe_inline"/> jours
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
     <!-- ============================ Synchronisation ============================ -->
     <record id="view_fireman_sync_event_list" model="ir.ui.view">
         <field name="name">fireman.sync.event.list</field>

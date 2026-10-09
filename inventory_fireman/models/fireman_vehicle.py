@@ -50,7 +50,13 @@ class FiremanVehicle(models.Model):
     _description = "Véhicule"
     _inherit = ["fireman.sync.mixin"]
     _order = "uo_id, sequence, id"
-    _push_fields = ("name", "license_plate", "status", "notes", "sequence", "verified", "uo_id")
+    _push_fields = ("name", "license_plate", "status", "notes", "sequence", "verified", "uo_id", "active")
+
+    active = fields.Boolean(default=True, help="Décoché : archivé, retiré de l'application mais conservé dans Odoo.")
+    quota_archived = fields.Boolean(
+        string="Archivé par le palier",
+        help="Archivé automatiquement après une baisse de palier ; réactivé si le palier le permet de nouveau.",
+    )
 
     uo_id = fields.Many2one("fireman.uo", string="UO", required=True, ondelete="cascade", index=True)
     uid = fields.Char(string="Identifiant Firebase", required=True, copy=False, index=True, default=lambda s: new_uid())
@@ -191,6 +197,9 @@ class FiremanVehicle(models.Model):
     def _push_upsert(self, connector):
         self.ensure_one()
         ref = connector.rtdb(f"{self.uo_id.code}/vehicle/{self.uid}")
+        if not self.active:
+            ref.delete()
+            return
         ref.update(
             {
                 "id": self.uid,

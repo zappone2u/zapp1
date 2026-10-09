@@ -76,8 +76,6 @@ class FiremanWebsite(http.Controller):
         if not user:
             return {"success": False, "error": "Ce compte ne peut pas se connecter avec Firebase"}
 
-        user.partner_id.last_login_firebase = False if False else None  # pas de champ dédié : voir fireman.member
-        user.partner_id.last_login_firebase = False if False else None  # pas de champ dédié : voir fireman.member
         request.session.uid = user.id
         request.session.login = user.login
         request.session.session_token = user._compute_session_token(request.session.sid)

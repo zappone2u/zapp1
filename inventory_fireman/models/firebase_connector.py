@@ -190,8 +190,13 @@ class FirebaseConnector(models.Model):
             "tag": "display_notification",
             "params": {
                 "title": _("Synchronisation Firebase → Odoo"),
-                "message": _("%s UO synchronisée(s).", stats["uo"]),
-                "type": "success",
+                "message": _(
+                    "%(uo)s UO synchronisée(s), %(ignored)s ignorée(s) (trigramme invalide), %(errors)s en erreur.",
+                    uo=stats["uo"],
+                    ignored=stats["ignored"],
+                    errors=stats["errors"],
+                ),
+                "type": "warning" if stats["errors"] else "success",
             },
         }
 
