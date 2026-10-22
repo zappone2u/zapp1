@@ -72,9 +72,10 @@ class FiremanWebsite(http.Controller):
         if not email:
             return {"success": False, "error": "Email introuvable dans le compte Firebase"}
 
-        user = self._find_or_create_user(env, uid, email, bool(claims.get("email_verified")), claims.get("name"))
+        user, error = self._find_or_create_user(env, uid, email, bool(claims.get("email_verified")), claims.get("name"))
         if not user:
-            return {"success": False, "error": "Ce compte ne peut pas se connecter avec Firebase"}
+            _logger.warning("Connexion Firebase refusee pour %s : %s", email, error)
+            return {"success": False, "error": error}
 
         request.session.uid = user.id
         request.session.login = user.login
@@ -90,13 +91,15 @@ class FiremanWebsite(http.Controller):
             user = Users.search([("login", "=", email)], limit=1)
             # Un compte Odoo existant n'est rattaché que si Firebase a vérifié l'email.
             if user and not email_verified:
-                return None
+                return None, "Email non vérifié : confirmez votre adresse dans Firebase puis réessayez."
         if user:
-            if not user.share or not user.active:  # jamais d'utilisateur interne via Firebase
-                return None
+            if not user.active:
+                return None, "Ce compte Odoo est archivé."
+            if not user.share:  # jamais d'utilisateur interne via Firebase
+                return None, "Ce compte est un utilisateur interne Odoo : connectez-vous via /web/login."
             if not user.partner_id.firebase_uid:
                 user.partner_id.firebase_uid = uid
-            return user
+            return user, None
 
         Partner = env["res.partner"]
         partner = Partner.search([("firebase_uid", "=", uid)], limit=1) or Partner.search(
@@ -112,13 +115,14 @@ class FiremanWebsite(http.Controller):
             partner.firebase_uid = uid
         else:
             partner = Partner.create({"name": display_name or email, "email": email, "firebase_uid": uid})
-        return Users.with_context(no_reset_password=True).create(
+        user = Users.with_context(no_reset_password=True).create(
             {
                 "login": email,
                 "partner_id": partner.id,
                 "groups_id": [(6, 0, [env.ref("base.group_portal").id])],
             }
         )
+        return user, None
 
     # ------------------------------------------------------------------
     # Contact : crée un ticket Helpdesk
