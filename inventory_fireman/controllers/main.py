@@ -102,15 +102,18 @@ class FiremanWebsite(http.Controller):
             return user, None
 
         Partner = env["res.partner"]
-        partner = Partner.search([("firebase_uid", "=", uid)], limit=1) or Partner.search(
-            [
-                ("email", "=ilike", email),
-                ("is_company", "=", False),
-                ("firebase_uid", "=", False),
-                ("user_ids", "=", False),
-            ],
-            limit=1,
-        )
+        partner = Partner.search([("firebase_uid", "=", uid)], limit=1)
+        # Un contact existant n'est repris que si Firebase a vérifié l'email (sinon n'importe qui pourrait le revendiquer).
+        if not partner and email_verified:
+            partner = Partner.search(
+                [
+                    ("email", "=ilike", email),
+                    ("is_company", "=", False),
+                    ("firebase_uid", "=", False),
+                    ("user_ids", "=", False),
+                ],
+                limit=1,
+            )
         if partner:
             partner.firebase_uid = uid
         else:
