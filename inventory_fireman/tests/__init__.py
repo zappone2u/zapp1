@@ -5,5 +5,6 @@ from . import test_intervention
 from . import test_member_quota
 from . import test_pharmacy
 from . import test_portal_usage
+from . import test_profile_sync
 from . import test_template_sync
 from . import test_vehicle_template

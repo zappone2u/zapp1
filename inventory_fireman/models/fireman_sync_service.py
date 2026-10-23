@@ -50,6 +50,12 @@ def _name_from_email(email):
     return " ".join(p.capitalize() for p in parts if p)
 
 
+def _profile_name(data):
+    """Nom saisi par l'utilisateur dans l'application (prénom + nom, à défaut `name`)."""
+    parts = [str(data.get(k) or "").strip() for k in ("firstName", "lastName")]
+    return " ".join(p for p in parts if p) or str(data.get("name") or "").strip()
+
+
 class FiremanSyncService(models.AbstractModel):
     _name = "fireman.sync.service"
     _description = "Lecture Firebase → Odoo"
@@ -169,6 +175,9 @@ class FiremanSyncService(models.AbstractModel):
             "prefill_qty": flag("prefillTheQty", "prefillTheqty"),
             "send_inventory_to_all": flag("sendInventoryToAll"),
         }
+        name = node.get("name")
+        if isinstance(name, str) and name.strip():
+            vals["name"] = name.strip()
         changes = _changes(uo, vals)
         if changes:
             uo.write(changes)
@@ -319,6 +328,9 @@ class FiremanSyncService(models.AbstractModel):
         refused = Member
         for uid, (data, entry) in wanted.items():
             partner = by_uid.get(uid) or self._create_partner(uid, data)
+            profile_name = _profile_name(data)
+            if profile_name and partner.name != profile_name:
+                partner.name = profile_name
             seen.add(partner.id)
             if bool(data.get("admin")) != partner.fireman_super_admin:
                 partner.fireman_super_admin = bool(data.get("admin"))
@@ -375,7 +387,7 @@ class FiremanSyncService(models.AbstractModel):
             return partner
         return Partner.create(
             {
-                "name": _name_from_email(email) or uid,
+                "name": _profile_name(data) or _name_from_email(email) or uid,
                 "email": email or False,
                 "firebase_uid": uid,
                 "fireman_super_admin": bool(data.get("admin")),
