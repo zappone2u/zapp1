@@ -6,8 +6,13 @@ from . import fireman_sync_service
 from . import fireman_uo
 from . import fireman_member
 from . import fireman_vehicle
+from . import fireman_vehicle_template
 from . import fireman_inventory
+from . import fireman_pharmacy_item
+from . import fireman_pharmacy_movement
+from . import fireman_intervention
 from . import res_partner
 from . import res_config_settings
 from . import product_template
 from . import sale_order
+from . import fireman_app_log

@@ -191,6 +191,8 @@
                                     <div id="login-form">
                                         <div class="alert alert-danger" id="error-message"
                                             style="display:none;"></div>
+                                        <div class="alert alert-success" id="info-message"
+                                            style="display:none;"></div>
 
                                         <!-- Email -->
                                         <div class="form-group mb-3">
@@ -215,6 +217,7 @@
                                                     <i class="fa fa-eye"></i>
                                                 </button>
                                             </div>
+                                            <a href="#" id="forgot-password" class="small d-inline-block mt-2">Mot de passe oublié ?</a>
                                         </div>
 
                                         <button type="button" class="btn btn-login w-100"
@@ -377,10 +380,44 @@
                 case 'auth/too-many-requests':
                 errorMessage = 'Trop de tentatives. Veuillez réessayer plus tard.';
                 break;
+                case 'auth/network-request-failed':
+                errorMessage = 'Connexion réseau impossible. Vérifiez votre connexion et réessayez.';
+                break;
                 default:
-                errorMessage = 'Erreur de connexion. Veuillez vérifier vos identifiants.';
+                console.error('Firebase login error:', error.code, error.message);
+                errorMessage = 'Connexion impossible (' + (error.code || 'erreur inconnue') + '). Réessayez ou contactez le support.';
                 }
                 showError(errorMessage);
+                });
+                });
+            }
+
+            // Mot de passe oublié : même message que le compte existe ou non
+            const forgotLink = document.getElementById('forgot-password');
+            if (forgotLink) {
+                forgotLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                hideError();
+                const info = document.getElementById('info-message');
+                if (info) info.style.display = 'none';
+                const email = document.getElementById('email').value.trim();
+                if (!email) {
+                showError('Saisissez votre adresse email ci-dessus.');
+                return;
+                }
+                firebase.auth().sendPasswordResetEmail(email)
+                .catch((error) => {
+                if (error.code === 'auth/invalid-email') throw error;
+                if (error.code === 'auth/too-many-requests' || error.code === 'auth/network-request-failed') throw error;
+                })
+                .then(() => {
+                if (info) {
+                info.textContent = 'Si un compte existe avec cet email, un lien de réinitialisation vient d\'être envoyé.';
+                info.style.display = 'block';
+                }
+                })
+                .catch((error) => {
+                showError(error.code === 'auth/invalid-email' ? 'Email invalide' : 'Impossible d\'envoyer l\'email pour le moment. Réessayez plus tard.');
                 });
                 });
             }
@@ -813,6 +850,7 @@
                 });
             }
 
+            document.addEventListener('DOMContentLoaded', function() {
             // Inscription avec email/password
             document.getElementById('register-btn').addEventListener('click', function() {
                 hideError();
@@ -846,7 +884,8 @@
                         return userCredential.user.updateProfile({
                             displayName: name
                         }).then(() => {
-                            return userCredential.user.getIdToken();
+                            // Force le rafraîchissement pour que le jeton contienne le nom.
+                            return userCredential.user.getIdToken(true);
                         }).then((idToken) => {
                             authenticateWithOdoo(idToken, {
                                 name: name,
@@ -878,16 +917,31 @@
                         }
                         showError(errorMessage);
                     });
+            });
 
                 // Permettre l'inscription avec la touche Entrée
-                const passwordConfirm = document.getElementById('password_confirm');
-                if (passwordConfirm) {
-                    passwordConfirm.addEventListener('keypress', function(e) {
+                const passwordConfirmInput = document.getElementById('password_confirm');
+                if (passwordConfirmInput) {
+                    passwordConfirmInput.addEventListener('keypress', function(e) {
                         if (e.key === 'Enter') {
                             document.getElementById('register-btn').click();
                         }
                     });
                 }
+
+                // Afficher/Masquer les mots de passe
+                [['toggle-password-register', 'password'], ['toggle-password-confirm', 'password_confirm']].forEach(function(pair) {
+                    const btn = document.getElementById(pair[0]);
+                    const input = document.getElementById(pair[1]);
+                    if (!btn || !input) return;
+                    btn.addEventListener('click', function() {
+                        const icon = btn.querySelector('i');
+                        const show = input.type === 'password';
+                        input.type = show ? 'text' : 'password';
+                        icon.classList.toggle('fa-eye', !show);
+                        icon.classList.toggle('fa-eye-slash', show);
+                    });
+                });
 
                 // Indicateur de force du mot de passe
                 function checkPasswordStrength(password) {
@@ -954,5 +1008,91 @@
                 }
             });
         </script>
+    </template>
+
+    <!-- Changement de mot de passe (compte Firebase) -->
+    <template id="portal_password" name="Portail : changer le mot de passe">
+        <t t-call="portal.portal_layout">
+            <div class="container my-4" style="max-width: 520px;">
+                <a href="/my/uo" class="small text-muted">&#8592; Mes UO</a>
+                <h2 class="mb-3">Changer mon mot de passe</h2>
+                <div class="alert d-none" id="pwd-message" role="alert"></div>
+                <form id="pwd-form" t-att-data-email="request.env.user.login">
+                    <div class="mb-3">
+                        <label class="form-label" for="current_password">Mot de passe actuel</label>
+                        <input type="password" id="current_password" class="form-control" required="required" autocomplete="current-password"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="new_password">Nouveau mot de passe (min. 6 caractères)</label>
+                        <input type="password" id="new_password" class="form-control" required="required" minlength="6" autocomplete="new-password"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="confirm_password">Confirmer le nouveau mot de passe</label>
+                        <input type="password" id="confirm_password" class="form-control" required="required" minlength="6" autocomplete="new-password"/>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="pwd-submit">Enregistrer</button>
+                </form>
+            </div>
+
+            <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+            <script type="text/javascript">
+                firebase.initializeApp({
+                    apiKey: "AIzaSyCbPwjcyqE4Wa2eW9_uL7UxJesbhQ-zB_U",
+                    authDomain: "sierck-inventory.firebaseapp.com",
+                    projectId: "sierck-inventory",
+                    appId: "1:911920477735:web:16e7fb063cee32a8468002"
+                });
+
+                function pwdMessage(text, kind) {
+                    const box = document.getElementById('pwd-message');
+                    box.textContent = text;
+                    box.className = 'alert alert-' + kind;
+                }
+
+                document.getElementById('pwd-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const email = this.dataset.email;
+                    const current = document.getElementById('current_password').value;
+                    const next = document.getElementById('new_password').value;
+                    const confirm = document.getElementById('confirm_password').value;
+                    if (next.length &lt; 6) {
+                        pwdMessage('Le nouveau mot de passe doit contenir au moins 6 caractères.', 'danger');
+                        return;
+                    }
+                    if (next !== confirm) {
+                        pwdMessage('Les mots de passe ne correspondent pas.', 'danger');
+                        return;
+                    }
+                    if (next === current) {
+                        pwdMessage('Le nouveau mot de passe doit être différent de l\'actuel.', 'danger');
+                        return;
+                    }
+                    const submit = document.getElementById('pwd-submit');
+                    submit.disabled = true;
+                    // Une connexion toute neuve évite l'erreur « reconnexion récente requise ».
+                    firebase.auth().signInWithEmailAndPassword(email, current)
+                        .then((cred) => cred.user.updatePassword(next))
+                        .then(() => {
+                            document.getElementById('pwd-form').reset();
+                            pwdMessage('Mot de passe modifié. Il est aussi valable dans l\'application.', 'success');
+                        })
+                        .catch((error) => {
+                            let text = 'Impossible de modifier le mot de passe (' + (error.code || 'erreur inconnue') + ').';
+                            if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
+                                text = 'Mot de passe actuel incorrect.';
+                            } else if (error.code === 'auth/weak-password') {
+                                text = 'Nouveau mot de passe trop faible.';
+                            } else if (error.code === 'auth/too-many-requests') {
+                                text = 'Trop de tentatives. Réessayez plus tard.';
+                            } else if (error.code === 'auth/network-request-failed') {
+                                text = 'Connexion réseau impossible. Réessayez.';
+                            }
+                            pwdMessage(text, 'danger');
+                        })
+                        .finally(() => { submit.disabled = false; });
+                });
+            </script>
+        </t>
     </template>
 </odoo>

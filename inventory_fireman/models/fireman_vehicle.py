@@ -81,7 +81,9 @@ class FiremanVehicle(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         if self._push_enabled() and not self.env.context.get("fireman_skip_quota"):
-            for uo, count in self._count_by_uo(vals_list).items():
+            counts = self._count_by_uo(vals_list)
+            for uo, count in counts.items():
+                uo._lock_quota()
                 uo._check_vehicle_quota(count)
         return super().create(vals_list)
 
@@ -91,6 +93,85 @@ class FiremanVehicle(models.Model):
             uo = self.env["fireman.uo"].browse(vals.get("uo_id"))
             counts[uo] = counts.get(uo, 0) + 1
         return counts
+
+    # ------------------------------------------------------------------
+    # Copie et modèles
+    # ------------------------------------------------------------------
+    def _structure(self):
+        """Contenu neutre (sans identifiants) : voir `fireman.vehicle.template._structure`."""
+        self.ensure_one()
+
+        def strip(node):
+            if "sub_items" in node:
+                return {"label": node["label"], "sub_items": [strip(sub) for sub in node["sub_items"]]}
+            return {"description": node["description"], "quantity": node["quantity"]}
+
+        return [
+            {"label": section["label"], "items": [strip(item) for item in section["items"]]}
+            for section in self._firebase_products()
+        ]
+
+    @api.model
+    def create_from_structure(self, uo, name, structure):
+        """Crée un véhicule de l'UO avec ce contenu. Plaque, notes, état et historique ne sont jamais repris.
+
+        Le quota de véhicules est contrôlé (QuotaExceeded) : rien n'est créé s'il est atteint."""
+        with self.env.cr.savepoint():
+            vehicle = self.create(
+                {
+                    "uo_id": uo.id,
+                    "name": name,
+                    "sequence": max(uo.vehicle_ids.mapped("sequence"), default=-1) + 1,
+                }
+            )
+            # Le véhicule est déjà en file d'envoi : son contenu est lu au moment de l'envoi.
+            vehicle.with_context(fireman_no_push=True)._write_structure(structure)
+            vehicle._push_enqueue()
+        return vehicle
+
+    def _write_structure(self, structure):
+        self.ensure_one()
+        Section = self.env["fireman.vehicle.section"]
+        Item = self.env["fireman.vehicle.item"]
+        for s_index, node in enumerate(structure):
+            section = Section.create({"vehicle_id": self.id, "name": node["label"], "sequence": s_index * 10})
+            for i_index, item in enumerate(node["items"]):
+                is_group = "sub_items" in item
+                parent = Item.create(
+                    {
+                        "section_id": section.id,
+                        "name": item["label"] if is_group else item["description"],
+                        "quantity": 1 if is_group else as_int(item["quantity"], 1),
+                        "is_group": is_group,
+                        "sequence": i_index * 10,
+                    }
+                )
+                for c_index, child in enumerate(item.get("sub_items", [])):
+                    Item.create(
+                        {
+                            "section_id": section.id,
+                            "parent_id": parent.id,
+                            "name": child["description"],
+                            "quantity": as_int(child["quantity"], 1),
+                            "sequence": c_index * 10,
+                        }
+                    )
+
+    def duplicate_vehicle(self, name=None):
+        """Copie du matériel dans un nouveau véhicule de la même UO (quota contrôlé)."""
+        self.ensure_one()
+        return self.create_from_structure(self.uo_id, name or _("%s (copie)", self.name), self._structure())
+
+    def action_save_as_template(self):
+        """Modèle réservé à l'UO du véhicule ; vider l'UO du modèle le partage avec toutes les UO."""
+        self.ensure_one()
+        template = self.env["fireman.vehicle.template"].from_structure(self.name, self._structure(), uo=self.uo_id)
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "fireman.vehicle.template",
+            "res_id": template.id,
+            "view_mode": "form",
+        }
 
     # ------------------------------------------------------------------
     # Firebase → Odoo
@@ -172,6 +253,8 @@ class FiremanVehicle(models.Model):
             items = []
             for item in section.item_ids.filtered(lambda i: not i.parent_id).sorted("sequence"):
                 if item.is_group:
+                    if not item.child_ids:  # un groupe vide perd sa cle dans Firebase : l'app l'afficherait vide
+                        continue
                     items.append(
                         {
                             "id": item.uid,

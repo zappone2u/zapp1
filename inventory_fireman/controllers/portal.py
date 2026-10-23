@@ -23,6 +23,10 @@ FLASH = {
     "subscribed": "Votre abonnement est actif. La facture vous a été envoyée par email.",
     "cancelled": "Votre abonnement est résilié. L'UO repasse au palier Découverte.",
     "invited": "Membre ajouté.",
+    "duplicated": "Véhicule dupliqué : vérifiez son nom et son contenu.",
+    "unknown_source": "Modèle ou véhicule introuvable.",
+    "invited_pending": "Membre ajouté mais en attente : la limite d'utilisateurs de votre palier est atteinte. "
+    "Il sera validé dès qu'une place se libère ou après un changement de palier.",
     "removed": "Membre retiré.",
     "no_account": "Aucun compte Firebase avec cet email : la personne doit d'abord s'inscrire dans l'application.",
     "already_member": "Cette personne est déjà membre de l'UO.",
@@ -130,6 +134,12 @@ class FiremanPortal(CustomerPortal):
             },
         )
 
+    @http.route("/my/password", type="http", auth="user", website=True)
+    def password(self, **kw):
+        if not request.env.user.partner_id.firebase_uid:
+            return request.redirect("/my/uo")
+        return request.render("inventory_fireman.portal_password", {"page_name": "password"})
+
     @http.route("/my/uo/new", type="http", auth="user", website=True, methods=["GET", "POST"])
     def uo_new(self, **kw):
         if request.httprequest.method == "GET":
@@ -195,7 +205,13 @@ class FiremanPortal(CustomerPortal):
         uo, is_admin = self._get_uo(uo_id)
         return request.render(
             "inventory_fireman.portal_vehicles",
-            self._values(uo, is_admin, "vehicles", statuses=self._vehicle_statuses()),
+            self._values(
+                uo,
+                is_admin,
+                "vehicles",
+                statuses=self._vehicle_statuses(),
+                templates=request.env["fireman.vehicle.template"].sudo()._available_for(uo),
+            ),
         )
 
     @http.route("/my/uo/<int:uo_id>/vehicles/new", type="http", auth="user", website=True, methods=["POST"])
@@ -204,11 +220,17 @@ class FiremanPortal(CustomerPortal):
         name = (kw.get("name") or "").strip()
         if not name:
             return self._redirect(f"/my/uo/{uo.id}/vehicles", error="invalid")
+        Vehicle = request.env["fireman.vehicle"].sudo()
         try:
-            vehicle = (
-                request.env["fireman.vehicle"]
-                .sudo()
-                .create(
+            source = (kw.get("source") or "").strip()
+            if source:
+                structure = self._source_structure(uo, source)
+                if structure is None:
+                    return self._redirect(f"/my/uo/{uo.id}/vehicles", error="unknown_source")
+                vehicle = Vehicle.create_from_structure(uo, name, structure)
+                vehicle.license_plate = (kw.get("license_plate") or "").strip()
+            else:
+                vehicle = Vehicle.create(
                     {
                         "uo_id": uo.id,
                         "name": name,
@@ -216,10 +238,40 @@ class FiremanPortal(CustomerPortal):
                         "sequence": (max(uo.vehicle_ids.mapped("sequence"), default=-1) + 1),
                     }
                 )
-            )
         except QuotaExceeded:
             return self._redirect(f"/my/uo/{uo.id}/subscription", error="quota")
         return self._redirect(f"/my/uo/{uo.id}/vehicles/{vehicle.id}", ok="created")
+
+    def _source_structure(self, uo, source):
+        """Contenu d'un modèle ("template:<id>") ou d'un véhicule de l'UO ("vehicle:<id>") ; None si inconnu."""
+        kind, _sep, raw_id = source.partition(":")
+        record_id = _to_int(raw_id)
+        if record_id is None:
+            return None
+        if kind == "template":
+            templates = request.env["fireman.vehicle.template"].sudo()._available_for(uo)
+            template = templates.filtered(lambda t: t.id == record_id)
+            return template._structure() if template else None
+        if kind == "vehicle":
+            vehicle = uo.vehicle_ids.filtered(lambda v: v.id == record_id)
+            return vehicle._structure() if vehicle else None
+        return None
+
+    @http.route(
+        "/my/uo/<int:uo_id>/vehicles/<int:vehicle_id>/duplicate",
+        type="http",
+        auth="user",
+        website=True,
+        methods=["POST"],
+    )
+    def vehicle_duplicate(self, uo_id, vehicle_id, **kw):
+        uo, _admin = self._get_uo(uo_id, admin=True)
+        vehicle = self._get_vehicle(uo, vehicle_id)
+        try:
+            copy = vehicle.duplicate_vehicle((kw.get("name") or "").strip() or None)
+        except QuotaExceeded:
+            return self._redirect(f"/my/uo/{uo.id}/subscription", error="quota")
+        return self._redirect(f"/my/uo/{uo.id}/vehicles/{copy.id}", ok="duplicated")
 
     def _vehicle_statuses(self):
         return dict(request.env["fireman.vehicle"]._fields["status"].selection)
@@ -384,7 +436,16 @@ class FiremanPortal(CustomerPortal):
     @http.route("/my/uo/<int:uo_id>/members", type="http", auth="user", website=True)
     def members(self, uo_id, **kw):
         uo, is_admin = self._get_uo(uo_id, admin=True)
-        return request.render("inventory_fireman.portal_members", self._values(uo, is_admin, "members"))
+        return request.render(
+            "inventory_fireman.portal_members",
+            self._values(uo, is_admin, "members", members=self._visible_members(uo)),
+        )
+
+    def _visible_members(self, uo):
+        """Les super administrateurs ne sont jamais montrés aux clients."""
+        return uo.member_ids.filtered(lambda m: not m.is_super_admin).sorted(
+            lambda m: (m.partner_id.name or "").lower()
+        )
 
     @http.route("/my/uo/<int:uo_id>/members/invite", type="http", auth="user", website=True, methods=["POST"])
     def member_invite(self, uo_id, **kw):
@@ -411,20 +472,14 @@ class FiremanPortal(CustomerPortal):
         else:
             partner = Partner.create({"name": email.split("@")[0], "email": email, "firebase_uid": uid})
         if uo.member_ids.filtered(lambda m: m.partner_id == partner):
+            # Un super administrateur est déjà dans toutes les UO : on ne révèle pas qu'il en est un.
+            if partner.fireman_super_admin:
+                return self._redirect(url, ok="invited")
             return self._redirect(url, error="already_member")
-        try:
-            request.env["fireman.member"].sudo().create(
-                {
-                    "uo_id": uo.id,
-                    "partner_id": partner.id,
-                    "is_admin": bool(kw.get("is_admin")),
-                    "is_pharmacist": bool(kw.get("is_pharmacist")),
-                    "verified": True,
-                }
-            )
-        except QuotaExceeded:
-            return self._redirect(f"/my/uo/{uo.id}/subscription", error="quota")
-        return self._redirect(url, ok="invited")
+        member = uo.invite_member(
+            partner, is_admin=bool(kw.get("is_admin")), is_pharmacist=bool(kw.get("is_pharmacist"))
+        )
+        return self._redirect(url, ok="invited" if member.verified else "invited_pending")
 
     def _get_member(self, uo, member_id):
         member = uo.member_ids.filtered(lambda m: m.id == member_id and not m.is_super_admin)

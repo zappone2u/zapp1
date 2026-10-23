@@ -1,0 +1,1401 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Exemple partagé : à relire avant de le proposer à toutes les UO. -->
+        <record id="vehicle_template_vsav" model="fireman.vehicle.template">
+            <field name="name">VSAV (modèle complet)</field>
+            <field name="description">VSAV équipé : cellule de conduite, sac de l'avant, tiroirs, coffre latéral.</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s01" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Agres</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s01_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s01"/>
+            <field name="name">État carrosserie et peinture</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s01_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s01"/>
+            <field name="name">Carburant &gt; 3/4</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s01_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s01"/>
+            <field name="name">Démarrage</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s01_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s01"/>
+            <field name="name">Éclairage agrès</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s01_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s01"/>
+            <field name="name">Gyrophares AV-AR</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s01_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s01"/>
+            <field name="name">Deux tons</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s01_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s01"/>
+            <field name="name">Éclairage intérieur</field>
+            <field name="quantity">1</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s01_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s01"/>
+            <field name="name">Éclairage latéral</field>
+            <field name="quantity">1</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s02" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Cellule de conduite</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">Projecteur portatif</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">1 GHV C/A + 2 GHV SP</field>
+            <field name="quantity">3</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">Pointeau brise vitre</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">Lampes frontales</field>
+            <field name="quantity">3</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">GPS + câble d'alimentation</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">1 Porte documents - 5 Fiches Bilan</field>
+            <field name="quantity">6</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">1 Polycoise + 1 Cahier Matériel au CH</field>
+            <field name="quantity">2</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">Boites de gants XL, L, S</field>
+            <field name="quantity">3</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">Paires de crampons anti verglas</field>
+            <field name="quantity">3</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i010" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">Rouleau bande FERRARI</field>
+            <field name="quantity">1</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i011" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">Lexique de traduction + lexique TMD</field>
+            <field name="quantity">1</field>
+            <field name="sequence">110</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i012" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">Badge télépéage</field>
+            <field name="quantity">1</field>
+            <field name="sequence">120</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i013" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">1 Parcellaire et 1 trajet hôpitaux</field>
+            <field name="quantity">2</field>
+            <field name="sequence">130</field>
+        </record>
+        <record id="vehicle_template_vsav_s02_i014" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s02"/>
+            <field name="name">Photocopie carte grise et assurance</field>
+            <field name="quantity">1</field>
+            <field name="sequence">140</field>
+        </record>
+        <record id="vehicle_template_vsav_s03" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Sac de l'avant - Dessus</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s03_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s03"/>
+            <field name="name">Détecteur CO (vérifier si fonctionnel)</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s03_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s03"/>
+            <field name="name">Lot Hémorragie</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s04" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Sac de l'avant - Poche extérieure haute</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s04_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s04"/>
+            <field name="name">Pochette pour tensiomètre avec :</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s04_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s04"/>
+            <field name="name">Stéthoscope</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s04_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s04"/>
+            <field name="name">Manomètre de tensiomètre</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s04_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s04"/>
+            <field name="name">Brassard pédiatrique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s04_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s04"/>
+            <field name="name">Brassard adulte</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s04_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s04"/>
+            <field name="name">Brassard gros bras</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s05" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Sac de l'avant - Intérieure sac</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">BAVU adulte à usage unique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">Boite à aiguilles</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">KIT Matras</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">PARACETAMOL 500mg</field>
+            <field name="quantity">6</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">PARACETAMOL 200mg</field>
+            <field name="quantity">4</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">NYXOID 1.8mg</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">EPIPEN 0.15mg</field>
+            <field name="quantity">1</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">EPIPEN 0,30mg</field>
+            <field name="quantity">1</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">TERBUTALINE 5mg/2ml</field>
+            <field name="quantity">2</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i010" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">Masque Nébuliseur</field>
+            <field name="quantity">1</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="vehicle_template_vsav_s05_i011" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s05"/>
+            <field name="name">NaCl 0,9%10ml</field>
+            <field name="quantity">2</field>
+            <field name="sequence">110</field>
+        </record>
+        <record id="vehicle_template_vsav_s06" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Sac de l'avant - Poche transparente ou filet</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s06_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s06"/>
+            <field name="name">Brulstop 10*10</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s06_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s06"/>
+            <field name="name">Brulstop 20*20</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s06_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s06"/>
+            <field name="name">Couverture de survie</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s06_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s06"/>
+            <field name="name">Fiches bilan VSAV</field>
+            <field name="quantity">3</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s06_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s06"/>
+            <field name="name">Echarpes</field>
+            <field name="quantity">2</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s07" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Sac de l'avant - Poche extérieure gauche</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s07_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s07"/>
+            <field name="name">Pansements américains</field>
+            <field name="quantity">3</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s07_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s07"/>
+            <field name="name">Champs stériles à UU</field>
+            <field name="quantity">2</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s07_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s07"/>
+            <field name="name">Rouleau de sacs déchets contaminés</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s07_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s07"/>
+            <field name="name">Masques FFP2</field>
+            <field name="quantity">4</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s07_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s07"/>
+            <field name="name">Masques chirurgicaux</field>
+            <field name="quantity">4</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s07_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s07"/>
+            <field name="name">Lunettes de protection + cordelettes</field>
+            <field name="quantity">2</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s08" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Sac de l'avant - Poche extérieure droite</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s08_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s08"/>
+            <field name="name">Portoir souple</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s08_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s08"/>
+            <field name="name">Drap à usage unique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s09" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Sac de l'avant - Poche extérieure basse</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Lampe bilan</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Paire de ciseaux</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Réglette EVA</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Thermomètre épitympanique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Pochette glucomètre avec :</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Glucomètre</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Auto-piqueurs à UU</field>
+            <field name="quantity">4</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Boite de bandelettes</field>
+            <field name="quantity">1</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Paquet de compresses</field>
+            <field name="quantity">1</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i010" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Ampoule de Glucose 30%</field>
+            <field name="quantity">1</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i011" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Appareil de contrôle sanguin RAD57 avec</field>
+            <field name="quantity">1</field>
+            <field name="sequence">110</field>
+        </record>
+        <record id="vehicle_template_vsav_s09_i012" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s09"/>
+            <field name="name">Capteur Adulte</field>
+            <field name="quantity">1</field>
+            <field name="sequence">120</field>
+        </record>
+        <record id="vehicle_template_vsav_s10" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Sac de l'avant - Trousse bleue</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="vehicle_template_vsav_s10_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s10"/>
+            <field name="name">Jeu de canules T. 1,2,3,4</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s10_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s10"/>
+            <field name="name">Raccord biconique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s10_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s10"/>
+            <field name="name">1 Masque O2 U.U. HC adulte</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s10_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s10"/>
+            <field name="name">1 Masque O2 U.U. simple adulte</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s10_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s10"/>
+            <field name="name">Sondes d'aspi. Ch26 (SP)</field>
+            <field name="quantity">2</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s10_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s10"/>
+            <field name="name">C.H.U.T ou pansement israélien</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s10_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s10"/>
+            <field name="name">Poches de froid</field>
+            <field name="quantity">2</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s10_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s10"/>
+            <field name="name">Poche iso. Section membre</field>
+            <field name="quantity">1</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s11" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Sac de l'avant - Trousse verte</field>
+            <field name="sequence">110</field>
+        </record>
+        <record id="vehicle_template_vsav_s11_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s11"/>
+            <field name="name">Paires de gants UU</field>
+            <field name="quantity">2</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s11_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s11"/>
+            <field name="name">Bétadine jaune unidose</field>
+            <field name="quantity">3</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s11_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s11"/>
+            <field name="name">NaCl 0.9% (50ml)</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s11_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s11"/>
+            <field name="name">Sachets de compresses</field>
+            <field name="quantity">10</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s11_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s11"/>
+            <field name="name">Rouleau de sparadrap</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s11_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s11"/>
+            <field name="name">Bandes GM</field>
+            <field name="quantity">2</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s11_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s11"/>
+            <field name="name">Bandes PM</field>
+            <field name="quantity">2</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s11_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s11"/>
+            <field name="name">Garrot tourniquet</field>
+            <field name="quantity">1</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s11_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s11"/>
+            <field name="name">Sac déchets contaminés</field>
+            <field name="quantity">1</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s12" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Côté conducteur</field>
+            <field name="sequence">120</field>
+        </record>
+        <record id="vehicle_template_vsav_s12_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s12"/>
+            <field name="name">Lot Accouchement</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s12_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s12"/>
+            <field name="name">Lot AES</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s12_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s12"/>
+            <field name="name">Couverture bactériostatique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s12_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s12"/>
+            <field name="name"> Masque O2 HC (adulte)</field>
+            <field name="quantity">3</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s12_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s12"/>
+            <field name="name">BAVU adulte à usage unique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s12_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s12"/>
+            <field name="name">Masque O2 simple (adulte)</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s13" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Trousse rouge - Pédiatrie</field>
+            <field name="sequence">130</field>
+        </record>
+        <record id="vehicle_template_vsav_s13_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s13"/>
+            <field name="name">1 BAVU pédiatrique et 1 néonatal (UU)</field>
+            <field name="quantity">2</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s13_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s13"/>
+            <field name="name">1 Masque O2 HC (pédiatrique)</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s13_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s13"/>
+            <field name="name">1 Masque O2 simple (pédiatrique)</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s13_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s13"/>
+            <field name="name">Capteur Enfant</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s14" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Rangement Face Avant - Capucine</field>
+            <field name="sequence">140</field>
+        </record>
+        <record id="vehicle_template_vsav_s14_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s14"/>
+            <field name="name">Attelle petit modèle</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s14_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s14"/>
+            <field name="name">Attelle grand modèle</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s15" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Rangement Paroi côté Conducteur</field>
+            <field name="sequence">150</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Bobine papier sur dévidoir</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Gel hydro alcoolique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">DASRI dans emplacement poubelle</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Aspirateur mucosités</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Bouteilles O2 15 litres</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Bouteilles O2 5 litres</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Matelas coquille (MID)</field>
+            <field name="quantity">1</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Mutliparametrique Schiltz</field>
+            <field name="quantity">1</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Brassard tension Moyen</field>
+            <field name="quantity">1</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i010" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Brassard tension Grand</field>
+            <field name="quantity">1</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i011" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Brassard tension petit</field>
+            <field name="quantity">1</field>
+            <field name="sequence">110</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i012" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">capteur SPo2</field>
+            <field name="quantity">1</field>
+            <field name="sequence">120</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i013" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">capteur SPCO</field>
+            <field name="quantity">1</field>
+            <field name="sequence">130</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i014" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Capteur pédiatrique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">140</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i015" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Câbles ECG</field>
+            <field name="quantity">1</field>
+            <field name="sequence">150</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i016" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Capteur aide au massage</field>
+            <field name="quantity">1</field>
+            <field name="sequence">160</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i017" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">électrode Adulte</field>
+            <field name="quantity">1</field>
+            <field name="sequence">170</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i018" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">électrode enfant</field>
+            <field name="quantity">1</field>
+            <field name="sequence">180</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i019" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">autocollant 3 M</field>
+            <field name="quantity">2</field>
+            <field name="sequence">190</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i020" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">rasoir</field>
+            <field name="quantity">2</field>
+            <field name="sequence">200</field>
+        </record>
+        <record id="vehicle_template_vsav_s15_i021" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s15"/>
+            <field name="name">Ciseaux</field>
+            <field name="quantity">1</field>
+            <field name="sequence">210</field>
+        </record>
+        <record id="vehicle_template_vsav_s16" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Rangement Face Avant</field>
+            <field name="sequence">160</field>
+        </record>
+        <record id="vehicle_template_vsav_s16_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s16"/>
+            <field name="name">Boites de gants XL, M, L</field>
+            <field name="quantity">3</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s17" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Rangement Face Avant - Tiroir Bilan</field>
+            <field name="sequence">170</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Otoscope</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Thermomètre frontal</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Lampe bilan</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Bracelets victimes inconnues</field>
+            <field name="quantity">2</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Pochette pour tensiomètre avec :</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Stéthoscope</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Manomètre de tensiomètre</field>
+            <field name="quantity">1</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Brassard pédiatrique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Brassard adulte</field>
+            <field name="quantity">1</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s17_i010" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s17"/>
+            <field name="name">Brassard gros bras</field>
+            <field name="quantity">1</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="vehicle_template_vsav_s18" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Rangement Face Avant - Tiroir Soins</field>
+            <field name="sequence">180</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Lunettes de protection</field>
+            <field name="quantity">2</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Coupe bague</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Paire de ciseaux</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Paquets de compresses</field>
+            <field name="quantity">20</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Pansements américains</field>
+            <field name="quantity">5</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">C.H.U.T ou pansement israélien</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Couvertures de survie</field>
+            <field name="quantity">2</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Bétadine jaune unidose</field>
+            <field name="quantity">5</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">NaCl 0.9% (50ml)</field>
+            <field name="quantity">2</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i010" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Grandes bandes</field>
+            <field name="quantity">5</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i011" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Petites bandes</field>
+            <field name="quantity">5</field>
+            <field name="sequence">110</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i012" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Rouleaux de sparadraps</field>
+            <field name="quantity">2</field>
+            <field name="sequence">120</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i013" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Ampoules de Glucose 30%</field>
+            <field name="quantity">2</field>
+            <field name="sequence">130</field>
+        </record>
+        <record id="vehicle_template_vsav_s18_i014" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s18"/>
+            <field name="name">Autopiqueurs U.U.</field>
+            <field name="quantity">3</field>
+            <field name="sequence">140</field>
+        </record>
+        <record id="vehicle_template_vsav_s19" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Rangement Face Avant - Tiroir Ventilation</field>
+            <field name="sequence">190</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Sondes d'aspi. Ch26 (SP)</field>
+            <field name="quantity">2</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Haricots à usage unique</field>
+            <field name="quantity">3</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Sachets type VOMIX</field>
+            <field name="quantity">2</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Réceptacle + tubulure Aspi</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Canules taille 1 (blanc)</field>
+            <field name="quantity">2</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Canules taille 2 (vert)</field>
+            <field name="quantity">2</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Canules taille 3 (orange)</field>
+            <field name="quantity">2</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Canules taille 4 (rouge)</field>
+            <field name="quantity">2</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Raccords biconique</field>
+            <field name="quantity">2</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s19_i010" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s19"/>
+            <field name="name">Masques chirurgicaux</field>
+            <field name="quantity">8</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="vehicle_template_vsav_s20" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Rangement Face Avant - Tiroir Circulation et Solutés</field>
+            <field name="sequence">200</field>
+        </record>
+        <record id="vehicle_template_vsav_s20_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s20"/>
+            <field name="name">Réceptacle à aiguille PM</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s20_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s20"/>
+            <field name="name">Champs stériles à U.U.</field>
+            <field name="quantity">2</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s20_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s20"/>
+            <field name="name">Rasoirs à U.U.</field>
+            <field name="quantity">3</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s20_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s20"/>
+            <field name="name">Garrot tourniquet</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s20_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s20"/>
+            <field name="name">NaCl 0.9% (500ml)</field>
+            <field name="quantity">2</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s20_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s20"/>
+            <field name="name">Piles LR6 + 1 Pile CR 2032</field>
+            <field name="quantity">4</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s20_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s20"/>
+            <field name="name">Masques de protection FFP2</field>
+            <field name="quantity">6</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s21" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Rangement Face Avant - Tiroir Divers - Entretien</field>
+            <field name="sequence">210</field>
+        </record>
+        <record id="vehicle_template_vsav_s21_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s21"/>
+            <field name="name">Rouleau sacs DASRI - PM</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s21_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s21"/>
+            <field name="name">Draps à usage unique</field>
+            <field name="quantity">3</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s21_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s21"/>
+            <field name="name">Kit SINUS</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s21_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s21"/>
+            <field name="name">Kit NOVI</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s21_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s21"/>
+            <field name="name">Spray désodorisant</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s21_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s21"/>
+            <field name="name">Spray désinfectant</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s21_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s21"/>
+            <field name="name">Sacs DASRI - GM</field>
+            <field name="quantity">2</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s21_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s21"/>
+            <field name="name">2 Sachets effets personnels + 1 feutre</field>
+            <field name="quantity">3</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s21_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s21"/>
+            <field name="name">Drap tissu CHR</field>
+            <field name="quantity">1</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s22" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Rangement Face Avant - Tiroir DAE</field>
+            <field name="sequence">220</field>
+        </record>
+        <record id="vehicle_template_vsav_s22_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s22"/>
+            <field name="name">Aspirateur Ambu Twin Pompe</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s22_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s22"/>
+            <field name="name">Gilet Haute Visibilité stagiaire</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s22_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s22"/>
+            <field name="name">Lingettes essuyage</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s23" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Emplacement Haut Côté Chef d'agrès</field>
+            <field name="sequence">230</field>
+        </record>
+        <record id="vehicle_template_vsav_s23_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s23"/>
+            <field name="name">Colliers cervical adultes</field>
+            <field name="quantity">2</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s23_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s23"/>
+            <field name="name">Colliers cervical pédiatrique</field>
+            <field name="quantity">2</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s23_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s23"/>
+            <field name="name">Poches de froid</field>
+            <field name="quantity">2</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s23_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s23"/>
+            <field name="name">Traction fémur Adulte</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s23_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s23"/>
+            <field name="name">Echarpes U.U.</field>
+            <field name="quantity">2</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s23_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s23"/>
+            <field name="name">Kit Brûlure étendue</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s23_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s23"/>
+            <field name="name">1 pansement pour brûlés/blessés</field>
+            <field name="quantity">1</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s23_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s23"/>
+            <field name="name">Brulstop 10*10</field>
+            <field name="quantity">2</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s23_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s23"/>
+            <field name="name">Brulstop 20*20</field>
+            <field name="quantity">2</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s24" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Coffre Latéral</field>
+            <field name="sequence">240</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Extincteur poudre 9kg</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Casque F2 "homme du rang"</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">KED</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Pompe à dépression manuelle</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Cale tête</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i006" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Sangle araignée pour plan dur</field>
+            <field name="quantity">1</field>
+            <field name="sequence">60</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i007" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Bouteille O2 5 litres</field>
+            <field name="quantity">1</field>
+            <field name="sequence">70</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i008" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">OFD</field>
+            <field name="quantity">1</field>
+            <field name="sequence">80</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i009" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Combinaisons de protection</field>
+            <field name="quantity">6</field>
+            <field name="sequence">90</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i010" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Bâche de protection</field>
+            <field name="quantity">1</field>
+            <field name="sequence">100</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i011" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Commande en sac</field>
+            <field name="quantity">1</field>
+            <field name="sequence">110</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i012" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Harnais pédiatrique Rescue Kid</field>
+            <field name="quantity">1</field>
+            <field name="sequence">120</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i013" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Lot chaussettes neige textile</field>
+            <field name="quantity">1</field>
+            <field name="sequence">130</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i014" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Lot chaine neige</field>
+            <field name="quantity">1</field>
+            <field name="sequence">140</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i015" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Cales de roue</field>
+            <field name="quantity">2</field>
+            <field name="sequence">150</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i016" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Pack de 6 bouteilles d'eau</field>
+            <field name="quantity">1</field>
+            <field name="sequence">160</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i017" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Brise vitre - coupe ceinture</field>
+            <field name="quantity">1</field>
+            <field name="sequence">170</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i018" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Housses mortuaires</field>
+            <field name="quantity">2</field>
+            <field name="sequence">180</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i019" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Dispositif extraction BOA RESCUE</field>
+            <field name="quantity">1</field>
+            <field name="sequence">190</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i020" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">Gilet Lot de Sauvetage Aquatique</field>
+            <field name="quantity">1</field>
+            <field name="sequence">200</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i021" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">1 Commande 25 M LSA</field>
+            <field name="quantity">1</field>
+            <field name="sequence">210</field>
+        </record>
+        <record id="vehicle_template_vsav_s24_i022" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s24"/>
+            <field name="name">1 Bouée tube </field>
+            <field name="quantity">1</field>
+            <field name="sequence">220</field>
+        </record>
+        <record id="vehicle_template_vsav_s25" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Autres Emplacements</field>
+            <field name="sequence">250</field>
+        </record>
+        <record id="vehicle_template_vsav_s25_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s25"/>
+            <field name="name">1 Brancard avec chariot + 1 drap UU</field>
+            <field name="quantity">2</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s25_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s25"/>
+            <field name="name">Plan dur (sous brancard)</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s25_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s25"/>
+            <field name="name">Chaise portoir</field>
+            <field name="quantity">1</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s25_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s25"/>
+            <field name="name">Civière à aubes</field>
+            <field name="quantity">1</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s26" model="fireman.vehicle.template.section">
+            <field name="template_id" ref="vehicle_template_vsav"/>
+            <field name="name">Engins</field>
+            <field name="sequence">260</field>
+        </record>
+        <record id="vehicle_template_vsav_s26_i001" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s26"/>
+            <field name="name">état des pneus</field>
+            <field name="quantity">1</field>
+            <field name="sequence">10</field>
+        </record>
+        <record id="vehicle_template_vsav_s26_i002" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s26"/>
+            <field name="name">Niveau carburant</field>
+            <field name="quantity">1</field>
+            <field name="sequence">20</field>
+        </record>
+        <record id="vehicle_template_vsav_s26_i003" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s26"/>
+            <field name="name">Niveau Liquide de refroidissement</field>
+            <field name="quantity">4</field>
+            <field name="sequence">30</field>
+        </record>
+        <record id="vehicle_template_vsav_s26_i004" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s26"/>
+            <field name="name">Niveau Lave Glace</field>
+            <field name="quantity">4</field>
+            <field name="sequence">40</field>
+        </record>
+        <record id="vehicle_template_vsav_s26_i005" model="fireman.vehicle.template.item">
+            <field name="section_id" ref="vehicle_template_vsav_s26"/>
+            <field name="name">état des Phares clignotants</field>
+            <field name="quantity">1</field>
+            <field name="sequence">50</field>
+        </record>
+    </data>
+</odoo>

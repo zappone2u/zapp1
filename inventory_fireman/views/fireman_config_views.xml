@@ -165,13 +165,117 @@
         </field>
     </record>
 
+    <!-- ============================ Journal de l'application ============================ -->
+    <record id="view_fireman_app_log_list" model="ir.ui.view">
+        <field name="name">fireman.app.log.list</field>
+        <field name="model">fireman.app.log</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-danger="level == 'error' and not resolved" decoration-warning="level == 'warning' and not resolved" decoration-muted="resolved">
+                <field name="create_date"/>
+                <field name="kind"/>
+                <field name="level"/>
+                <field name="message"/>
+                <field name="step"/>
+                <field name="platform"/>
+                <field name="os_version" optional="hide"/>
+                <field name="device_model" optional="hide"/>
+                <field name="app_version"/>
+                <field name="user_email"/>
+                <field name="uo_code"/>
+                <field name="resolved" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_app_log_form" model="ir.ui.view">
+        <field name="name">fireman.app.log.form</field>
+        <field name="model">fireman.app.log</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="create_date"/>
+                            <field name="event_date"/>
+                            <field name="kind"/>
+                            <field name="level"/>
+                            <field name="step"/>
+                            <field name="resolved"/>
+                        </group>
+                        <group>
+                            <field name="platform"/>
+                            <field name="os_version"/>
+                            <field name="device_model"/>
+                            <field name="app_version"/>
+                            <field name="build"/>
+                            <field name="device_id"/>
+                        </group>
+                        <group string="Utilisateur">
+                            <field name="user_email"/>
+                            <field name="firebase_uid"/>
+                            <field name="verified"/>
+                            <field name="uo_code"/>
+                        </group>
+                    </group>
+                    <group string="Message">
+                        <field name="message" nolabel="1"/>
+                    </group>
+                    <group string="Trace" invisible="not stack">
+                        <field name="stack" nolabel="1"/>
+                    </group>
+                    <group string="Contexte" invisible="not context">
+                        <field name="context" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fireman_app_log_search" model="ir.ui.view">
+        <field name="name">fireman.app.log.search</field>
+        <field name="model">fireman.app.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="message"/>
+                <field name="user_email"/>
+                <field name="device_id"/>
+                <field name="uo_code"/>
+                <field name="app_version"/>
+                <filter name="open" string="Non résolus" domain="[('resolved', '=', False)]"/>
+                <filter name="errors" string="Erreurs" domain="[('level', '=', 'error')]"/>
+                <filter name="startup" string="Fermetures au démarrage" domain="[('kind', '=', 'startup_crash')]"/>
+                <separator/>
+                <filter name="anonymous" string="Sans utilisateur connecté" domain="[('user_email', '=', False)]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_fingerprint" string="Erreur identique" context="{'group_by': 'fingerprint'}"/>
+                    <filter name="group_kind" string="Type" context="{'group_by': 'kind'}"/>
+                    <filter name="group_version" string="Version" context="{'group_by': 'app_version'}"/>
+                    <filter name="group_platform" string="Plateforme" context="{'group_by': 'platform'}"/>
+                    <filter name="group_device" string="Appareil" context="{'group_by': 'device_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fireman_app_log" model="ir.actions.act_window">
+        <field name="name">Journal de l'application</field>
+        <field name="res_model">fireman.app.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_open': 1}</field>
+    </record>
+
     <!-- ============================ Menus ============================ -->
     <menuitem id="menu_fireman_root" name="Inventory Fireman" web_icon="inventory_fireman,static/src/img/uo.png" groups="base.group_user" sequence="60"/>
     <menuitem id="menu_fireman_uo" name="Unités opérationnelles" parent="menu_fireman_root" action="action_fireman_uo" sequence="10"/>
     <menuitem id="menu_fireman_member" name="Membres" parent="menu_fireman_root" action="action_fireman_member" sequence="20"/>
     <menuitem id="menu_fireman_vehicle" name="Véhicules" parent="menu_fireman_root" action="action_fireman_vehicle" sequence="30"/>
+    <menuitem id="menu_fireman_vehicle_template" name="Modèles de véhicules" parent="menu_fireman_root" action="action_fireman_vehicle_template" sequence="35"/>
     <menuitem id="menu_fireman_inventory" name="Inventaires" parent="menu_fireman_root" action="action_fireman_inventory" sequence="40"/>
+    <menuitem id="menu_fireman_pharmacy" name="Pharmacie" parent="menu_fireman_root" action="action_fireman_pharmacy_item" sequence="45"/>
+    <menuitem id="menu_fireman_pharmacy_movement" name="Mouvements de pharmacie" parent="menu_fireman_root" action="action_fireman_pharmacy_movement" sequence="46"/>
+    <menuitem id="menu_fireman_intervention" name="Retours d'intervention" parent="menu_fireman_root" action="action_fireman_intervention" sequence="47"/>
     <menuitem id="menu_fireman_config" name="Configuration" parent="menu_fireman_root" groups="group_fireman_manager" sequence="90"/>
     <menuitem id="menu_fireman_connector" name="Connecteur Firebase" parent="menu_fireman_config" action="action_firebase_connector" sequence="10"/>
     <menuitem id="menu_fireman_sync" name="File de synchronisation" parent="menu_fireman_config" action="action_fireman_sync_event" sequence="20"/>
+    <menuitem id="menu_fireman_app_log" name="Journal de l'application" parent="menu_fireman_config" action="action_fireman_app_log" sequence="30"/>
 </odoo>

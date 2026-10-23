@@ -37,6 +37,24 @@
                         <button name="action_open_inventories" type="object" class="oe_stat_button" icon="fa-list-alt">
                             <field name="inventory_count" widget="statinfo" string="Inventaires"/>
                         </button>
+                        <button name="action_open_pharmacy_alerts" type="object" class="oe_stat_button" icon="fa-medkit">
+                            <div class="o_stat_info">
+                                <field name="pharmacy_expired_count" class="o_stat_value text-danger"/>
+                                <span class="o_stat_text">Périmés</span>
+                            </div>
+                        </button>
+                        <button name="action_open_pharmacy_alerts" type="object" class="oe_stat_button" icon="fa-clock-o">
+                            <div class="o_stat_info">
+                                <field name="pharmacy_soon_count" class="o_stat_value"/>
+                                <span class="o_stat_text">À renouveler</span>
+                            </div>
+                        </button>
+                        <button name="action_open_restocks" type="object" class="oe_stat_button" icon="fa-ambulance">
+                            <div class="o_stat_info">
+                                <field name="restock_pending_count" class="o_stat_value"/>
+                                <span class="o_stat_text">Réarmements</span>
+                            </div>
+                        </button>
                         <button name="action_open_orders" type="object" class="oe_stat_button" icon="fa-refresh">
                             <div class="o_stat_info"><span class="o_stat_text">Abonnements</span></div>
                         </button>
@@ -216,6 +234,11 @@
         <field name="model">fireman.vehicle</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="action_save_as_template" type="object" string="Enregistrer comme modèle"
+                            groups="inventory_fireman.group_fireman_manager"
+                            help="Crée un modèle réservé à l'UO de ce véhicule"/>
+                </header>
                 <sheet>
                     <group>
                         <group>
@@ -283,6 +306,91 @@
         <field name="view_mode">list,form</field>
     </record>
 
+    <!-- ============================ Modèles de véhicules ============================ -->
+    <record id="view_fireman_vehicle_template_list" model="ir.ui.view">
+        <field name="name">fireman.vehicle.template.list</field>
+        <field name="model">fireman.vehicle.template</field>
+        <field name="arch" type="xml">
+            <list>
+                <header>
+                    <button name="action_pull_from_firebase" type="object" string="Lire depuis Firebase" display="always"/>
+                </header>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="uo_id" placeholder="Toutes les UO"/>
+                <field name="section_count"/>
+                <field name="item_count"/>
+                <field name="in_firebase"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_vehicle_template_form" model="ir.ui.view">
+        <field name="name">fireman.vehicle.template.form</field>
+        <field name="model">fireman.vehicle.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget name="web_ribbon" title="Archivé" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="uo_id" placeholder="Toutes les UO"/>
+                        </group>
+                        <group>
+                            <field name="section_count"/>
+                            <field name="item_count"/>
+                            <field name="uid"/>
+                            <field name="in_firebase"/>
+                        </group>
+                    </group>
+                    <field name="description" placeholder="Description affichée dans l'application"/>
+                    <field name="section_ids">
+                        <list>
+                            <field name="sequence" widget="handle"/>
+                            <field name="name"/>
+                        </list>
+                        <form>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                            <field name="item_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="is_group"/>
+                                    <field name="parent_id" domain="[('is_group', '=', True), ('section_id', '=', parent.id)]" invisible="is_group"/>
+                                    <field name="name"/>
+                                    <field name="quantity" invisible="is_group"/>
+                                </list>
+                            </field>
+                        </form>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fireman_vehicle_template_search" model="ir.ui.view">
+        <field name="name">fireman.vehicle.template.search</field>
+        <field name="model">fireman.vehicle.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="uo_id"/>
+                <filter name="shared" string="Partagés" domain="[('uo_id', '=', False)]"/>
+                <filter name="reserved" string="Réservés à une UO" domain="[('uo_id', '!=', False)]"/>
+                <filter name="archived" string="Archivés" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fireman_vehicle_template" model="ir.actions.act_window">
+        <field name="name">Modèles de véhicules</field>
+        <field name="res_model">fireman.vehicle.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
     <!-- ============================ Inventaires ============================ -->
     <record id="view_fireman_inventory_list" model="ir.ui.view">
         <field name="name">fireman.inventory.list</field>
@@ -347,6 +455,241 @@
     <record id="action_fireman_inventory" model="ir.actions.act_window">
         <field name="name">Inventaires</field>
         <field name="res_model">fireman.inventory</field>
+        <field name="view_mode">list,graph,pivot,form</field>
+    </record>
+
+    <record id="view_fireman_inventory_graph" model="ir.ui.view">
+        <field name="name">fireman.inventory.graph</field>
+        <field name="model">fireman.inventory</field>
+        <field name="arch" type="xml">
+            <graph string="Inventaires" type="bar" stacked="1">
+                <field name="vehicle_name"/>
+                <field name="is_complete"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_fireman_inventory_pivot" model="ir.ui.view">
+        <field name="name">fireman.inventory.pivot</field>
+        <field name="model">fireman.inventory</field>
+        <field name="arch" type="xml">
+            <pivot string="Inventaires">
+                <field name="vehicle_name" type="row"/>
+                <field name="date" interval="month" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ============================ Pharmacie ============================ -->
+    <record id="view_fireman_pharmacy_item_list" model="ir.ui.view">
+        <field name="name">fireman.pharmacy.item.list</field>
+        <field name="model">fireman.pharmacy.item</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-danger="expiry_state == 'expired'" decoration-warning="expiry_state == 'soon'">
+                <field name="uo_id"/>
+                <field name="name"/>
+                <field name="quantity" sum="Total"/>
+                <field name="lot"/>
+                <field name="location"/>
+                <field name="expiry_date"/>
+                <field name="days_left" invisible="expiry_state == 'none'"/>
+                <field name="expiry_state" widget="badge" decoration-danger="expiry_state == 'expired'" decoration-warning="expiry_state == 'soon'" decoration-success="expiry_state == 'ok'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_pharmacy_item_form" model="ir.ui.view">
+        <field name="name">fireman.pharmacy.item.form</field>
+        <field name="model">fireman.pharmacy.item</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="uo_id"/>
+                            <field name="name"/>
+                            <field name="quantity"/>
+                        </group>
+                        <group>
+                            <field name="lot"/>
+                            <field name="location"/>
+                            <field name="expiry_date"/>
+                            <field name="expiry_state"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fireman_pharmacy_item_search" model="ir.ui.view">
+        <field name="name">fireman.pharmacy.item.search</field>
+        <field name="model">fireman.pharmacy.item</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="lot"/>
+                <field name="location"/>
+                <field name="uo_id"/>
+                <filter name="expired" string="Périmés" domain="[('expiry_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="soon" string="À renouveler (30 jours)"
+                        domain="[('expiry_date', '&gt;=', context_today().strftime('%Y-%m-%d')), ('expiry_date', '&lt;=', (context_today() + datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                <filter name="no_date" string="Sans date" domain="[('expiry_date', '=', False)]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_uo" string="UO" context="{'group_by': 'uo_id'}"/>
+                    <filter name="group_article" string="Article" context="{'group_by': 'name'}"/>
+                    <filter name="group_state" string="État" context="{'group_by': 'expiry_state'}"/>
+                    <filter name="group_month" string="Mois de péremption" context="{'group_by': 'expiry_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_fireman_pharmacy_item_graph" model="ir.ui.view">
+        <field name="name">fireman.pharmacy.item.graph</field>
+        <field name="model">fireman.pharmacy.item</field>
+        <field name="arch" type="xml">
+            <graph string="Péremptions" type="bar" stacked="1">
+                <field name="expiry_date" interval="month"/>
+                <field name="uo_id"/>
+                <field name="quantity" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_fireman_pharmacy_item" model="ir.actions.act_window">
+        <field name="name">Pharmacie</field>
+        <field name="res_model">fireman.pharmacy.item</field>
+        <field name="view_mode">list,graph,form</field>
+    </record>
+
+    <!-- ============================ Mouvements de pharmacie ============================ -->
+    <record id="view_fireman_pharmacy_movement_list" model="ir.ui.view">
+        <field name="name">fireman.pharmacy.movement.list</field>
+        <field name="model">fireman.pharmacy.movement</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-danger="kind == 'expired'">
+                <field name="date"/>
+                <field name="uo_id"/>
+                <field name="kind" widget="badge"/>
+                <field name="name"/>
+                <field name="lot"/>
+                <field name="expiry_date"/>
+                <field name="quantity" sum="Total"/>
+                <field name="user_name"/>
+                <field name="reference"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_pharmacy_movement_search" model="ir.ui.view">
+        <field name="name">fireman.pharmacy.movement.search</field>
+        <field name="model">fireman.pharmacy.movement</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="lot"/>
+                <field name="user_name"/>
+                <field name="uo_id"/>
+                <filter name="restock" string="Réarmements" domain="[('kind', '=', 'restock')]"/>
+                <filter name="withdrawal" string="Prélèvements" domain="[('kind', '=', 'withdrawal')]"/>
+                <filter name="expired" string="Retraits pour péremption" domain="[('kind', '=', 'expired')]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_uo" string="UO" context="{'group_by': 'uo_id'}"/>
+                    <filter name="group_kind" string="Type" context="{'group_by': 'kind'}"/>
+                    <filter name="group_article" string="Article" context="{'group_by': 'name'}"/>
+                    <filter name="group_month" string="Mois" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fireman_pharmacy_movement" model="ir.actions.act_window">
+        <field name="name">Mouvements de pharmacie</field>
+        <field name="res_model">fireman.pharmacy.movement</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- ============================ Retours d'intervention ============================ -->
+    <record id="view_fireman_intervention_list" model="ir.ui.view">
+        <field name="name">fireman.intervention.list</field>
+        <field name="model">fireman.intervention</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-warning="state == 'pending'">
+                <field name="date"/>
+                <field name="uo_id"/>
+                <field name="vehicle_name"/>
+                <field name="rank"/>
+                <field name="inventor_name"/>
+                <field name="state" widget="badge" decoration-warning="state == 'pending'" decoration-success="state == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_fireman_intervention_form" model="ir.ui.view">
+        <field name="name">fireman.intervention.form</field>
+        <field name="model">fireman.intervention</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,done"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="uo_id"/>
+                            <field name="vehicle_name"/>
+                            <field name="date"/>
+                        </group>
+                        <group>
+                            <field name="inventor_name"/>
+                            <field name="rank"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="note"/>
+                    </group>
+                    <field name="line_ids">
+                        <list decoration-success="restocked" decoration-warning="not restocked">
+                            <field name="name"/>
+                            <field name="quantity"/>
+                            <field name="restocked"/>
+                            <field name="restocked_date"/>
+                            <field name="restocked_by"/>
+                            <field name="picked_quantity"/>
+                            <field name="lots"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fireman_intervention_search" model="ir.ui.view">
+        <field name="name">fireman.intervention.search</field>
+        <field name="model">fireman.intervention</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="vehicle_name"/>
+                <field name="inventor_name"/>
+                <field name="uo_id"/>
+                <field name="line_ids" string="Article" filter_domain="[('line_ids.name', 'ilike', self)]"/>
+                <filter name="pending" string="À réarmer" domain="[('state', '=', 'pending')]"/>
+                <filter name="done" string="Réarmés" domain="[('state', '=', 'done')]"/>
+                <group expand="0" string="Regrouper par">
+                    <filter name="group_uo" string="UO" context="{'group_by': 'uo_id'}"/>
+                    <filter name="group_vehicle" string="Véhicule" context="{'group_by': 'vehicle_name'}"/>
+                    <filter name="group_state" string="État" context="{'group_by': 'state'}"/>
+                    <filter name="group_month" string="Mois" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fireman_intervention" model="ir.actions.act_window">
+        <field name="name">Retours d'intervention</field>
+        <field name="res_model">fireman.intervention</field>
         <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_pending': 1}</field>
     </record>
 </odoo>

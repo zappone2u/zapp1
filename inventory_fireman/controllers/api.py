@@ -75,6 +75,71 @@ class FiremanSyncApi(http.Controller):
         env["fireman.sync.event"].enqueue_pull(code, scopes)
         return _json({"status": "queued"})
 
+    @http.route(
+        "/fireman/api/v1/templates", type="http", auth="public", methods=["POST"], csrf=False, save_session=False
+    )
+    def templates(self, **kw):
+        """Modèles de véhicules proposés à une UO (partagés + réservés à l'UO), pour ses membres."""
+        header = request.httprequest.headers.get("Authorization", "")
+        if not header.startswith("Bearer "):
+            return _json({"error": "missing_token"}, 401)
+        try:
+            payload = json.loads(request.httprequest.get_data() or b"{}")
+        except ValueError:
+            return _json({"error": "invalid_json"}, 400)
+        code = str(payload.get("uo") or "").strip()
+        if not is_valid_code(code):
+            return _json({"error": "invalid_uo"}, 400)
+
+        env = request.env(su=True)
+        connector = env["firebase.connector"]._get_default()
+        if not connector:
+            return _json({"error": "not_configured"}, 503)
+        try:
+            uid = connector.verify_id_token(header[7:])["uid"]
+            user = connector.get_user(uid) or {}
+        except Exception:
+            _logger.info("Jeton Firebase refusé pour /fireman/api/v1/templates", exc_info=True)
+            return _json({"error": "invalid_token"}, 401)
+        member_of = any(e.get("uo_name") == code for e in as_list(user.get("uo")) if isinstance(e, dict))
+        if not (user.get("admin") is True or member_of):
+            return _json({"error": "forbidden"}, 403)
+
+        uo = env["fireman.uo"].search([("code", "=", code)], limit=1)
+        templates = env["fireman.vehicle.template"]._available_for(uo)
+        return _json({"templates": [t._api_payload() for t in templates]})
+
+    @http.route(
+        "/fireman/api/v1/app-logs", type="http", auth="public", methods=["POST"], csrf=False, save_session=False
+    )
+    def app_logs(self, **kw):
+        """Rapports d'erreur de l'application. Accepté sans connexion (plantage au démarrage, aucune UO) :
+        un jeton Firebase valide, s'il est fourni, identifie seulement l'auteur ; les envois sont plafonnés."""
+        raw = request.httprequest.get_data(cache=False)
+        if len(raw) > 200_000:
+            return _json({"error": "too_large"}, 413)
+        try:
+            payload = json.loads(raw or b"{}")
+        except ValueError:
+            return _json({"error": "invalid_json"}, 400)
+        reports = payload.get("reports") if isinstance(payload, dict) else None
+        if not isinstance(reports, list):
+            return _json({"error": "invalid_reports"}, 400)
+
+        env = request.env(su=True)
+        identity = {}
+        header = request.httprequest.headers.get("Authorization", "")
+        if header.startswith("Bearer "):
+            connector = env["firebase.connector"]._get_default()
+            if connector:
+                try:
+                    claims = connector.verify_id_token(header[7:])
+                    identity = {"uid": claims.get("uid"), "email": (claims.get("email") or "").lower()}
+                except Exception:
+                    _logger.info("Jeton Firebase ignoré pour /fireman/api/v1/app-logs")
+        accepted = env["fireman.app.log"]._ingest(reports, ip=request.httprequest.remote_addr or "", identity=identity)
+        return _json({"accepted": accepted})
+
     @http.route("/fireman/api/v1/logs", type="http", auth="public", methods=["POST"], csrf=False, save_session=False)
     def logs(self, **kw):
         """Journal de synchronisation Odoo ↔ Firebase, réservé aux super administrateurs."""
@@ -124,15 +189,15 @@ class FiremanSyncApi(http.Controller):
                 "events": [
                     {
                         "id": e.id,
-                        "uo": e.uo_code,
+                        "uo": e.uo_code or None,
                         "direction": e.direction,
                         "op": e.op,
-                        "model": e.model,
-                        "target": e.target_key,
+                        "model": e.model or None,
+                        "target": e.target_key or None,
                         "state": e.state,
                         "level": _level(e),
                         "attempts": e.attempts,
-                        "error": e.error,
+                        "error": e.error or None,
                         "created": iso(e.create_date),
                         "processed": iso(e.processed_date),
                     }

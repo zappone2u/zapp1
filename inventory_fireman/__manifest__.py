@@ -4,7 +4,7 @@
     "summary": "UO, véhicules, personnel et abonnements de l'application d'inventaire des pompiers, synchronisés avec Firebase",
     "category": "Operations/Inventory",
     "author": "ZappOne",
-    "version": "18.0.2.0.0",
+    "version": "18.0.2.1.0",
     "website": "https://www.open-net.ch",
     "license": "OPL-1",
     "depends": [
@@ -24,6 +24,7 @@
         "security/security.xml",
         "security/ir.model.access.csv",
         "data/fireman_data.xml",
+        "data/fireman_vehicle_template_data.xml",
         "data/ir_cron.xml",
         "views/fireman_views.xml",
         "views/fireman_config_views.xml",

@@ -24,7 +24,8 @@ class FiremanMember(models.Model):
     last_connection = fields.Datetime(string="Dernière connexion", readonly=True)
     quota_suspended = fields.Boolean(
         string="Suspendu par le palier",
-        help="Repassé en attente après une baisse de palier ; réactivé si le palier le permet de nouveau.",
+        help="Mis en attente faute de place dans le palier (baisse de palier ou invitation au-delà de la limite) ; "
+        "réactivé si le palier le permet de nouveau.",
     )
 
     _sql_constraints = [("uo_partner_unique", "unique(uo_id, partner_id)", "Cette personne est déjà membre de l'UO.")]
@@ -41,8 +42,13 @@ class FiremanMember(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        records = super().create(vals_list)
-        if self._push_enabled() and not self.env.context.get("fireman_skip_quota"):
+        if not self._push_enabled() or self.env.context.get("fireman_skip_quota"):
+            return super().create(vals_list)
+        # Le point de sauvegarde annule la création si le quota est dépassé : l'appelant peut intercepter
+        # l'erreur sans que le membre refusé reste validé dans la transaction.
+        with self.env.cr.savepoint():
+            self.env["fireman.uo"].browse([v["uo_id"] for v in vals_list if v.get("uo_id")])._lock_quota()
+            records = super().create(vals_list)
             records.filtered(lambda m: m._is_billable())._check_quota_after_create()
         return records
 
@@ -57,6 +63,7 @@ class FiremanMember(models.Model):
         if vals.get("verified") and self._push_enabled() and not self.env.context.get("fireman_skip_quota"):
             newly = self.filtered(lambda m: not m.verified and not m.partner_id.fireman_super_admin)
             if newly:
+                newly.uo_id._lock_quota()
                 self._check_quota(newly)
         return super().write(vals)
 

@@ -42,6 +42,17 @@ def parse_app_date(text):
     return False
 
 
+def parse_day(text):
+    """Date de péremption ("2026-08-31" ou "31/08/2026") → date, ou False si absente ou impossible."""
+    text = str(text or "").strip()
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y"):
+        try:
+            return datetime.strptime(text, fmt).date()
+        except ValueError:
+            continue
+    return False
+
+
 def as_list(raw):
     """Une liste Firebase peut revenir sous forme de liste (avec trous) ou de dict à clés numériques."""
     if isinstance(raw, dict):

@@ -71,7 +71,10 @@
             <div class="container my-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="mb-0">Mes unités opérationnelles</h2>
-                    <a href="/my/uo/new" class="btn btn-primary">Créer une UO</a>
+                    <div class="d-flex gap-2">
+                        <a t-if="request.env.user.partner_id.firebase_uid" href="/my/password" class="btn btn-outline-secondary">Changer mon mot de passe</a>
+                        <a href="/my/uo/new" class="btn btn-primary">Créer une UO</a>
+                    </div>
                 </div>
                 <t t-call="inventory_fireman.fireman_flash"/>
                 <div t-if="not uos" class="alert alert-info">
@@ -117,33 +120,78 @@
     </template>
 
     <!-- ======================= Vue d'ensemble ======================= -->
+    <template id="fireman_gauge" name="Portail : jauge de quota">
+        <t t-set="pct" t-value="0 if maximum &lt;= 0 else min(100, int(100 * count / maximum))"/>
+        <div class="card h-100"><div class="card-body">
+            <div class="text-muted" t-out="label"/>
+            <div class="fs-3"><t t-out="count"/> / <t t-out="'∞' if maximum == -1 else maximum"/></div>
+            <t t-if="maximum &gt; 0">
+                <div class="progress mb-1" style="height: 6px;">
+                    <div role="progressbar"
+                         t-attf-class="progress-bar #{'bg-danger' if pct &gt;= 100 else ('bg-warning' if pct &gt;= 80 else 'bg-success')}"
+                         t-attf-style="width: #{pct}%;"
+                         t-att-aria-valuenow="pct" aria-valuemin="0" aria-valuemax="100"/>
+                </div>
+                <div class="small mb-1" t-if="pct &gt;= 100"><i class="fa fa-exclamation-circle text-danger"/> Limite atteinte</div>
+                <div class="small mb-1" t-elif="pct &gt;= 80"><i class="fa fa-exclamation-triangle text-warning"/> Presque complet</div>
+            </t>
+            <a t-if="url" t-att-href="url" t-out="link_label"/>
+        </div></div>
+    </template>
+
+    <template id="fireman_uo_usage" name="Portail : utilisation de l'UO">
+        <t t-set="pending" t-value="len(uo.member_ids.filtered_domain([('verified', '=', False), ('partner_id.fireman_super_admin', '=', False)]))"/>
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <t t-call="inventory_fireman.fireman_gauge">
+                    <t t-set="label" t-value="'Véhicules'"/>
+                    <t t-set="count" t-value="uo.vehicle_count"/>
+                    <t t-set="maximum" t-value="uo.max_vehicles"/>
+                    <t t-set="url" t-value="'/my/uo/%s/vehicles' % uo.id"/>
+                    <t t-set="link_label" t-value="'Gérer les véhicules'"/>
+                </t>
+            </div>
+            <div class="col-md-4">
+                <t t-call="inventory_fireman.fireman_gauge">
+                    <t t-set="label" t-value="'Utilisateurs'"/>
+                    <t t-set="count" t-value="uo.member_count"/>
+                    <t t-set="maximum" t-value="uo.max_members"/>
+                    <t t-set="url" t-value="('/my/uo/%s/members' % uo.id) if is_admin else False"/>
+                    <t t-set="link_label" t-value="'Gérer le personnel'"/>
+                </t>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100"><div class="card-body">
+                    <div class="text-muted">Abonnement</div>
+                    <div class="fs-3" t-out="tiers[uo.tier]"/>
+                    <a t-if="is_admin" t-attf-href="/my/uo/#{uo.id}/subscription">Gérer l'abonnement</a>
+                </div></div>
+            </div>
+        </div>
+        <div class="alert alert-warning" t-if="is_admin and pending" role="alert">
+            <i class="fa fa-user-plus"/>
+            <t t-out="pending"/> personne(s) en attente de validation.
+            <t t-if="uo.member_excess or (uo.max_members != -1 and uo.member_count &gt;= uo.max_members)">
+                La limite d'utilisateurs de votre palier est atteinte :
+                <a t-attf-href="/my/uo/#{uo.id}/subscription">choisir un palier supérieur</a>.
+            </t>
+            <a t-else="" t-attf-href="/my/uo/#{uo.id}/members">Voir le personnel</a>
+        </div>
+        <div t-if="uo.pharmacy_expired_count or uo.pharmacy_soon_count"
+             t-attf-class="alert #{'alert-danger' if uo.pharmacy_expired_count else 'alert-warning'}" role="alert">
+            <i class="fa fa-medkit"/> Pharmacie :
+            <strong t-if="uo.pharmacy_expired_count"><t t-out="uo.pharmacy_expired_count"/> périmé(s)</strong>
+            <t t-if="uo.pharmacy_expired_count and uo.pharmacy_soon_count"> · </t>
+            <span t-if="uo.pharmacy_soon_count"><t t-out="uo.pharmacy_soon_count"/> à renouveler sous 30 jours</span>
+            (détail dans l'application, menu Pharmacie).
+        </div>
+    </template>
+
     <template id="portal_uo_dashboard" name="Portail : vue d'ensemble de l'UO">
         <t t-call="portal.portal_layout">
             <div class="container my-4">
                 <t t-call="inventory_fireman.fireman_uo_header"/>
-                <div class="row g-3 mb-4">
-                    <div class="col-md-4">
-                        <div class="card h-100"><div class="card-body">
-                            <div class="text-muted">Véhicules</div>
-                            <div class="fs-3"><t t-out="uo.vehicle_count"/> / <t t-out="'∞' if uo.max_vehicles == -1 else uo.max_vehicles"/></div>
-                            <a t-attf-href="/my/uo/#{uo.id}/vehicles">Gérer les véhicules</a>
-                        </div></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card h-100"><div class="card-body">
-                            <div class="text-muted">Utilisateurs</div>
-                            <div class="fs-3"><t t-out="uo.member_count"/> / <t t-out="'∞' if uo.max_members == -1 else uo.max_members"/></div>
-                            <a t-if="is_admin" t-attf-href="/my/uo/#{uo.id}/members">Gérer le personnel</a>
-                        </div></div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card h-100"><div class="card-body">
-                            <div class="text-muted">Abonnement</div>
-                            <div class="fs-3" t-out="tiers[uo.tier]"/>
-                            <a t-if="is_admin" t-attf-href="/my/uo/#{uo.id}/subscription">Gérer l'abonnement</a>
-                        </div></div>
-                    </div>
-                </div>
+                <t t-call="inventory_fireman.fireman_uo_usage"/>
 
                 <div class="row g-3">
                     <div class="col-lg-7">
@@ -213,10 +261,28 @@
                     <t t-call="inventory_fireman.fireman_csrf"/>
                     <h5>Ajouter un véhicule</h5>
                     <div class="row g-2">
-                        <div class="col-md-5"><input type="text" name="name" class="form-control" placeholder="Nom (ex. VSAV 1)" required="required"/></div>
-                        <div class="col-md-4"><input type="text" name="license_plate" class="form-control" placeholder="Immatriculation"/></div>
-                        <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">Ajouter</button></div>
+                        <div class="col-md-4"><input type="text" name="name" class="form-control" placeholder="Nom (ex. VSAV 1)" required="required"/></div>
+                        <div class="col-md-3"><input type="text" name="license_plate" class="form-control" placeholder="Immatriculation"/></div>
+                        <div class="col-md-3">
+                            <select name="source" class="form-select" aria-label="Matériel de départ">
+                                <option value="">Véhicule vide</option>
+                                <optgroup t-if="templates" label="Modèles">
+                                    <option t-foreach="templates" t-as="template" t-att-value="'template:%s' % template.id">
+                                        <t t-out="template.name"/> (<t t-out="template.item_count"/> équipements)
+                                    </option>
+                                </optgroup>
+                                <optgroup t-if="uo.vehicle_ids" label="Copier un véhicule existant">
+                                    <option t-foreach="uo.vehicle_ids" t-as="existing" t-att-value="'vehicle:%s' % existing.id">
+                                        <t t-out="existing.name"/>
+                                    </option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Ajouter</button></div>
                     </div>
+                    <p t-if="uo.max_vehicles != -1 and uo.vehicle_count &gt;= uo.max_vehicles" class="small text-danger mb-0 mt-2">
+                        <i class="fa fa-exclamation-circle"/> Limite de véhicules atteinte : <a t-attf-href="/my/uo/#{uo.id}/subscription">choisir un palier supérieur</a>.
+                    </p>
                 </form>
             </div>
         </t>
@@ -266,6 +332,16 @@
                     </div>
                     <div t-if="is_admin" class="mt-3">
                         <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+                <form t-if="is_admin" method="post" t-attf-action="/my/uo/#{uo.id}/vehicles/#{vehicle.id}/duplicate" class="card card-body mb-3">
+                    <t t-call="inventory_fireman.fireman_csrf"/>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-6">
+                            <input type="text" name="name" class="form-control" t-attf-placeholder="#{vehicle.name} (copie)" aria-label="Nom de la copie"/>
+                        </div>
+                        <div class="col-auto"><button type="submit" class="btn btn-outline-primary">Dupliquer ce véhicule</button></div>
+                        <div class="col-auto small text-muted">Copie le matériel, pas la plaque, les notes ni l'état. Compte dans votre limite de véhicules.</div>
                     </div>
                 </form>
                 <form t-if="is_admin" method="post" t-attf-action="/my/uo/#{uo.id}/vehicles/#{vehicle.id}/delete" class="mb-4 text-end">
@@ -392,32 +468,25 @@
                     <table class="table align-middle">
                         <thead><tr><th>Nom</th><th>Email</th><th class="text-center">Admin</th><th class="text-center">Pharmacien</th><th class="text-center">Validé</th><th/></tr></thead>
                         <tbody>
-                            <tr t-foreach="uo.member_ids.sorted(lambda m: (m.is_super_admin, m.partner_id.name or ''))" t-as="member">
-                                <t t-if="member.is_super_admin">
-                                    <td t-out="member.name"/>
-                                    <td t-out="member.email"/>
-                                    <td colspan="4" class="text-muted small">Super administrateur (accès à toutes les UO)</td>
-                                </t>
-                                <t t-else="">
-                                    <td t-out="member.name"/>
-                                    <td>
-                                        <t t-out="member.email"/>
-                                        <span t-if="member.quota_suspended" class="badge text-bg-warning ms-1" title="Repassé en attente après une baisse de palier ; réactivé si le palier le permet">Suspendu (palier)</span>
-                                    </td>
-                                    <td colspan="4">
-                                        <form method="post" t-attf-action="/my/uo/#{uo.id}/members/#{member.id}/update" class="d-flex align-items-center justify-content-between gap-3">
-                                            <t t-call="inventory_fireman.fireman_csrf"/>
-                                            <div class="form-check"><input type="checkbox" class="form-check-input" name="is_admin" t-att-checked="member.is_admin or None"/></div>
-                                            <div class="form-check"><input type="checkbox" class="form-check-input" name="is_pharmacist" t-att-checked="member.is_pharmacist or None"/></div>
-                                            <div class="form-check"><input type="checkbox" class="form-check-input" name="verified" t-att-checked="member.verified or None"/></div>
-                                            <div class="text-nowrap">
-                                                <button type="submit" class="btn btn-sm btn-outline-primary">Enregistrer</button>
-                                                <button type="submit" t-attf-formaction="/my/uo/#{uo.id}/members/#{member.id}/remove" class="btn btn-sm btn-outline-danger"
-                                                        onclick="return confirm('Retirer ce membre de l\'UO ?');">Retirer</button>
-                                            </div>
-                                        </form>
-                                    </td>
-                                </t>
+                            <tr t-foreach="members" t-as="member">
+                                <td t-out="member.name"/>
+                                <td>
+                                    <t t-out="member.email"/>
+                                    <span t-if="member.quota_suspended" class="badge text-bg-warning ms-1" title="En attente faute de place dans le palier ; validé automatiquement dès qu'une place se libère">En attente (palier)</span>
+                                </td>
+                                <td colspan="4">
+                                    <form method="post" t-attf-action="/my/uo/#{uo.id}/members/#{member.id}/update" class="d-flex align-items-center justify-content-between gap-3">
+                                        <t t-call="inventory_fireman.fireman_csrf"/>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" name="is_admin" t-att-checked="member.is_admin or None"/></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" name="is_pharmacist" t-att-checked="member.is_pharmacist or None"/></div>
+                                        <div class="form-check"><input type="checkbox" class="form-check-input" name="verified" t-att-checked="member.verified or None"/></div>
+                                        <div class="text-nowrap">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Enregistrer</button>
+                                            <button type="submit" t-attf-formaction="/my/uo/#{uo.id}/members/#{member.id}/remove" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Retirer ce membre de l\'UO ?');">Retirer</button>
+                                        </div>
+                                    </form>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

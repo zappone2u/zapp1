@@ -63,6 +63,12 @@ class FiremanUo(models.Model):
     member_ids = fields.One2many("fireman.member", "uo_id", string="Membres")
     vehicle_ids = fields.One2many("fireman.vehicle", "uo_id", string="Véhicules")
     inventory_ids = fields.One2many("fireman.inventory", "uo_id", string="Inventaires")
+    pharmacy_item_ids = fields.One2many("fireman.pharmacy.item", "uo_id", string="Pharmacie")
+    pharmacy_expired_count = fields.Integer(string="Articles périmés", compute="_compute_pharmacy_alerts")
+    pharmacy_soon_count = fields.Integer(string="Articles à renouveler", compute="_compute_pharmacy_alerts")
+    pharmacy_movement_ids = fields.One2many("fireman.pharmacy.movement", "uo_id", string="Mouvements de pharmacie")
+    intervention_ids = fields.One2many("fireman.intervention", "uo_id", string="Retours d'intervention")
+    restock_pending_count = fields.Integer(string="Réarmements en attente", compute="_compute_restock_pending")
     order_ids = fields.One2many("sale.order", "fireman_uo_id", string="Abonnements")
 
     member_count = fields.Integer(string="Membres (décomptés)", compute="_compute_counts")
@@ -141,6 +147,21 @@ class FiremanUo(models.Model):
             uo.has_reporting = tier in REPORTING_TIERS
             uo.has_export = tier in EXPORT_TIERS
 
+    @api.depends("pharmacy_item_ids.expiry_date")
+    @api.depends_context("tz")
+    def _compute_pharmacy_alerts(self):
+        Item = self.env["fireman.pharmacy.item"]
+        expired, soon = Item._expired_domain(), Item._soon_domain()
+        for uo in self:
+            scope = [("uo_id", "=", uo.id)]
+            uo.pharmacy_expired_count = Item.search_count(scope + expired)
+            uo.pharmacy_soon_count = Item.search_count(scope + soon)
+
+    @api.depends("intervention_ids.state")
+    def _compute_restock_pending(self):
+        for uo in self:
+            uo.restock_pending_count = len(uo.intervention_ids.filtered(lambda i: i.state == "pending"))
+
     # ------------------------------------------------------------------
     # Contraintes et quotas
     # ------------------------------------------------------------------
@@ -176,6 +197,37 @@ class FiremanUo(models.Model):
                         max=uo.max_vehicles,
                     )
                 )
+
+    def _lock_quota(self):
+        """Sérialise les attributions de places : deux invitations simultanées ne prennent pas la dernière place."""
+        ids = [i for i in self.ids if i]
+        if not ids:
+            return
+        self.env["fireman.uo"].flush_model()
+        # En REPEATABLE READ, FOR UPDATE ne suffit pas (le compte reste lu sur l'ancien instantané) :
+        # un UPDATE fait échouer la seconde transaction, qu'Odoo rejoue.
+        self.env.cr.execute("UPDATE fireman_uo SET id = id WHERE id IN %s", [tuple(ids)])
+
+    def _free_member_slots(self):
+        """Places restantes (None si illimité), relues en base pour ne pas dépendre du cache."""
+        self.ensure_one()
+        if self.max_members == UNLIMITED:
+            return None
+        used = self.env["fireman.member"].search_count(
+            [("uo_id", "=", self.id), ("verified", "=", True), ("partner_id.fireman_super_admin", "=", False)]
+        )
+        return max(self.max_members - used, 0)
+
+    def invite_member(self, partner, is_admin=False, is_pharmacist=False):
+        """Ajoute une personne ; elle n'est validée que s'il reste une place dans le palier,
+        sinon elle reste en attente (réactivée automatiquement quand une place se libère)."""
+        self.ensure_one()
+        Member = self.env["fireman.member"].sudo()
+        vals = {"uo_id": self.id, "partner_id": partner.id, "is_admin": is_admin, "is_pharmacist": is_pharmacist}
+        try:
+            return Member.create({**vals, "verified": True})
+        except QuotaExceeded:
+            return Member.create({**vals, "verified": False, "quota_suspended": True})
 
     def _check_member_quota(self, adding=1):
         for uo in self:
@@ -607,6 +659,20 @@ class FiremanUo(models.Model):
 
     def action_open_inventories(self):
         return self._action_related(_("Inventaires"), "fireman.inventory")
+
+    def action_open_pharmacy(self):
+        return self._action_related(_("Pharmacie"), "fireman.pharmacy.item")
+
+    def action_open_pharmacy_alerts(self):
+        action = self.action_open_pharmacy()
+        action["name"] = _("Pharmacie : à traiter")
+        action["domain"] = [("uo_id", "=", self.id)] + self.env["fireman.pharmacy.item"]._alert_domain()
+        return action
+
+    def action_open_restocks(self):
+        action = self._action_related(_("Réarmements à faire"), "fireman.intervention")
+        action["domain"] = [("uo_id", "=", self.id), ("state", "=", "pending")]
+        return action
 
     def action_open_orders(self):
         return self._action_related(_("Abonnements"), "sale.order", field="fireman_uo_id")
