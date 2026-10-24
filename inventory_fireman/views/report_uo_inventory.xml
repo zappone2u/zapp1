@@ -57,7 +57,10 @@
                                 <tr t-foreach="report['lacks']" t-as="inv">
                                     <td t-out="inv.date_text"/>
                                     <td t-out="inv.vehicle_name"/>
-                                    <td t-out="inv.inventor_name"/>
+                                    <td>
+                                        <t t-out="inv.rank"/> <t t-out="inv.inventor_name"/>
+                                        <t t-if="inv.is_group"> (à plusieurs : <t t-out="inv.co_inventors"/>)</t>
+                                    </td>
                                     <td t-out="inv.lack"/>
                                 </tr>
                             </tbody>

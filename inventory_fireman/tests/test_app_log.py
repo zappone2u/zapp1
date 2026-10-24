@@ -49,3 +49,15 @@ class TestAppLog(TransactionCase):
             self.Log._ingest(reports)
         self.assertEqual(self.Log._ingest([self._report()]), 0)
         self.assertEqual(self.Log._ingest([self._report(device_id="dev-2")]), 1)
+
+    def test_portal_reports_are_tagged_and_cannot_use_app_kinds(self):
+        self.Log._ingest([self._report(kind="startup_crash", device_id="web-1")], source="portal")
+        self.Log._ingest([self._report(kind="portal_auth", device_id="web-2")], source="portal")
+        self.assertEqual(
+            self.Log.search([("source", "=", "portal")], order="id").mapped("kind"), ["portal_js", "portal_auth"]
+        )
+
+    def test_app_reports_cannot_claim_portal_kinds(self):
+        self.Log._ingest([self._report(kind="portal_auth")])
+        log = self.Log.search([("device_id", "=", "dev-1")])
+        self.assertEqual((log.source, log.kind), ("app", "other"))

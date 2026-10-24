@@ -32,6 +32,9 @@ VEHICLE_STATUSES = [
     ("repair", "En réparation"),
 ]
 
+# Grades, dans l'ordre de l'application (profil de l'utilisateur).
+RANKS = ["SA2", "SA1", "CPL", "CCH", "SGT", "SCH", "ADJ", "ADC", "LTN", "CNE", "CDT", "LCL", "COL"]
+
 # Périmètres de lecture Firebase → Odoo
 SCOPE_UO = "uo"
 SCOPE_VEHICLES = "vehicles"

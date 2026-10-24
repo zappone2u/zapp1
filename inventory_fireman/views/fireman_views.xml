@@ -156,6 +156,7 @@
             <list>
                 <field name="uo_id"/>
                 <field name="partner_id"/>
+                <field name="rank"/>
                 <field name="email"/>
                 <field name="is_admin"/>
                 <field name="is_pharmacist"/>
@@ -175,6 +176,7 @@
                         <group>
                             <field name="uo_id"/>
                             <field name="partner_id"/>
+                            <field name="rank"/>
                             <field name="firebase_uid"/>
                         </group>
                         <group>
@@ -402,6 +404,7 @@
                 <field name="vehicle_name"/>
                 <field name="inventor_name"/>
                 <field name="rank"/>
+                <field name="is_group" string="À plusieurs"/>
                 <field name="is_complete"/>
                 <field name="lack"/>
             </list>
@@ -423,6 +426,7 @@
                         <group>
                             <field name="inventor_name"/>
                             <field name="rank"/>
+                            <field name="co_inventors"/>
                             <field name="is_complete"/>
                         </group>
                     </group>
@@ -444,6 +448,7 @@
                 <field name="vehicle_name"/>
                 <field name="inventor_name"/>
                 <filter name="incomplete" string="Incomplets" domain="[('is_complete', '=', False)]"/>
+                <filter name="group" string="Faits à plusieurs" domain="[('is_group', '=', True)]"/>
                 <group expand="0" string="Regrouper par">
                     <filter name="group_uo" string="UO" context="{'group_by': 'uo_id'}"/>
                     <filter name="group_vehicle" string="Véhicule" context="{'group_by': 'vehicle_name'}"/>
@@ -639,6 +644,7 @@
                         <group>
                             <field name="uo_id"/>
                             <field name="vehicle_name"/>
+                            <field name="vehicle_uid" groups="base.group_no_one"/>
                             <field name="date"/>
                         </group>
                         <group>
@@ -652,6 +658,7 @@
                     <field name="line_ids">
                         <list decoration-success="restocked" decoration-warning="not restocked">
                             <field name="name"/>
+                            <field name="item_uid" optional="hide"/>
                             <field name="quantity"/>
                             <field name="restocked"/>
                             <field name="restocked_date"/>

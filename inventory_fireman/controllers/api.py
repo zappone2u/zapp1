@@ -32,6 +32,26 @@ def _json(data, status=200):
     return request.make_json_response(data, status=status)
 
 
+def _event_scopes(event):
+    if event.direction != "pull" or not event.payload:
+        return []
+    try:
+        scopes = json.loads(event.payload)
+    except ValueError:
+        return []
+    return [s for s in scopes if isinstance(s, str)] if isinstance(scopes, list) else []
+
+
+def _event_record(env, event):
+    """Nom lisible de l'enregistrement poussé (None s'il n'existe plus ou n'est pas identifiable)."""
+    if event.direction != "push" or event.op != "upsert" or not event.res_id or event.model not in env:
+        return None
+    try:
+        return env[event.model].browse(event.res_id).exists().display_name or None
+    except Exception:
+        return None
+
+
 class FiremanSyncApi(http.Controller):
     """Point d'entrée appelé par l'application dès qu'elle a modifié Firebase.
 
@@ -140,6 +160,27 @@ class FiremanSyncApi(http.Controller):
         accepted = env["fireman.app.log"]._ingest(reports, ip=request.httprequest.remote_addr or "", identity=identity)
         return _json({"accepted": accepted})
 
+    @http.route("/fireman/portal/log", type="http", auth="public", methods=["POST"], csrf=False, save_session=False)
+    def portal_log(self, **kw):
+        """Erreurs survenues dans le navigateur sur le portail (connexion, inscription...) : plafonnées par IP.
+        L'identité n'est retenue que si une session Odoo est ouverte."""
+        raw = request.httprequest.get_data(cache=False)
+        if len(raw) > 100_000:
+            return _json({"error": "too_large"}, 413)
+        try:
+            payload = json.loads(raw or b"{}")
+        except ValueError:
+            return _json({"error": "invalid_json"}, 400)
+        reports = payload.get("reports") if isinstance(payload, dict) else None
+        if not isinstance(reports, list):
+            return _json({"error": "invalid_reports"}, 400)
+        user = request.env.user
+        identity = {} if user._is_public() else {"email": (user.login or "").lower()}
+        accepted = request.env["fireman.app.log"]._ingest(
+            reports, ip=request.httprequest.remote_addr or "", identity=identity, source="portal"
+        )
+        return _json({"accepted": accepted})
+
     @http.route("/fireman/api/v1/logs", type="http", auth="public", methods=["POST"], csrf=False, save_session=False)
     def logs(self, **kw):
         """Journal de synchronisation Odoo ↔ Firebase, réservé aux super administrateurs."""
@@ -194,6 +235,8 @@ class FiremanSyncApi(http.Controller):
                         "op": e.op,
                         "model": e.model or None,
                         "target": e.target_key or None,
+                        "scopes": _event_scopes(e),
+                        "record": _event_record(env, e),
                         "state": e.state,
                         "level": _level(e),
                         "attempts": e.attempts,

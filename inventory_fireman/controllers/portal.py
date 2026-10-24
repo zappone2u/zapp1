@@ -9,7 +9,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
-from ..models.constants import PAID_TIERS, TIER_RANK, TIERS
+from ..models.constants import PAID_TIERS, RANKS, TIER_RANK, TIERS
 from ..models.fireman_uo import MAX_CODE_LENGTH, is_valid_code
 from ..models.utils import QuotaExceeded
 
@@ -111,11 +111,8 @@ class FiremanPortal(CustomerPortal):
 
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
-        uos = self._my_uos()
-        if uos:
-            values["portal_client_category_enable"] = True
         if "uo_count" in counters:
-            values["uo_count"] = len(uos)
+            values["uo_count"] = len(self._my_uos())
         return values
 
     # ------------------------------------------------------------------
@@ -133,6 +130,41 @@ class FiremanPortal(CustomerPortal):
                 "flash": {"ok": FLASH.get(kw.get("ok")), "error": FLASH.get(kw.get("error"))},
             },
         )
+
+    @http.route("/my/account", type="http", auth="user", website=True, methods=["GET", "POST"])
+    def account(self, redirect=None, **post):
+        """Profil minimal : prénom, nom et grade (envoyés vers le profil de l'application).
+
+        Téléphone, société, TVA et adresse ne sont pas demandés ; l'email est l'identifiant de connexion.
+        """
+        partner = request.env.user.partner_id
+        if request.httprequest.method == "POST":
+            first = (post.get("first_name") or "").strip()
+            last = (post.get("last_name") or "").strip()
+            if post.get("rank") not in RANKS or not first or not last:
+                return self._redirect("/my/account", error="invalid")
+            partner.sudo().write(
+                {
+                    "fireman_rank": post["rank"],
+                    "fireman_first_name": first,
+                    "fireman_last_name": last,
+                    "name": f"{first} {last}",
+                }
+            )
+            return self._redirect("/my/account", ok="saved")
+        first, _sep, last = (partner.name or "").partition(" ")
+        values = self._prepare_portal_layout_values()
+        values.update(
+            {
+                "partner": partner,
+                "first_name": partner.fireman_first_name or first,
+                "last_name": partner.fireman_last_name or last,
+                "ranks": RANKS,
+                "page_name": "my_details",
+                "flash": {"ok": FLASH.get(request.params.get("ok")), "error": FLASH.get(request.params.get("error"))},
+            }
+        )
+        return request.render("inventory_fireman.portal_my_account", values)
 
     @http.route("/my/password", type="http", auth="user", website=True)
     def password(self, **kw):
@@ -713,7 +745,7 @@ class FiremanPortal(CustomerPortal):
         uo, _admin = self._reporting_uo(uo_id, export=True)
         out = io.StringIO()
         writer = csv.writer(out, delimiter=";")
-        writer.writerow(["Date", "Véhicule", "Inventoriste", "Grade", "Complet", "Manques", "Commentaire"])
+        writer.writerow(["Date", "Véhicule", "Inventoriste", "Grade", "Équipiers", "Complet", "Manques", "Commentaire"])
         for inv in uo.inventory_ids:
             writer.writerow(
                 [
@@ -721,6 +753,7 @@ class FiremanPortal(CustomerPortal):
                     inv.vehicle_name or "",
                     inv.inventor_name or "",
                     inv.rank or "",
+                    inv.co_inventors or "",
                     "Oui" if inv.is_complete else "Non",
                     (inv.lack or "").replace("\n", " | "),
                     (inv.comment or "").replace("\n", " | "),

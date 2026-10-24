@@ -2,6 +2,11 @@
 <odoo>
     <!-- ======================= Accueil du portail ======================= -->
     <template id="portal_my_home_fireman" name="Portail : Mes UO" inherit_id="portal.portal_my_home" priority="40">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <!-- Le mot de passe se change depuis Mes UO (Firebase) -->
+        <xpath expr="//t[@t-call='portal.portal_docs_entry'][t[@t-set='url'][contains(@t-value, '/my/security')]]" position="replace"/>
         <xpath expr="//div[@id='portal_client_category']" position="inside">
             <t t-call="portal.portal_docs_entry">
                 <t t-set="icon" t-value="'/inventory_fireman/static/src/img/uo.png'"/>
@@ -203,7 +208,10 @@
                                 <tr t-foreach="uo.inventory_ids[:8]" t-as="inv">
                                     <td><t t-out="inv.date_text"/></td>
                                     <td><t t-out="inv.vehicle_name"/></td>
-                                    <td><t t-out="inv.inventor_name"/></td>
+                                    <td>
+                                        <t t-out="inv.rank"/> <t t-out="inv.inventor_name"/>
+                                        <span t-if="inv.is_group" class="badge text-bg-info ms-1" t-att-title="inv.co_inventors">À plusieurs</span>
+                                    </td>
                                     <td><i t-attf-class="fa #{'fa-check text-success' if inv.is_complete else 'fa-times text-danger'}"/></td>
                                 </tr>
                             </tbody>
@@ -466,25 +474,24 @@
                 </p>
                 <div class="table-responsive mb-4">
                     <table class="table align-middle">
-                        <thead><tr><th>Nom</th><th>Email</th><th class="text-center">Admin</th><th class="text-center">Pharmacien</th><th class="text-center">Validé</th><th/></tr></thead>
+                        <thead><tr><th>Nom</th><th>Grade</th><th>Email</th><th class="text-center">Admin</th><th class="text-center">Pharmacien</th><th class="text-center">Validé</th><th/></tr></thead>
                         <tbody>
                             <tr t-foreach="members" t-as="member">
                                 <td t-out="member.name"/>
+                                <td t-out="member.rank or ''"/>
                                 <td>
                                     <t t-out="member.email"/>
                                     <span t-if="member.quota_suspended" class="badge text-bg-warning ms-1" title="En attente faute de place dans le palier ; validé automatiquement dès qu'une place se libère">En attente (palier)</span>
                                 </td>
-                                <td colspan="4">
-                                    <form method="post" t-attf-action="/my/uo/#{uo.id}/members/#{member.id}/update" class="d-flex align-items-center justify-content-between gap-3">
+                                <td class="text-center"><input type="checkbox" class="form-check-input" name="is_admin" t-attf-form="member-#{member.id}" t-att-checked="member.is_admin or None"/></td>
+                                <td class="text-center"><input type="checkbox" class="form-check-input" name="is_pharmacist" t-attf-form="member-#{member.id}" t-att-checked="member.is_pharmacist or None"/></td>
+                                <td class="text-center"><input type="checkbox" class="form-check-input" name="verified" t-attf-form="member-#{member.id}" t-att-checked="member.verified or None"/></td>
+                                <td class="text-end text-nowrap">
+                                    <form method="post" t-attf-id="member-#{member.id}" t-attf-action="/my/uo/#{uo.id}/members/#{member.id}/update">
                                         <t t-call="inventory_fireman.fireman_csrf"/>
-                                        <div class="form-check"><input type="checkbox" class="form-check-input" name="is_admin" t-att-checked="member.is_admin or None"/></div>
-                                        <div class="form-check"><input type="checkbox" class="form-check-input" name="is_pharmacist" t-att-checked="member.is_pharmacist or None"/></div>
-                                        <div class="form-check"><input type="checkbox" class="form-check-input" name="verified" t-att-checked="member.verified or None"/></div>
-                                        <div class="text-nowrap">
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">Enregistrer</button>
-                                            <button type="submit" t-attf-formaction="/my/uo/#{uo.id}/members/#{member.id}/remove" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('Retirer ce membre de l\'UO ?');">Retirer</button>
-                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Enregistrer</button>
+                                        <button type="submit" t-attf-formaction="/my/uo/#{uo.id}/members/#{member.id}/remove" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('Retirer ce membre de l\'UO ?');">Retirer</button>
                                     </form>
                                 </td>
                             </tr>
@@ -733,11 +740,52 @@
                         <tr t-foreach="report['lacks']" t-as="inv">
                             <td t-out="inv.date_text"/>
                             <td t-out="inv.vehicle_name"/>
-                            <td t-out="inv.inventor_name"/>
+                            <td>
+                                <t t-out="inv.rank"/> <t t-out="inv.inventor_name"/>
+                                <span t-if="inv.is_group" class="badge text-bg-info ms-1" t-att-title="inv.co_inventors">À plusieurs</span>
+                            </td>
                             <td t-out="inv.lack"/>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </t>
+    </template>
+
+    <!-- ======================= Mon profil ======================= -->
+    <template id="portal_my_account" name="Portail : mon profil">
+        <t t-call="portal.portal_layout">
+            <div class="container my-4" style="max-width: 520px;">
+                <a href="/my/home" class="small text-muted">&#8592; Mon compte</a>
+                <h2 class="mb-3">Mon profil</h2>
+                <t t-call="inventory_fireman.fireman_flash"/>
+                <form method="post" action="/my/account">
+                    <t t-call="inventory_fireman.fireman_csrf"/>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="first_name">Prénom</label>
+                            <input type="text" id="first_name" name="first_name" class="form-control" required="required" t-att-value="first_name"/>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label" for="last_name">Nom</label>
+                            <input type="text" id="last_name" name="last_name" class="form-control" required="required" t-att-value="last_name"/>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" id="email" class="form-control" t-att-value="partner.email" readonly="readonly"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="rank">Grade</label>
+                        <select id="rank" name="rank" class="form-select" required="required">
+                            <option value="" t-att-selected="not partner.fireman_rank" disabled="disabled">Choisir…</option>
+                            <t t-foreach="ranks" t-as="r">
+                                <option t-att-value="r" t-att-selected="partner.fireman_rank == r" t-out="r"/>
+                            </t>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </form>
             </div>
         </t>
     </template>

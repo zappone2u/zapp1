@@ -16,3 +16,4 @@ from . import res_config_settings
 from . import product_template
 from . import sale_order
 from . import fireman_app_log
+from . import ir_http

@@ -136,6 +136,11 @@ class FirebaseConnector(models.Model):
             return None
         return record.uid, (self.get_user(record.uid) or {"email": record.email})
 
+    def set_user_fields(self, uid, values):
+        """Fusionne `values` dans le profil Firestore `users/{uid}`."""
+        self.ensure_one()
+        self.firestore_client().collection("users").document(uid).set(values, merge=True)
+
     def set_user_uo_entry(self, uid, code, entry):
         """Remplace (entry = dict) ou retire (entry = None) l'UO `code` dans `users/{uid}.uo`.
 

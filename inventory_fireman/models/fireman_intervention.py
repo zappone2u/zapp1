@@ -17,6 +17,7 @@ class FiremanIntervention(models.Model):
     uid = fields.Char(string="Identifiant Firebase", required=True, index=True, copy=False)
     date = fields.Datetime(string="Date")
     vehicle_name = fields.Char(string="Véhicule")
+    vehicle_uid = fields.Char(string="Identifiant du véhicule")
     rank = fields.Char(string="Grade")
     inventor_name = fields.Char(string="Déclarant")
     note = fields.Text(string="Remarque")
@@ -42,6 +43,7 @@ class FiremanIntervention(models.Model):
         return {
             "date": to_naive_utc(data.get("date")),
             "vehicle_name": str(data.get("vehicle") or ""),
+            "vehicle_uid": str(data.get("vehicleId") or ""),
             "rank": str(data.get("rank") or ""),
             "inventor_name": str(data.get("inventorName") or ""),
             "note": str(data.get("note") or ""),
@@ -76,6 +78,7 @@ class FiremanInterventionLine(models.Model):
     uo_id = fields.Many2one(related="intervention_id.uo_id", store=True, index=True)
     uid = fields.Char(string="Identifiant Firebase", required=True, copy=False)
     name = fields.Char(string="Article", required=True)
+    item_uid = fields.Char(string="Identifiant de l'article de pharmacie")
     quantity = fields.Integer(string="Quantité utilisée")
     restocked = fields.Boolean(string="Réarmé")
     restocked_date = fields.Datetime(string="Réarmé le")
@@ -92,6 +95,7 @@ class FiremanInterventionLine(models.Model):
         lots = ", ".join(f"{q} × {p.get('lot') or 'sans lot'}" for p, q in zip(picks, quantities) if q)
         return {
             "name": str(data.get("name") or "(sans nom)"),
+            "item_uid": str(data.get("itemId") or ""),
             "quantity": max(as_int(data.get("quantity")), 0),
             "restocked": bool(data.get("restocked")),
             "restocked_date": to_naive_utc(data.get("restockedDate")),

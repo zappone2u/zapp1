@@ -55,26 +55,36 @@ class FiremanWebsite(http.Controller):
     # ------------------------------------------------------------------
     @http.route("/my/firebase/auth", type="json", auth="public", methods=["POST"])
     def authenticate(self, id_token=None, **kw):
+        Log = request.env["fireman.app.log"]
         if not id_token:
+            Log._log_portal("portal_auth", "Jeton manquant", step="odoo_auth")
             return {"success": False, "error": "Jeton manquant"}
         env = request.env(su=True)
         connector = env["firebase.connector"]._get_default()
         if not connector:
+            Log._log_portal("portal_auth", "Connecteur Firebase non configuré", step="odoo_auth")
             return {"success": False, "error": "Service indisponible"}
         try:
             claims = connector.verify_id_token(id_token)
-        except Exception:
+        except Exception as e:
             _logger.info("Jeton Firebase invalide", exc_info=True)
+            Log._log_portal("portal_auth", f"Jeton Firebase invalide : {type(e).__name__}: {e}", step="odoo_auth")
             return {"success": False, "error": "Jeton Firebase invalide"}
 
         uid = claims["uid"]
         email = (claims.get("email") or "").strip().lower()
         if not email:
+            Log._log_portal(
+                "portal_auth", "Email introuvable dans le compte Firebase", step="odoo_auth", context={"uid": uid}
+            )
             return {"success": False, "error": "Email introuvable dans le compte Firebase"}
 
         user, error = self._find_or_create_user(env, uid, email, bool(claims.get("email_verified")), claims.get("name"))
         if not user:
             _logger.warning("Connexion Firebase refusee pour %s : %s", email, error)
+            Log._log_portal(
+                "portal_auth", error, level="warning", step="odoo_auth", context={"email": email, "uid": uid}
+            )
             return {"success": False, "error": error}
 
         request.session.uid = user.id

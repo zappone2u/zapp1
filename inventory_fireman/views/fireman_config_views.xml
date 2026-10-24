@@ -172,6 +172,7 @@
         <field name="arch" type="xml">
             <list create="0" decoration-danger="level == 'error' and not resolved" decoration-warning="level == 'warning' and not resolved" decoration-muted="resolved">
                 <field name="create_date"/>
+                <field name="source"/>
                 <field name="kind"/>
                 <field name="level"/>
                 <field name="message"/>
@@ -197,6 +198,7 @@
                         <group>
                             <field name="create_date"/>
                             <field name="event_date"/>
+                            <field name="source"/>
                             <field name="kind"/>
                             <field name="level"/>
                             <field name="step"/>
@@ -243,10 +245,13 @@
                 <field name="app_version"/>
                 <filter name="open" string="Non résolus" domain="[('resolved', '=', False)]"/>
                 <filter name="errors" string="Erreurs" domain="[('level', '=', 'error')]"/>
+                <filter name="portal" string="Portail web" domain="[('source', '=', 'portal')]"/>
+                <filter name="app" string="Application mobile" domain="[('source', '=', 'app')]"/>
                 <filter name="startup" string="Fermetures au démarrage" domain="[('kind', '=', 'startup_crash')]"/>
                 <separator/>
                 <filter name="anonymous" string="Sans utilisateur connecté" domain="[('user_email', '=', False)]"/>
                 <group expand="0" string="Regrouper par">
+                    <filter name="group_source" string="Source" context="{'group_by': 'source'}"/>
                     <filter name="group_fingerprint" string="Erreur identique" context="{'group_by': 'fingerprint'}"/>
                     <filter name="group_kind" string="Type" context="{'group_by': 'kind'}"/>
                     <filter name="group_version" string="Version" context="{'group_by': 'app_version'}"/>
@@ -258,7 +263,7 @@
     </record>
 
     <record id="action_fireman_app_log" model="ir.actions.act_window">
-        <field name="name">Journal de l'application</field>
+        <field name="name">Journal de l'application et du portail</field>
         <field name="res_model">fireman.app.log</field>
         <field name="view_mode">list,form</field>
         <field name="context">{'search_default_open': 1}</field>
@@ -277,5 +282,5 @@
     <menuitem id="menu_fireman_config" name="Configuration" parent="menu_fireman_root" groups="group_fireman_manager" sequence="90"/>
     <menuitem id="menu_fireman_connector" name="Connecteur Firebase" parent="menu_fireman_config" action="action_firebase_connector" sequence="10"/>
     <menuitem id="menu_fireman_sync" name="File de synchronisation" parent="menu_fireman_config" action="action_fireman_sync_event" sequence="20"/>
-    <menuitem id="menu_fireman_app_log" name="Journal de l'application" parent="menu_fireman_config" action="action_fireman_app_log" sequence="30"/>
+    <menuitem id="menu_fireman_app_log" name="Journal de l'application et du portail" parent="menu_fireman_config" action="action_fireman_app_log" sequence="30"/>
 </odoo>

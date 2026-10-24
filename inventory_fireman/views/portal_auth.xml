@@ -1,9 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Envoi des erreurs du navigateur vers Configuration > Journal de l'application (source Portail) -->
+    <template id="portal_error_logger" name="Portail : journal des erreurs du navigateur">
+        <script type="text/javascript">
+            (function () {
+                var sent = 0;
+                var deviceId = '';
+                try {
+                    deviceId = localStorage.getItem('fireman_device') || '';
+                    if (!deviceId) {
+                        deviceId = Math.random().toString(36).slice(2) + Date.now().toString(36);
+                        localStorage.setItem('fireman_device', deviceId);
+                    }
+                } catch (e) { /* stockage bloqué (navigation privée...) */ }
+
+                // Ne jamais y mettre de mot de passe.
+                window.firemanLog = function (kind, error, step, extra, level) {
+                    if (sent >= 10) return;
+                    sent += 1;
+                    try {
+                        var err = error || {};
+                        var message = [err.code, err.name, err.message].filter(Boolean).join(' | ') || String(error);
+                        var context = Object.assign({
+                            url: location.href,
+                            online: navigator.onLine,
+                            lang: navigator.language,
+                            cookies: navigator.cookieEnabled,
+                            screen: screen.width + 'x' + screen.height,
+                            referrer: document.referrer
+                        }, extra || {});
+                        fetch('/fireman/portal/log', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'text/plain'},
+                            keepalive: true,
+                            body: JSON.stringify({reports: [{
+                                kind: kind,
+                                level: level || 'error',
+                                message: message,
+                                stack: err.stack || '',
+                                step: step || '',
+                                context: JSON.stringify(context),
+                                date: new Date().toISOString(),
+                                device_id: deviceId,
+                                platform: navigator.platform || '',
+                                os_version: navigator.userAgent || ''
+                            }]})
+                        }).catch(function () {});
+                    } catch (e) { /* le journal ne doit jamais casser la page */ }
+                };
+
+                window.addEventListener('error', function (ev) {
+                    window.firemanLog('portal_js', ev.error || {message: ev.message}, 'window.onerror', {file: ev.filename, line: ev.lineno});
+                });
+                window.addEventListener('unhandledrejection', function (ev) {
+                    window.firemanLog('portal_js', ev.reason || {message: 'unhandledrejection'}, 'unhandledrejection');
+                });
+            })();
+        </script>
+    </template>
+
     <!-- Page de connexion Firebase personnalisée -->
     <template id="firebase_login_page" name="Connexion Firebase">
         <t t-call="portal.portal_layout">
             <t t-set="additional_title">Connexion Firebase</t>
+            <t t-call="inventory_fireman.portal_error_logger"/>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
 
@@ -325,13 +385,16 @@
             window.location.href = data.result.redirect_url;
             } else {
             hideLoader();
-            showError('Erreur d\'authentification: ' + (data.result.error || 'Erreur inconnue'));
+            const odooError = (data.result &amp;&amp; data.result.error) || (data.error &amp;&amp; data.error.data &amp;&amp; data.error.data.message) || 'Erreur inconnue';
+            showError('Erreur d\'authentification: ' + odooError);
+            firemanLog('portal_auth', {message: odooError}, 'odoo_auth_response', {response: JSON.stringify(data).slice(0, 500)});
             }
             })
             .catch(error => {
             console.error('Error:', error);
             hideLoader();
             showError('Erreur de connexion au serveur');
+            firemanLog('portal_auth', error, 'odoo_auth_fetch');
             });
             }
 
@@ -362,6 +425,7 @@
                 .catch((error) => {
                 hideLoader();
                 let errorMessage = 'Erreur de connexion';
+                let logLevel = 'info';
                 switch(error.code) {
                 case 'auth/wrong-password':
                 case 'auth/invalid-credential':
@@ -385,9 +449,11 @@
                 break;
                 default:
                 console.error('Firebase login error:', error.code, error.message);
+                logLevel = 'error';
                 errorMessage = 'Connexion impossible (' + (error.code || 'erreur inconnue') + '). Réessayez ou contactez le support.';
                 }
                 showError(errorMessage);
+                firemanLog('portal_auth', error, 'login_email', {email: email}, logLevel);
                 });
                 });
             }
@@ -441,6 +507,7 @@
                 hideLoader();
                 if (error.code !== 'auth/popup-closed-by-user') {
                 showError('Erreur de connexion avec Google: ' + error.message);
+                firemanLog('portal_auth', error, 'login_google');
                 }
                 });
                 });
@@ -526,6 +593,7 @@
     <template id="firebase_register_page" name="Inscription Firebase">
         <t t-call="portal.portal_layout">
             <t t-set="additional_title">Créer votre compte</t>
+            <t t-call="inventory_fireman.portal_error_logger"/>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
             <!-- CSS personnalisé -->
@@ -840,13 +908,16 @@
                         window.location.href = '/my/uo/new';
                     } else {
                         hideLoader();
-                        showError('Erreur d\'authentification: ' + (data.result.error || 'Erreur inconnue'));
+                        const odooError = (data.result &amp;&amp; data.result.error) || (data.error &amp;&amp; data.error.data &amp;&amp; data.error.data.message) || 'Erreur inconnue';
+                        showError('Erreur d\'authentification: ' + odooError);
+                        firemanLog('portal_auth', {message: odooError}, 'register_odoo_auth_response', {response: JSON.stringify(data).slice(0, 500)});
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     hideLoader();
                     showError('Erreur de connexion au serveur');
+                    firemanLog('portal_auth', error, 'register_odoo_auth_fetch');
                 });
             }
 
@@ -916,6 +987,7 @@
                                 errorMessage = 'Erreur lors de la création du compte. Veuillez réessayer.';
                         }
                         showError(errorMessage);
+                        firemanLog('portal_auth', error, 'register', {email: email}, error.code === 'auth/email-already-in-use' ? 'info' : 'error');
                     });
             });
 
@@ -1013,6 +1085,7 @@
     <!-- Changement de mot de passe (compte Firebase) -->
     <template id="portal_password" name="Portail : changer le mot de passe">
         <t t-call="portal.portal_layout">
+            <t t-call="inventory_fireman.portal_error_logger"/>
             <div class="container my-4" style="max-width: 520px;">
                 <a href="/my/uo" class="small text-muted">&#8592; Mes UO</a>
                 <h2 class="mb-3">Changer mon mot de passe</h2>
@@ -1089,6 +1162,7 @@
                                 text = 'Connexion réseau impossible. Réessayez.';
                             }
                             pwdMessage(text, 'danger');
+                            if (text.indexOf('(') !== -1) firemanLog('portal_auth', error, 'change_password', {email: email});
                         })
                         .finally(() => { submit.disabled = false; });
                 });

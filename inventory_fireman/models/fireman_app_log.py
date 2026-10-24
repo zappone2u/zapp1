@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 import hashlib
+import json
+import logging
 import re
 from datetime import timedelta
 
 from odoo import api, fields, models
+from odoo.http import request
 
 from .fireman_uo import is_valid_code
+
+_logger = logging.getLogger(__name__)
 
 KINDS = [
     ("startup_crash", "Fermeture au démarrage"),
@@ -15,8 +20,13 @@ KINDS = [
     ("sync", "Synchronisation"),
     ("network", "Réseau"),
     ("version", "Version"),
+    ("portal_auth", "Connexion au portail"),
+    ("portal_js", "Erreur du navigateur"),
+    ("portal_server", "Erreur serveur du portail"),
     ("other", "Autre"),
 ]
+PORTAL_KINDS = {"portal_auth", "portal_js", "portal_server"}
+SOURCES = [("app", "Application mobile"), ("portal", "Portail web")]
 LEVELS = [("info", "Info"), ("warning", "Avertissement"), ("error", "Erreur")]
 
 MAX_REPORTS_PER_REQUEST = 20
@@ -46,9 +56,10 @@ class FiremanAppLog(models.Model):
     """
 
     _name = "fireman.app.log"
-    _description = "Journal de l'application mobile"
+    _description = "Journal de l'application mobile et du portail"
     _order = "id desc"
 
+    source = fields.Selection(SOURCES, required=True, default="app", index=True)
     kind = fields.Selection(KINDS, required=True, default="other", index=True)
     level = fields.Selection(LEVELS, required=True, default="error", index=True)
     message = fields.Char()
@@ -81,9 +92,10 @@ class FiremanAppLog(models.Model):
         return hashlib.sha1(raw.encode()).hexdigest()[:16]
 
     @api.model
-    def _ingest(self, reports, ip="", identity=None):
+    def _ingest(self, reports, ip="", identity=None, source="app"):
         """Enregistre un lot de rapports ; retourne le nombre accepté (anti-abus : plafonds par appareil et par IP)."""
         identity = identity or {}
+        portal = source == "portal"
         ip_hash = hashlib.sha256(ip.encode()).hexdigest()[:16] if ip else False
         since = fields.Datetime.now() - timedelta(hours=1)
         env = self.sudo()
@@ -109,7 +121,10 @@ class FiremanAppLog(models.Model):
                 continue
             room_by_device[device] -= 1
             ip_room -= 1
-            kind = raw.get("kind") if raw.get("kind") in kinds else "other"
+            if portal:
+                kind = raw.get("kind") if raw.get("kind") in PORTAL_KINDS else "portal_js"
+            else:
+                kind = raw.get("kind") if raw.get("kind") in kinds and raw.get("kind") not in PORTAL_KINDS else "other"
             code = self._clean(raw.get("uo"), 10).strip().upper()
             event_date = False
             try:
@@ -117,6 +132,7 @@ class FiremanAppLog(models.Model):
             except (ValueError, TypeError):
                 pass
             vals.update(
+                source="portal" if portal else "app",
                 kind=kind,
                 level=raw.get("level") if raw.get("level") in levels else "error",
                 uo_code=code if is_valid_code(code) else False,
@@ -131,6 +147,26 @@ class FiremanAppLog(models.Model):
         if vals_list:
             env.create(vals_list)
         return len(vals_list)
+
+    @api.model
+    def _log_portal(self, kind, message, level="error", stack="", context=None, identity=None, step=""):
+        """Journalise un problème du portail côté serveur ; ne doit jamais faire échouer la requête."""
+        try:
+            ctx = {"url": request.httprequest.full_path.rstrip("?"), **(context or {})}
+            report = {
+                "kind": kind,
+                "level": level,
+                "message": message,
+                "stack": stack,
+                "step": step,
+                "context": json.dumps(ctx, default=str, ensure_ascii=False),
+                "os_version": request.httprequest.user_agent.string,
+                "date": fields.Datetime.now().isoformat(),
+            }
+            with self.env.cr.savepoint():
+                self._ingest([report], ip=request.httprequest.remote_addr or "", identity=identity, source="portal")
+        except Exception:
+            _logger.exception("Journalisation du portail impossible")
 
     @api.autovacuum
     def _gc_old_logs(self):

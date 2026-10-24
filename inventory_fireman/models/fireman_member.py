@@ -16,6 +16,7 @@ class FiremanMember(models.Model):
     partner_id = fields.Many2one("res.partner", string="Personne", required=True, ondelete="cascade", index=True)
     name = fields.Char(related="partner_id.name", string="Nom")
     email = fields.Char(related="partner_id.email", string="Email")
+    rank = fields.Selection(related="partner_id.fireman_rank", string="Grade", readonly=False)
     firebase_uid = fields.Char(related="partner_id.firebase_uid", string="UID Firebase")
     is_super_admin = fields.Boolean(related="partner_id.fireman_super_admin", string="Super administrateur")
     is_admin = fields.Boolean(string="Administrateur de l'UO")

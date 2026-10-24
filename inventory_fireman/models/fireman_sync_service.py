@@ -12,6 +12,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 from .constants import (
+    RANKS,
     SCOPE_INTERVENTIONS,
     SCOPE_INVENTORIES,
     SCOPE_MEMBERS,
@@ -205,10 +206,16 @@ class FiremanSyncService(models.AbstractModel):
                 vehicle.unlink()
 
     def _apply_inventories(self, uo, raw):
-        """Les inventaires sont immuables : on crée les nouveaux et on retire ceux supprimés."""
+        """Crée les nouveaux inventaires, corrige ceux déjà lus et retire ceux supprimés."""
         Inventory = self.env["fireman.inventory"]
         remote = raw if isinstance(raw, dict) else {}
         local = {i.uid: i for i in uo.inventory_ids}
+        for uid, inventory in local.items():
+            data = remote.get(uid)
+            if isinstance(data, dict):
+                changes = _changes(inventory, Inventory._vals_from_firebase(data))
+                if changes:
+                    inventory.write(changes)
         Inventory.create(
             [
                 {**Inventory._vals_from_firebase(data), "uo_id": uo.id, "uid": uid}
@@ -328,9 +335,7 @@ class FiremanSyncService(models.AbstractModel):
         refused = Member
         for uid, (data, entry) in wanted.items():
             partner = by_uid.get(uid) or self._create_partner(uid, data)
-            profile_name = _profile_name(data)
-            if profile_name and partner.name != profile_name:
-                partner.name = profile_name
+            self._apply_profile(partner, data, blocked)
             seen.add(partner.id)
             if bool(data.get("admin")) != partner.fireman_super_admin:
                 partner.fireman_super_admin = bool(data.get("admin"))
@@ -367,6 +372,23 @@ class FiremanSyncService(models.AbstractModel):
             uid = member.partner_id.firebase_uid
             if uid and partner_id not in seen and (Member._name, f"{uo.code}/{uid}") not in blocked:
                 member.unlink()
+
+    def _apply_profile(self, partner, data, blocked):
+        """Profil `users/{uid}` → contact ; une modification Odoo pas encore poussée n'est pas écrasée."""
+        if (partner._name, partner._push_profile_key()) in blocked:
+            return
+        rank = str(data.get("rank") or "").strip()
+        email = str(data.get("email") or "").strip()
+        vals = {
+            "name": _profile_name(data),
+            "fireman_first_name": str(data.get("firstName") or "").strip(),
+            "fireman_last_name": str(data.get("lastName") or "").strip(),
+            "fireman_rank": rank if rank in RANKS else "",
+            "email": "" if email.lower() == (partner.email or "").lower() else email,
+        }
+        changes = {k: v for k, v in vals.items() if v and partner[k] != v}
+        if changes:
+            partner.write(changes)
 
     def _partners_for(self, wanted):
         return self.env["res.partner"].with_context(active_test=False).search([("firebase_uid", "in", list(wanted))])
