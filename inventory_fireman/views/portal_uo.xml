@@ -77,7 +77,6 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="mb-0">Mes unités opérationnelles</h2>
                     <div class="d-flex gap-2">
-                        <a t-if="request.env.user.partner_id.firebase_uid" href="/my/password" class="btn btn-outline-secondary">Changer mon mot de passe</a>
                         <a href="/my/uo/new" class="btn btn-primary">Créer une UO</a>
                     </div>
                 </div>
@@ -786,6 +785,7 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                 </form>
+                <t t-if="partner.firebase_uid" t-call="inventory_fireman.portal_password"/>
             </div>
         </t>
     </template>

@@ -168,9 +168,7 @@ class FiremanPortal(CustomerPortal):
 
     @http.route("/my/password", type="http", auth="user", website=True)
     def password(self, **kw):
-        if not request.env.user.partner_id.firebase_uid:
-            return request.redirect("/my/uo")
-        return request.render("inventory_fireman.portal_password", {"page_name": "password"})
+        return request.redirect("/my/account#password")
 
     @http.route("/my/uo/new", type="http", auth="user", website=True, methods=["GET", "POST"])
     def uo_new(self, **kw):

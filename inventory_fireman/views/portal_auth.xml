@@ -1082,30 +1082,27 @@
         </script>
     </template>
 
-    <!-- Changement de mot de passe (compte Firebase) -->
+    <!-- Changement de mot de passe (compte Firebase), affiché dans Mon profil -->
     <template id="portal_password" name="Portail : changer le mot de passe">
-        <t t-call="portal.portal_layout">
+        <div id="password" class="mt-5 pt-4 border-top">
             <t t-call="inventory_fireman.portal_error_logger"/>
-            <div class="container my-4" style="max-width: 520px;">
-                <a href="/my/uo" class="small text-muted">&#8592; Mes UO</a>
-                <h2 class="mb-3">Changer mon mot de passe</h2>
-                <div class="alert d-none" id="pwd-message" role="alert"></div>
-                <form id="pwd-form" t-att-data-email="request.env.user.login">
-                    <div class="mb-3">
-                        <label class="form-label" for="current_password">Mot de passe actuel</label>
-                        <input type="password" id="current_password" class="form-control" required="required" autocomplete="current-password"/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="new_password">Nouveau mot de passe (min. 6 caractères)</label>
-                        <input type="password" id="new_password" class="form-control" required="required" minlength="6" autocomplete="new-password"/>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="confirm_password">Confirmer le nouveau mot de passe</label>
-                        <input type="password" id="confirm_password" class="form-control" required="required" minlength="6" autocomplete="new-password"/>
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="pwd-submit">Enregistrer</button>
-                </form>
-            </div>
+            <h3 class="mb-3">Mot de passe</h3>
+            <div class="alert d-none" id="pwd-message" role="alert"></div>
+            <form id="pwd-form" t-att-data-email="request.env.user.login">
+                <div class="mb-3">
+                    <label class="form-label" for="current_password">Mot de passe actuel</label>
+                    <input type="password" id="current_password" class="form-control" required="required" autocomplete="current-password"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="new_password">Nouveau mot de passe (min. 6 caractères)</label>
+                    <input type="password" id="new_password" class="form-control" required="required" minlength="6" autocomplete="new-password"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="confirm_password">Confirmer le nouveau mot de passe</label>
+                    <input type="password" id="confirm_password" class="form-control" required="required" minlength="6" autocomplete="new-password"/>
+                </div>
+                <button type="submit" class="btn btn-primary" id="pwd-submit">Changer le mot de passe</button>
+            </form>
 
             <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
             <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
@@ -1167,6 +1164,6 @@
                         .finally(() => { submit.disabled = false; });
                 });
             </script>
-        </t>
+        </div>
     </template>
 </odoo>
