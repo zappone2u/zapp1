@@ -318,8 +318,8 @@
         </t>
 
         <!-- Firebase SDK -->
-        <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
         <script type="text/javascript">
             // Configuration Firebase
@@ -848,8 +848,8 @@
         </t>
 
         <!-- Firebase SDK -->
-        <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
         <script type="text/javascript">
             // Configuration Firebase
@@ -1104,8 +1104,8 @@
                 <button type="submit" class="btn btn-primary" id="pwd-submit">Changer le mot de passe</button>
             </form>
 
-            <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-            <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
             <script type="text/javascript">
                 firebase.initializeApp({
                     apiKey: "AIzaSyCbPwjcyqE4Wa2eW9_uL7UxJesbhQ-zB_U",
