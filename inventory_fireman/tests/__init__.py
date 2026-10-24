@@ -9,3 +9,4 @@ from . import test_profile_sync
 from . import test_rank_group
 from . import test_template_sync
 from . import test_vehicle_template
+from . import test_vehicle_editor

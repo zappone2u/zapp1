@@ -309,7 +309,9 @@
     <template id="portal_vehicle" name="Portail : éditeur de véhicule">
         <t t-call="portal.portal_layout">
             <t t-set="edit_url" t-value="'/my/uo/%s/vehicles/%s/edit' % (uo.id, vehicle.id)"/>
-            <div class="container my-4">
+            <div class="container my-4" id="vehicle-editor"
+                 t-att-data-edit-url="edit_url if is_admin else None"
+                 t-att-data-csrf="request.csrf_token() if is_admin else None">
                 <t t-call="inventory_fireman.fireman_uo_header"/>
                 <a t-attf-href="/my/uo/#{uo.id}/vehicles" class="small text-muted">&#8592; Véhicules</a>
 
@@ -358,10 +360,17 @@
                 </form>
 
                 <h4>Catégories et équipements</h4>
-                <p class="text-muted small">Chaque modification est enregistrée immédiatement et répercutée dans l'application.</p>
+                <p class="text-muted small">
+                    Chaque modification est enregistrée immédiatement et répercutée dans l'application.
+                    <t t-if="is_admin">Glissez la poignée <i class="fa fa-bars"/> pour déplacer, ou utilisez <i class="fa fa-plus"/> pour insérer un équipement juste en dessous.</t>
+                    <span id="reorder-status" class="ms-2"/>
+                </p>
 
-                <div t-foreach="vehicle.section_ids.sorted('sequence')" t-as="section" t-attf-id="section-#{section.id}" class="card mb-3">
+                <div id="sections">
+                <div t-foreach="vehicle.section_ids.sorted('sequence')" t-as="section" t-attf-id="section-#{section.id}" class="card mb-3"
+                     data-sortable="1" data-kind="section" data-group="sections" t-att-data-id="section.id">
                     <div class="card-header d-flex align-items-center gap-2">
+                        <span t-if="is_admin" class="fm-grip text-muted px-1" style="cursor: grab;" title="Glisser pour déplacer"><i class="fa fa-bars"/></span>
                         <form t-if="is_admin" method="post" t-att-action="edit_url" class="d-flex flex-grow-1 gap-2">
                             <t t-call="inventory_fireman.fireman_csrf"/>
                             <input type="hidden" name="action" value="rename_section"/>
@@ -385,11 +394,12 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <t t-foreach="section.item_ids.filtered(lambda i: not i.parent_id).sorted('sequence')" t-as="item">
-                            <li class="list-group-item">
+                            <li class="list-group-item" data-sortable="1" data-kind="item" t-attf-data-group="section-#{section.id}" t-att-data-id="item.id">
                                 <t t-call="inventory_fireman.fireman_item_row"/>
                                 <t t-if="item.is_group">
                                     <ul class="list-unstyled ms-4 mt-2">
-                                        <li t-foreach="item.child_ids.sorted('sequence')" t-as="child" class="mb-1">
+                                        <li t-foreach="item.child_ids.sorted('sequence')" t-as="child" class="mb-1"
+                                            data-sortable="1" data-kind="item" t-attf-data-group="group-#{item.id}" t-att-data-id="child.id">
                                             <t t-call="inventory_fireman.fireman_item_row">
                                                 <t t-set="item" t-value="child"/>
                                             </t>
@@ -420,6 +430,7 @@
                         </form>
                     </div>
                 </div>
+                </div>
 
                 <form t-if="is_admin" method="post" t-att-action="edit_url" class="card card-body">
                     <t t-call="inventory_fireman.fireman_csrf"/>
@@ -430,12 +441,94 @@
                     </div>
                 </form>
             </div>
+
+            <script type="text/javascript">
+                (function () {
+                    var root = document.getElementById('vehicle-editor');
+                    if (!root || !root.dataset.editUrl) return;
+                    var dragged = null;
+                    var orderBefore = '';
+                    var statusEl = document.getElementById('reorder-status');
+
+                    function orderOf(row) {
+                        return Array.prototype.filter.call(row.parentNode.children, function (c) {
+                            return c.dataset.group === row.dataset.group;
+                        }).map(function (c) { return c.dataset.id; }).join(',');
+                    }
+                    function release() {
+                        root.querySelectorAll('[data-sortable][draggable]').forEach(function (r) { r.removeAttribute('draggable'); });
+                    }
+                    function setStatus(text) { if (statusEl) statusEl.textContent = text; }
+
+                    // Seule la poignée rend la ligne déplaçable : les champs de saisie restent sélectionnables.
+                    root.addEventListener('pointerdown', function (e) {
+                        var grip = e.target.closest('.fm-grip');
+                        if (grip) grip.closest('[data-sortable]').setAttribute('draggable', 'true');
+                    });
+                    document.addEventListener('pointerup', release);
+
+                    root.addEventListener('dragstart', function (e) {
+                        var row = e.target;
+                        if (!row.matches || !row.matches('[data-sortable]')) return;
+                        dragged = row;
+                        orderBefore = orderOf(row);
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', row.dataset.id);
+                        setTimeout(function () { row.classList.add('opacity-50'); }, 0);
+                    });
+
+                    root.addEventListener('dragover', function (e) {
+                        if (!dragged) return;
+                        var el = e.target.nodeType === 1 ? e.target : e.target.parentElement;
+                        var over = el.closest('[data-sortable]');
+                        // Seuls les frères (même catégorie ou même groupe) sont des cibles valides.
+                        while (over &amp;&amp; over.dataset.group !== dragged.dataset.group) {
+                            over = over.parentElement ? over.parentElement.closest('[data-sortable]') : null;
+                        }
+                        if (!over) return;
+                        e.preventDefault();
+                        if (over === dragged) return;
+                        var rect = over.getBoundingClientRect();
+                        var after = e.clientY > rect.top + rect.height / 2;
+                        over.parentNode.insertBefore(dragged, after ? over.nextSibling : over);
+                    });
+
+                    root.addEventListener('dragend', function () {
+                        var row = dragged;
+                        dragged = null;
+                        release();
+                        if (!row) return;
+                        row.classList.remove('opacity-50');
+                        var order = orderOf(row);
+                        if (order === orderBefore) return;
+                        var body = new URLSearchParams();
+                        body.set('csrf_token', root.dataset.csrf);
+                        body.set('action', 'reorder');
+                        body.set('kind', row.dataset.kind);
+                        body.set('ids', order);
+                        setStatus('Enregistrement…');
+                        fetch(root.dataset.editUrl, {
+                            method: 'POST',
+                            body: body,
+                            headers: {'X-Requested-With': 'fetch'},
+                            credentials: 'same-origin'
+                        }).then(function (response) {
+                            if (!response.ok) throw new Error(response.status);
+                            setStatus('Ordre enregistré');
+                        }).catch(function () {
+                            alert('Le déplacement n\'a pas pu être enregistré. La page va se recharger.');
+                            window.location.reload();
+                        });
+                    });
+                })();
+            </script>
         </t>
     </template>
 
     <!-- Ligne d'un équipement ou d'un groupe (variable `item`) -->
     <template id="fireman_item_row" name="Ligne d'équipement">
         <div class="d-flex align-items-center gap-2">
+            <span t-if="is_admin" class="fm-grip text-muted px-1" style="cursor: grab;" title="Glisser pour déplacer"><i class="fa fa-bars"/></span>
             <i t-if="item.is_group" class="fa fa-folder-open text-muted"/>
             <form t-if="is_admin" method="post" t-att-action="edit_url" class="d-flex flex-grow-1 gap-2">
                 <t t-call="inventory_fireman.fireman_csrf"/>
@@ -449,6 +542,8 @@
                 <t t-out="item.name"/> <span t-if="not item.is_group" class="text-muted">× <t t-out="item.quantity"/></span>
             </span>
             <t t-if="is_admin">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" t-attf-data-bs-target="#ins-#{item.id}"
+                        title="Insérer un équipement juste en dessous"><i class="fa fa-plus"/></button>
                 <t t-call="inventory_fireman.fireman_move_buttons">
                     <t t-set="kind" t-value="'item'"/>
                     <t t-set="rid" t-value="item.id"/>
@@ -460,6 +555,16 @@
                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="fa fa-trash"/></button>
                 </form>
             </t>
+        </div>
+        <div t-if="is_admin" class="collapse mt-2" t-attf-id="ins-#{item.id}">
+            <form method="post" t-att-action="edit_url" class="d-flex gap-2">
+                <t t-call="inventory_fireman.fireman_csrf"/>
+                <input type="hidden" name="action" value="add_item"/>
+                <input type="hidden" name="after_id" t-att-value="item.id"/>
+                <input type="text" name="name" class="form-control form-control-sm" placeholder="Équipement à insérer juste en dessous" required="required"/>
+                <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 90px;"/>
+                <button type="submit" class="btn btn-sm btn-primary">Insérer</button>
+            </form>
         </div>
     </template>
 

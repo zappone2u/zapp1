@@ -52,6 +52,7 @@ VEHICLE_ACTIONS = (
     "update_item",
     "delete_item",
     "move",
+    "reorder",
 )
 
 
@@ -331,11 +332,17 @@ class FiremanPortal(CustomerPortal):
         if action not in VEHICLE_ACTIONS:
             raise request.not_found()
         url = f"/my/uo/{uo.id}/vehicles/{vehicle.id}"
+        # Le glisser-déposer enregistre en arrière-plan : une réponse JSON évite de recharger la page.
+        background = request.httprequest.headers.get("X-Requested-With") == "fetch"
         try:
             anchor = getattr(self, f"_vehicle_{action}")(vehicle, kw)
         except (UserError, ValueError, LookupError):
             _logger.info("Action véhicule %s refusée", action, exc_info=True)
+            if background:
+                return request.make_json_response({"ok": False}, status=400)
             return self._redirect(url, error="invalid")
+        if background:
+            return request.make_json_response({"ok": True})
         return self._redirect(url, ok="saved", anchor=anchor)
 
     @http.route(
@@ -393,12 +400,17 @@ class FiremanPortal(CustomerPortal):
         self._pick(vehicle.section_ids, kw.get("section_id")).unlink()
 
     def _vehicle_add_item(self, vehicle, kw):
-        """Ajoute un équipement à la catégorie, ou au groupe si `group_id` est fourni."""
+        """Ajoute un équipement : en fin de catégorie, dans le groupe `group_id`, ou juste après `after_id`."""
         Item = request.env["fireman.vehicle.item"].sudo()
-        group = self._pick(vehicle.section_ids.item_ids, kw["group_id"]) if kw.get("group_id") else None
-        section = group.section_id if group else self._pick(vehicle.section_ids, kw.get("section_id"))
+        items = vehicle.section_ids.item_ids
+        after = self._pick(items, kw["after_id"]) if kw.get("after_id") else None
+        if after:
+            group, section = after.parent_id, after.section_id
+        else:
+            group = self._pick(items, kw["group_id"]) if kw.get("group_id") else None
+            section = group.section_id if group else self._pick(vehicle.section_ids, kw.get("section_id"))
         siblings = group.child_ids if group else section.item_ids.filtered(lambda i: not i.parent_id)
-        Item.create(
+        item = Item.create(
             {
                 "section_id": section.id,
                 "parent_id": group.id if group else False,
@@ -407,7 +419,17 @@ class FiremanPortal(CustomerPortal):
                 "sequence": max(siblings.mapped("sequence"), default=-10) + 10,
             }
         )
+        if after:
+            ordered = list(siblings.sorted(lambda r: (r.sequence, r.id)))
+            ordered.insert(ordered.index(after) + 1, item)
+            self._resequence(ordered)
         return f"section-{section.id}"
+
+    @staticmethod
+    def _resequence(records):
+        for position, record in enumerate(records):
+            if record.sequence != position * 10:
+                record.sequence = position * 10
 
     def _vehicle_add_group(self, vehicle, kw):
         section = self._pick(vehicle.section_ids, kw.get("section_id"))
@@ -459,6 +481,24 @@ class FiremanPortal(CustomerPortal):
                 if sibling.sequence != position * 10:
                     sibling.sequence = position * 10
         return f"section-{record.id if kw.get('kind') == 'section' else record.section_id.id}"
+
+    def _vehicle_reorder(self, vehicle, kw):
+        """Applique l'ordre `ids` (glisser-déposer) à des catégories ou à des équipements frères."""
+        ids = [_to_int(i) for i in (kw.get("ids") or "").split(",") if i.strip()]
+        if not ids:
+            raise ValueError("ids")
+        if kw.get("kind") == "section":
+            siblings = vehicle.section_ids
+        else:
+            first = self._pick(vehicle.section_ids.item_ids, ids[0])
+            siblings = (
+                first.parent_id.child_ids
+                if first.parent_id
+                else first.section_id.item_ids.filtered(lambda i: not i.parent_id)
+            )
+        if sorted(ids) != sorted(siblings.ids):
+            raise ValueError("ids")
+        self._resequence([siblings.browse(record_id) for record_id in ids])
 
     # ------------------------------------------------------------------
     # Personnel
